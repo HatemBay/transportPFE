@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "backend",
+			"path": "..\\..\\Backup\\transport\\backend"
+		},
+		{
+			"name": "argon-dashboard-angular-master",
+			"path": "."
+		}
+	],
+	"settings": {}
+}
