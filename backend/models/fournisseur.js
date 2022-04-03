@@ -39,11 +39,6 @@ var FournisseurSchema = new Schema(
       maxlength: 8,
       unique: true,
     },
-    tel2: {
-      type: Number,
-      minlength: 8,
-      maxlength: 8,
-    },
     hash: String,
     salt: String,
     packages: [
@@ -104,7 +99,6 @@ FournisseurSchema.methods.generateJWT = function () {
       adresse: fournisseur.adresse,
       codePostale: fournisseur.codePostale,
       tel: fournisseur.tel,
-      tel2: fournisseur.tel2,
       exp: parseInt(expiry.getTime() / 1000),
     },
     process.env.SECRET
@@ -122,7 +116,6 @@ const validate = (fournisseur) => {
     adresse: Joi.string().required(),
     codePostale: Joi.number().required(),
     tel: Joi.number().min(8).required(),
-    tel2: Joi.number().min(8),
     password: Joi.string().min(6).required(),
   }).unknown(true);
 

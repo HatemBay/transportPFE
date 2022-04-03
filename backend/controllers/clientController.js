@@ -4,15 +4,20 @@ var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
 
 var { Client } = require("../models/client");
+const { Fournisseur } = require("../models/fournisseur");
+var { Package } = require("../models/package");
 
+// get all clients belonging to connected provider
 router.get("/all/:fid", (req, res) => {
   // adapting request id to aggregate options
   var fid = ObjectId(req.params.fid);
   var limit = parseInt(req.query.limit) || 10;
   var page = parseInt(req.query.page) || 1;
-  var skip = limit * page - limit;
+  var skip = ((limit * page) - limit);
   var sort = {};
-  sort[req.query.sortBy] = req.query.sort || "asc";
+  var n = 1;
+  if (req.query.sort == "desc") n = -1
+  sort[req.query.sortBy] = n
 
   Client.aggregate([
     {
@@ -26,6 +31,7 @@ router.get("/all/:fid", (req, res) => {
         tel: 1,
         tel2: 1,
         createdAt: 1,
+        fournisseurId: 1,
         updatedAt: {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
         },
@@ -37,11 +43,20 @@ router.get("/all/:fid", (req, res) => {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
         },
       },
-    }
+    },
+    {
+      $match: { fournisseurId: fid },
+    },
+    {
+      $skip: skip,
+    },
+    {
+      $limit: limit,
+    },
+    {
+      $sort: sort,
+    },
   ])
-.limit(limit)
-    .skip(skip)
-    .sort(sort)
     .exec((err, docs) => {
       if (!err) {
         if (req.query.search && req.query.search.length > 2) {
@@ -71,6 +86,7 @@ router.get("/all/:fid", (req, res) => {
     });
 });
 
+// get client by id
 router.get("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
@@ -91,6 +107,7 @@ router.get("/:id", (req, res) => {
 //   Client.findById(req.params.id).populate('packages');
 // });
 
+// get client by phone number
 router.get("/tel/:tel", (req, res) => {
   Client.find({ tel: req.params.tel }, (err, docs) => {
     if (!err) res.send(docs);
@@ -102,7 +119,6 @@ router.get("/tel/:tel", (req, res) => {
 });
 
 //get with all packages
-//**************************** DOESNT WORK  ***************************/
 router.get("/packages/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
@@ -117,6 +133,7 @@ router.get("/packages/:id", (req, res) => {
     });
 });
 
+// save client and its foreign keys
 router.post("/", (req, res) => {
   // console.log(req.body);
   const client = new Client();
@@ -128,23 +145,29 @@ router.post("/", (req, res) => {
     (client.codePostale = req.body.codePostale),
     (client.tel = req.body.tel),
     (client.tel2 = req.body.tel2),
-    client.save((err, doc) => {
-      // If Passport throws/catches an error
-      if (err) {
-        res.status(404).json(err);
-        console.log(err);
-        return;
-      }
-
-      if (client) {
-        res.status(200);
-        res.send(client);
-      }
-      // If client is not found
-      else res.status(401).json(info);
-    });
+    (client.fournisseurId = req.body.fournisseurId);
+  return client.save(client).then(
+    (doc) => {
+      return Fournisseur.findByIdAndUpdate(
+        client.fournisseurId,
+        { $push: { clients: doc._id } },
+        { new: true, useFindAndModify: false }
+      ).then(
+        () => {
+          res.send(doc);
+        },
+        (err) => {
+          console.log("Erreur lors de l'enregistrement du colis: " + err);
+        }
+      );
+    },
+    (err) => {
+      console.log("Erreur lors du mis a jour du fournisseur: " + err);
+    }
+  );
 });
 
+// update client
 router.put("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
@@ -174,22 +197,33 @@ router.put("/:id", (req, res) => {
   );
 });
 
+// delete client
 router.delete("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id ${req.params.id}`);
   Client.findByIdAndRemove(req.params.id, (err, doc) => {
+    console.log(doc);
     if (!err) {
-      res.status(200);
-      res.json({
-        message: "client deleted successfully",
-      });
+      Fournisseur.findByIdAndUpdate(
+        doc.fournisseurId,
+        { $pull: { clients: doc._id } },
+        (err2) => {
+          if (!err2) {
+            res.status(200);
+            res.json({
+              message: "client deleted successfully",
+            });
+          } else console.log(err2);
+        }
+      );
     } else console.log(err);
   });
 });
 
+// count clients
 router.get("/count/all/:fid", (req, res) => {
   var fid = req.params.fid;
-  Client.count({ fournisseurId: fid }, (err, count) => {
+  Client.count({ fournisseurId: '6225db0081105d73941b5108' }, (err, count) => {
     if (!err) {
       res.send({ count: count });
     } else console.log(err);

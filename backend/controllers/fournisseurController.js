@@ -49,7 +49,6 @@ router.post("/", (req, res) => {
     (fournisseur.adresse = req.body.adresse),
     (fournisseur.codePostale = req.body.codePostale),
     (fournisseur.tel = req.body.tel),
-    (fournisseur.tel2 = req.body.tel2),
     (fournisseur.salt = encrypted[0]),
     (fournisseur.hash = encrypted[1]),
     fournisseur.save((err, doc) => {
@@ -84,7 +83,6 @@ router.put("/:id", (req, res) => {
     (fournisseur.adresse = req.body.adresse),
     (fournisseur.codePostale = req.body.codePostale),
     (fournisseur.tel = req.body.tel),
-    (fournisseur.tel2 = req.body.tel2),
     Fournisseur.findByIdAndUpdate(
       req.params.id,
       { $set: fournisseur },

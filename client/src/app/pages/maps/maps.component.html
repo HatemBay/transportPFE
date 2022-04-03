@@ -9,8 +9,8 @@
   <div class="row">
     <div class="col">
       <div class="card shadow border-0">
-        <!-- ************************ START: PATH = NOUVEAU-COLIS ************************ -->
-        <div *ngIf="routePath == 'nouveau-colis'">
+        <!-- ************************ START: PATH = NOUVEAU-COLIS / MODIFIER-COLIS ************************ -->
+        <div *ngIf="routePath == 'nouveau-colis' || routePath == 'modifier-colis'">
           <form class="card-body" (ngSubmit)="onSubmit()" [formGroup]="packageForm">
             <div class="row">
               <div class="col-sm-5 offset-1">
@@ -128,9 +128,9 @@
             </div>
           </form>
         </div>
-         <!-- ************************ END: PATH = NOUVEAU-COLIS ************************ -->
-        <!-- ************************ START: PATH = MODIFIER-COLIS ************************ -->
-        <div *ngIf="routePath == 'modifier-colis'">
+         <!-- ************************ END: PATH = NOUVEAU-COLIS / MODIFIER-COLIS ************************ -->
+        <!-- ************************ START: PATH = DETAILS-COLIS ************************ -->
+        <div *ngIf="routePath == 'details-colis'">
           <div class="row">
             <div class="col-12">
               <div class="card">
@@ -193,7 +193,7 @@
             </div>
           </div>
         </div>
-        <!-- ************************ END: PATH = MODIFIER-COLIS ************************ -->
+        <!-- ************************ END: PATH = DETAILS-COLIS ************************ -->
       </div>
     </div>
   </div>

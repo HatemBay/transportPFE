@@ -17,6 +17,7 @@ export const AdminLayoutRoutes: Routes = [
   { path: "icons", component: IconsComponent },
   { path: "nouveau-colis", component: MapsComponent },
   { path: "modifier-colis", component: MapsComponent },
+  { path: "details-colis", component: MapsComponent },
   { path: "carnet-adresses", component: CarnetAdresseComponent },
   { path: "gestion-colis", component: GestionColisComponent },
   { path: "finance", component: FinanceComponent },

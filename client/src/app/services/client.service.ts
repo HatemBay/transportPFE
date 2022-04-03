@@ -15,6 +15,7 @@ export interface IClient {
   delegation?: string;
   adresse?: string;
   codePostale?: number;
+  fournisseurId?: string;
   tel?: number;
   tel2?: number;
 }
@@ -92,7 +93,7 @@ export class ClientService {
   }
   // Count clients
   countAllClients(): Observable<any> {
-    let url = `${this.baseUri}/count/all`;
+    let url = `${this.baseUri}/count/all/${this.userId}`;
     return this.http.get(url, { headers: this.headers }).pipe(
       map((res: any) => {
         return res || {};

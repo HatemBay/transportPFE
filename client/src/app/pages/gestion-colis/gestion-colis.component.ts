@@ -96,6 +96,7 @@ export class GestionColisComponent implements OnInit {
     startDate?: any,
     endDate?: any
   ) {
+    // if date search is initialized
     if (this.init === true) {
       this.packageService
         .getFullPackages(
@@ -132,6 +133,7 @@ export class GestionColisComponent implements OnInit {
     }
   }
 
+  // initiate the dates from last month to today
   public setDates() {
     this.today = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
     const thisDate = this.myDate.getDate();
@@ -147,6 +149,7 @@ export class GestionColisComponent implements OnInit {
     this.startDate = data.startDate;
   }
 
+  // count packages depending on package state
   private countPackages() {
     var state = null;
 
@@ -160,6 +163,7 @@ export class GestionColisComponent implements OnInit {
     });
   }
 
+  // dynamic search (triggers after inserting 3 characters)
   updateFilter(event) {
     var state = null;
 
@@ -194,8 +198,15 @@ export class GestionColisComponent implements OnInit {
     }
   }
 
-  // TODO[Dmitry Teplov] wrap dynamic limit in a separate component.
+  // updates list based on table length
   public onLimitChange(limit: any): void {
+    var state = null;
+
+    for (const element of this.etat) {
+      if (element.active) {
+        state = element.value;
+      }
+    }
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
     this.getDataJson(
@@ -204,7 +215,7 @@ export class GestionColisComponent implements OnInit {
       null,
       null,
       null,
-      null,
+      state,
       this.startDate,
       this.today
     );
@@ -225,14 +236,23 @@ export class GestionColisComponent implements OnInit {
     this.currentPageLimit = parseInt(limit, 10);
   }
 
-  onSelect({ selected }) {
-    console.log("Select Event", selected, this.selected);
+  // checkbox selection
+  // onSelect({ selected }) {
+  //   console.log("Select Event", selected, this.selected);
 
-    this.selected.splice(0, this.selected.length);
-    this.selected.push(...selected);
-  }
+  //   this.selected.splice(0, this.selected.length);
+  //   this.selected.push(...selected);
+  // }
 
+  //sorting elements
   onSort(event) {
+    var state = null;
+
+    for (const element of this.etat) {
+      if (element.active) {
+        state = element.value;
+      }
+    }
     console.log(event);
     console.log(event.sorts[0].prop);
     this.getDataJson(
@@ -241,14 +261,17 @@ export class GestionColisComponent implements OnInit {
       event.sorts[0].prop,
       event.newValue,
       null,
-      null,
+      state,
       this.startDate,
       this.today
     );
   }
 
+  // change data based on page selected
   onFooterPage(event) {
     this.changePage(event.page);
+    console.log(event.page);
+
     this.getDataJson(
       this.currentPageLimit,
       event.page,

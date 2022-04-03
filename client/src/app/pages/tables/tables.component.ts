@@ -1,9 +1,6 @@
 import {
-  AfterViewInit,
-  ChangeDetectorRef,
   Component,
   OnInit,
-  TemplateRef,
   ViewChild,
 } from "@angular/core";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
@@ -196,6 +193,6 @@ export class TablesComponent implements OnInit {
     };
     console.log(navigationExtras.queryParams);
 
-    this.router.navigate(["/modifier-colis"], navigationExtras);
+    this.router.navigate(["/details-colis"], navigationExtras);
   }
 }

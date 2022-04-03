@@ -37,11 +37,13 @@ var ClientSchema = new Schema(
       minlength: 8,
       maxlength: 8,
     },
-    packages: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Package",
-    },
-    fournisseurs: {
+    packages: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Package",
+      },
+    ],
+    fournisseurId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Fournisseur",
     },

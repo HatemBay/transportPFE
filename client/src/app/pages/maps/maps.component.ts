@@ -44,7 +44,7 @@ export class MapsComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.routePath == "nouveau-colis") {
+    if (this.routePath == "nouveau-colis" || this.routePath == "modifier-colis") {
       if (this.checkData()) {
         this.getActors();
         // this.clientData = this.datacl[0]
@@ -75,13 +75,13 @@ export class MapsComponent implements OnInit {
         .pipe(startWith(this.packageForm.value))
         .subscribe((data) => this.onPackageFormValueChanges(data));
     }
-    if (this.routePath == "modifier-colis") {
+    if (this.routePath == "details-colis") {
 
       this.getPackage();
     }
   }
 
-  //************************ PATH = NOUVEAU-COLIS ************************
+  //************************ PATH = NOUVEAU-COLIS / MODIFIER-COLIS ************************
   getActors() {
     this.pack.getPackage(this.packageId).subscribe((data) => {
       if (
@@ -131,6 +131,7 @@ export class MapsComponent implements OnInit {
   }
 
   save() {
+    this.clientData.fournisseurId = this.auth.getUserDetails()._id;
     this.client.createClient(this.clientData).subscribe(
       (res) => {
         // console.log(res);
@@ -138,14 +139,12 @@ export class MapsComponent implements OnInit {
           (result) => {
             // console.log(result[0]._id);
             this.packageData.clientId = result[0]._id;
+            this.packageData.fournisseurId = this.auth.getUserDetails()._id;
             this.pack.createPackage(this.packageData).subscribe(
-              (res) => {
+              () => {
                 // console.log(res);
                 console.log("created");
                 this.router.navigate(["/tables"]);
-              },
-              (error) => {
-                console.log(error);
               }
             );
           },
@@ -203,8 +202,8 @@ export class MapsComponent implements OnInit {
     return this.packageId && this.clientId;
   }
 
-  //************************ PATH = NOUVEAU-COLIS ************************
-  //************************ PATH = MODIFIER-COLIS ************************
+  //************************ PATH = NOUVEAU-COLIS / MODIFIER-COLIS ************************
+  //************************ PATH = DETAILS-COLIS ************************
   public getPackage() {
     this.pack.getFullPackage(this.packageId).subscribe((data) => {
       this.package = data[0];
@@ -217,5 +216,5 @@ export class MapsComponent implements OnInit {
     })
   }
 
-  //************************ PATH = MODIFIER-COLIS ************************
+  //************************ PATH = DETAILS-COLIS ************************
 }

@@ -16,7 +16,8 @@ var upload = multer({
 var importExcelData2MongoDB = require("../utils/excel");
 
 const { Package } = require("../models/package");
-var { User } = require("../models/users");
+var { Client } = require("../models/client");
+var { Fournisseur } = require("../models/fournisseur");
 const { default: mongoose } = require("mongoose");
 
 // Read all
@@ -77,7 +78,11 @@ router.get("/all-info/:fid", (req, res) => {
   var id = mongoose.Types.ObjectId(req.params.fid);
   var sort = {};
   var limit = parseInt(req.query.limit) || 10;
-  sort[req.query.sortBy] = req.query.sort;
+  var page = parseInt(req.query.page) || 1;
+  var skip = limit * page - limit;
+  var n = 1;
+  if (req.query.sort == "desc") n = -1
+  sort[req.query.sortBy] = n
 
   Package.aggregate([
     {
@@ -134,10 +139,16 @@ router.get("/all-info/:fid", (req, res) => {
     {
       $match: { fournisseurId: id },
     },
+    {
+      $skip: skip,
+    },
+    {
+      $limit: limit,
+    },
+    {
+      $sort: sort,
+    },
   ])
-    .limit(limit)
-    .skip(0)
-    .sort(sort)
     .exec((err, doc) => {
       if (!err) {
         if (req.query.search && req.query.search.length > 2) {
@@ -362,7 +373,7 @@ router.get("/all-info/:id/:fid", (req, res) => {
   });
 });
 
-//Create
+// create package and save foreign keys
 router.post("/", (req, res) => {
   const package = new Package();
 
@@ -387,7 +398,6 @@ router.post("/", (req, res) => {
   };
 
   var check = checkCAB();
-  console.log(check);
 
   (package.CAB = check),
     (package.service = req.body.service),
@@ -397,16 +407,41 @@ router.post("/", (req, res) => {
     (package.poids = req.body.poids),
     (package.pieces = req.body.pieces),
     (package.fournisseurId = req.body.fournisseurId),
-    (package.clientId = req.body.clientId),
-    package.save((err, doc) => {
-      if (!err) res.send(package);
-      else
-        console.log(
-          "Error in package save: " + JSON.stringify(err, undefined, 2)
-        );
-    });
+    (package.clientId = req.body.clientId);
+  return package.save(package).then(
+    (doc) => {
+      return Client.findByIdAndUpdate(
+        package.clientId,
+        { $push: { packages: doc._id } },
+        { new: true, useFindAndModify: false }
+      ).then(
+        () => {
+          console.log(package.fournisseurId);
+          return Fournisseur.findByIdAndUpdate(
+            package.fournisseurId,
+            { $push: { packages: doc._id } },
+            { new: true, useFindAndModify: false }
+          ).then(
+            () => {
+              res.send(doc);
+            },
+            (err) => {
+              console.log("Erreur lors de l'enregistrement du colis: " + err);
+            }
+          );
+        },
+        (err) => {
+          console.log("Erreur lors du mis a jour du fournisseur: " + err);
+        }
+      );
+    },
+    (err) => {
+      console.log("Erreur lors du mis a jour du client: " + err);
+    }
+  );
 });
 
+// update package
 router.put("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
@@ -428,16 +463,40 @@ router.put("/:id", (req, res) => {
   );
 });
 
+// delete package
 router.delete("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id ${req.params.id}`);
-  Package.findByIdAndRemove(req.params.id, (err, doc) => {});
+  Package.findByIdAndRemove(req.params.id, (err, doc) => {
+    console.log(doc);
+    if (!err) {
+      Fournisseur.findByIdAndUpdate(
+        doc.fournisseurId,
+        { $pull: { packages: doc._id } },
+        (err2) => {
+          if (!err2) {
+            Client.findByIdAndUpdate(
+              doc.clientId,
+              { $pull: { packages: doc._id } },
+              (err3) => {
+                if (!err3) {
+                  res.status(200);
+                  res.json({
+                    message: "package deleted successfully",
+                  });
+                } else console.log(err3);
+              }
+            );
+          } else console.log(err2);
+        }
+      );
+    } else console.log(err);
+  });
 });
 
 /********************** STATISTICS **********************/
-// count all packages and/or depennding on state and/or time periods
+// count all packages and/or depending on state and/or time periods
 router.get("/count/all/:fid", (req, res) => {
-
   var state = req.query.etat || null;
   var startYear = req.query.startYear || null;
   var startMonth = req.query.startMonth || null;
@@ -449,7 +508,6 @@ router.get("/count/all/:fid", (req, res) => {
 
   if (startYear && startMonth && startDay && endYear && endMonth && endDay) {
     if (state) {
-      console.log(1);
       query = Package.find({
         etat: state,
         fournisseurId: req.params.fid,
@@ -459,7 +517,6 @@ router.get("/count/all/:fid", (req, res) => {
         },
       });
     } else {
-      console.log(2);
       query = Package.find({
         fournisseurId: req.params.fid,
         createdAt: {
@@ -470,14 +527,12 @@ router.get("/count/all/:fid", (req, res) => {
     }
   } else {
     if (state) {
-      console.log(3);
       console.log(state);
       query = Package.find({
         etat: state,
         fournisseurId: req.params.fid,
       });
     } else {
-      console.log(4);
       query = Package.find({
         fournisseurId: req.params.fid,
       });

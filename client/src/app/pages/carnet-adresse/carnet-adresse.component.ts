@@ -108,6 +108,8 @@ export class CarnetAdresseComponent implements OnInit {
   private countClients() {
     this.clientService.countAllClients().subscribe((res) => {
       this.count = res.count;
+      console.log(this.count);
+
     });
   }
 
