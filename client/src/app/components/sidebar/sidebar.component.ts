@@ -28,7 +28,7 @@ export const ROUTES: RouteInfo[] = [
     class: "",
   },
   {
-    path: "/tables",
+    path: "/liste-colis",
     title: "Liste de colis crées",
     icon: "ni-bullet-list-67 text-red",
     class: "",

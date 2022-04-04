@@ -106,7 +106,7 @@
 
             <div class="col-8">Liste des colis: </div>
             <div class="col-4 text-right">
-              <button class="btn btn-primary">Imprimer la liste sélectionnée</button>
+              <button class="btn btn-primary" [routerLink]="" (click)="print()">Imprimer la liste sélectionnée</button>
             </div>
 
           </div>
@@ -143,7 +143,7 @@
         <div>
           <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
             [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
-            [selectionType]="'checkbox'" (sort)="onSort($event)">
+            [selectionType]="'checkbox'" (select)="onSelect($event)" (sort)="onSort($event)">
 
             <ngx-datatable-column name="" [width]="30" [sortable]="false" [draggable]="false" [resizeable]="false"
               [canAutoResize]="false" [checkboxable]="true" [headerCheckboxable]="true" prop="selected">

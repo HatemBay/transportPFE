@@ -13,11 +13,11 @@ import { ClientService, IClient } from "src/app/services/client.service";
 import { PackageService, IPackage } from "src/app/services/package.service";
 
 @Component({
-  selector: "app-maps",
-  templateUrl: "./maps.component.html",
-  styleUrls: ["./maps.component.scss"],
+  selector: "app-nouveau-colis",
+  templateUrl: "./nouveau-colis.component.html",
+  styleUrls: ["./nouveau-colis.component.scss"],
 })
-export class MapsComponent implements OnInit {
+export class NouveauColisComponent implements OnInit {
   public clientData: IClient = {};
   packageData: IPackage = {};
   packageForm: FormGroup;
@@ -170,7 +170,7 @@ export class MapsComponent implements OnInit {
         this.pack.updatePackage(this.packageId, this.packageData).subscribe(
           (res) => {
             // console.log(res);
-            this.router.navigate(["/tables"]);
+            this.router.navigate(["/colis-cree"]);
           },
           (error) => {
             console.log(error);

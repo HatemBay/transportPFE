@@ -81,8 +81,8 @@ router.get("/all-info/:fid", (req, res) => {
   var page = parseInt(req.query.page) || 1;
   var skip = limit * page - limit;
   var n = 1;
-  if (req.query.sort == "desc") n = -1
-  sort[req.query.sortBy] = n
+  if (req.query.sort == "desc") n = -1;
+  sort[req.query.sortBy] = n;
 
   Package.aggregate([
     {
@@ -148,110 +148,15 @@ router.get("/all-info/:fid", (req, res) => {
     {
       $sort: sort,
     },
-  ])
-    .exec((err, doc) => {
-      if (!err) {
-        if (req.query.search && req.query.search.length > 2) {
-          if (startDate && endDate) {
-            if (state) {
-              res.send(
-                doc.filter(
-                  (item) =>
-                    (item.CAB.toString().includes(req.query.search) ||
-                      item.telc.toString().includes(req.query.search) ||
-                      item.tel2c?.toString().includes(req.query.search) ||
-                      item.c_remboursement
-                        .toString()
-                        .includes(req.query.search) ||
-                      item.codePostalec.toString().includes(req.query.search) ||
-                      item.createdAtSearch
-                        .toString()
-                        .includes(req.query.search) ||
-                      item.nomc
-                        .toLowerCase()
-                        .includes(req.query.search.toLowerCase()) ||
-                      item.villec
-                        .toLowerCase()
-                        .includes(req.query.search.toLowerCase()) ||
-                      item.delegationc
-                        .toLowerCase()
-                        .includes(req.query.search.toLowerCase()) ||
-                      item.adressec
-                        .toLowerCase()
-                        .includes(req.query.search.toLowerCase())) &&
-                    item.etat.toLowerCase().includes(state.toLowerCase()) &&
-                    item.createdAt >=
-                      new Date(startYear, startMonth, startDay) &&
-                    item.createdAt < new Date(endYear, endMonth, endDay)
-                )
-              );
-            } else if (!state) {
-              res.send(
-                doc.filter(
-                  (item) =>
-                    (item.CAB.toString().includes(req.query.search) ||
-                      item.telc.toString().includes(req.query.search) ||
-                      item.tel2c?.toString().includes(req.query.search) ||
-                      item.c_remboursement
-                        .toString()
-                        .includes(req.query.search) ||
-                      item.codePostalec.toString().includes(req.query.search) ||
-                      item.createdAtSearch
-                        .toString()
-                        .includes(req.query.search) ||
-                      item.nomc
-                        .toLowerCase()
-                        .includes(req.query.search.toLowerCase()) ||
-                      item.villec
-                        .toLowerCase()
-                        .includes(req.query.search.toLowerCase()) ||
-                      item.delegationc
-                        .toLowerCase()
-                        .includes(req.query.search.toLowerCase()) ||
-                      item.adressec
-                        .toLowerCase()
-                        .includes(req.query.search.toLowerCase())) &&
-                    item.createdAt >=
-                      new Date(startYear, startMonth, startDay) &&
-                    item.createdAt < new Date(endYear, endMonth, endDay)
-                )
-              );
-            }
-          } else if (!(startDate && endDate)) {
-            if (state) {
-              res.send(
-                doc.filter(
-                  (item) =>
-                    (item.CAB.toString().includes(req.query.search) ||
-                      item.telc.toString().includes(req.query.search) ||
-                      item.tel2c?.toString().includes(req.query.search) ||
-                      item.c_remboursement
-                        .toString()
-                        .includes(req.query.search) ||
-                      item.codePostalec.toString().includes(req.query.search) ||
-                      item.createdAtSearch
-                        .toString()
-                        .includes(req.query.search) ||
-                      item.nomc
-                        .toLowerCase()
-                        .includes(req.query.search.toLowerCase()) ||
-                      item.villec
-                        .toLowerCase()
-                        .includes(req.query.search.toLowerCase()) ||
-                      item.delegationc
-                        .toLowerCase()
-                        .includes(req.query.search.toLowerCase()) ||
-                      item.adressec
-                        .toLowerCase()
-                        .includes(req.query.search.toLowerCase())) &&
-                    item.etat.toLowerCase().includes(state.toLowerCase())
-                )
-              );
-            } else if (!state) {
-              res.send(
-                doc.filter(
-                  (item) =>
-                    item.CAB.toString().includes(req.query.search) ||
+  ]).exec((err, doc) => {
+    if (!err) {
+      if (req.query.search && req.query.search.length > 2) {
+        if (startDate && endDate) {
+          if (state) {
+            res.send(
+              doc.filter(
+                (item) =>
+                  (item.CAB.toString().includes(req.query.search) ||
                     item.telc.toString().includes(req.query.search) ||
                     item.tel2c?.toString().includes(req.query.search) ||
                     item.c_remboursement
@@ -272,47 +177,133 @@ router.get("/all-info/:fid", (req, res) => {
                       .includes(req.query.search.toLowerCase()) ||
                     item.adressec
                       .toLowerCase()
-                      .includes(req.query.search.toLowerCase())
-                )
-              );
-            }
+                      .includes(req.query.search.toLowerCase())) &&
+                  item.etat.toLowerCase().includes(state.toLowerCase()) &&
+                  item.createdAt >= new Date(startYear, startMonth, startDay) &&
+                  item.createdAt < new Date(endYear, endMonth, endDay)
+              )
+            );
+          } else if (!state) {
+            res.send(
+              doc.filter(
+                (item) =>
+                  (item.CAB.toString().includes(req.query.search) ||
+                    item.telc.toString().includes(req.query.search) ||
+                    item.tel2c?.toString().includes(req.query.search) ||
+                    item.c_remboursement
+                      .toString()
+                      .includes(req.query.search) ||
+                    item.codePostalec.toString().includes(req.query.search) ||
+                    item.createdAtSearch
+                      .toString()
+                      .includes(req.query.search) ||
+                    item.nomc
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase()) ||
+                    item.villec
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase()) ||
+                    item.delegationc
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase()) ||
+                    item.adressec
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase())) &&
+                  item.createdAt >= new Date(startYear, startMonth, startDay) &&
+                  item.createdAt < new Date(endYear, endMonth, endDay)
+              )
+            );
           }
-        } else if (!(req.query.search && req.query.search.length > 2)) {
-          if (startDate && endDate) {
-            if (state) {
-              res.send(
-                doc.filter(
-                  (item) =>
-                    item.etat.toLowerCase().includes(state.toLowerCase()) &&
-                    item.createdAt >=
-                      new Date(startYear, startMonth, startDay) &&
-                    item.createdAt < new Date(endYear, endMonth, endDay)
-                )
-              );
-            } else if (!state) {
-              res.send(
-                doc.filter(
-                  (item) =>
-                    item.createdAt >=
-                      new Date(startYear, startMonth, startDay) &&
-                    item.createdAt < new Date(endYear, endMonth, endDay)
-                )
-              );
-            }
-          } else if (!(startDate && endDate)) {
-            if (state) {
-              res.send(
-                doc.filter((item) =>
+        } else if (!(startDate && endDate)) {
+          if (state) {
+            res.send(
+              doc.filter(
+                (item) =>
+                  (item.CAB.toString().includes(req.query.search) ||
+                    item.telc.toString().includes(req.query.search) ||
+                    item.tel2c?.toString().includes(req.query.search) ||
+                    item.c_remboursement
+                      .toString()
+                      .includes(req.query.search) ||
+                    item.codePostalec.toString().includes(req.query.search) ||
+                    item.createdAtSearch
+                      .toString()
+                      .includes(req.query.search) ||
+                    item.nomc
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase()) ||
+                    item.villec
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase()) ||
+                    item.delegationc
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase()) ||
+                    item.adressec
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase())) &&
                   item.etat.toLowerCase().includes(state.toLowerCase())
-                )
-              );
-            } else if (!state) {
-              res.send(doc);
-            }
+              )
+            );
+          } else if (!state) {
+            res.send(
+              doc.filter(
+                (item) =>
+                  item.CAB.toString().includes(req.query.search) ||
+                  item.telc.toString().includes(req.query.search) ||
+                  item.tel2c?.toString().includes(req.query.search) ||
+                  item.c_remboursement.toString().includes(req.query.search) ||
+                  item.codePostalec.toString().includes(req.query.search) ||
+                  item.createdAtSearch.toString().includes(req.query.search) ||
+                  item.nomc
+                    .toLowerCase()
+                    .includes(req.query.search.toLowerCase()) ||
+                  item.villec
+                    .toLowerCase()
+                    .includes(req.query.search.toLowerCase()) ||
+                  item.delegationc
+                    .toLowerCase()
+                    .includes(req.query.search.toLowerCase()) ||
+                  item.adressec
+                    .toLowerCase()
+                    .includes(req.query.search.toLowerCase())
+              )
+            );
           }
         }
-      } else console.log("Erreur lors de la récupération des colis: " + err);
-    });
+      } else if (!(req.query.search && req.query.search.length > 2)) {
+        if (startDate && endDate) {
+          if (state) {
+            res.send(
+              doc.filter(
+                (item) =>
+                  item.etat.toLowerCase().includes(state.toLowerCase()) &&
+                  item.createdAt >= new Date(startYear, startMonth, startDay) &&
+                  item.createdAt < new Date(endYear, endMonth, endDay)
+              )
+            );
+          } else if (!state) {
+            res.send(
+              doc.filter(
+                (item) =>
+                  item.createdAt >= new Date(startYear, startMonth, startDay) &&
+                  item.createdAt < new Date(endYear, endMonth, endDay)
+              )
+            );
+          }
+        } else if (!(startDate && endDate)) {
+          if (state) {
+            res.send(
+              doc.filter((item) =>
+                item.etat.toLowerCase().includes(state.toLowerCase())
+              )
+            );
+          } else if (!state) {
+            res.send(doc);
+          }
+        }
+      }
+    } else console.log("Erreur lors de la récupération des colis: " + err);
+  });
 });
 
 // Read one with all client and provider data
@@ -360,6 +351,11 @@ router.get("/all-info/:id/:fid", (req, res) => {
         telc: "$clients.tel",
         tel2c: "$clients.tel2",
         fournisseurId: "$fournisseurs._id",
+        nomf: "$fournisseurs.nom",
+        villef: "$fournisseurs.ville",
+        delegationf: "$fournisseurs.delegation",
+        telf: "$fournisseurs.tel",
+        adressef: "$fournisseurs.adresse",
         createdAt: 1,
         updatedAt: 1,
       },

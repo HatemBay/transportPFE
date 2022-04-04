@@ -1,8 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-} from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { PackageService } from "src/app/services/package.service";
 import { ClientService } from "src/app/services/client.service";
@@ -10,10 +6,10 @@ import { NavigationExtras, Router } from "@angular/router";
 
 @Component({
   selector: "app-tables",
-  templateUrl: "./tables.component.html",
-  styleUrls: ["./tables.component.scss"],
+  templateUrl: "./liste-colis.component.html",
+  styleUrls: ["./liste-colis.component.scss"],
 })
-export class TablesComponent implements OnInit {
+export class ListeColisComponent implements OnInit {
   @ViewChild(DatatableComponent) search: DatatableComponent;
   @ViewChild(DatatableComponent) table: DatatableComponent;
   @ViewChild(alert) alert: any;
@@ -59,79 +55,50 @@ export class TablesComponent implements OnInit {
   }
 
   // get data from backend
-  getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?:any) {
+  getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
     this.packageService
       .getFullPackages(limit, page, sortBy, sort, search)
       .subscribe((data) => {
         this.rows = this.temp = data;
         for (const item of this.rows) {
-          item.c_remboursement = parseFloat(item.c_remboursement.toString()).toFixed(3);
+          item.c_remboursement = parseFloat(
+            item.c_remboursement.toString()
+          ).toFixed(3);
           console.log(item.c_remboursement);
         }
       });
   }
 
+  // count all packages
   private countPackages() {
     this.packageService.countAllPackages(null).subscribe((res) => {
       this.count = res.count;
     });
   }
 
+  // dynamic search (triggers after inserting 3 characters)
   updateFilter(event) {
-    if(event.target.value.length > 2){
+    if (event.target.value.length > 2) {
       const val = event.target.value.toLowerCase();
       this.getDataJson(this.currentPageLimit, 1, null, null, val);
-    }
-    else {
+    } else {
       this.getDataJson(this.currentPageLimit, 1);
     }
-    // // filter our data
-    // const temp = this.temp.filter((item) => {
-    //   // const keys = Object.keys(this.temp[0]);
-    //   //search in columns
-    //   return (
-    //     item.CAB.toLowerCase().indexOf(val) !== -1 ||
-    //     item.nom.toLowerCase().indexOf(val) !== -1 ||
-    //     item.tel.toLowerCase().indexOf(val) !== -1 ||
-    //     !val
-    //   );
-    // });
-
-    // // update the rows
-    // this.rows = temp;
-    // Whenever the filter changes, always go back to the first page
-    // this.search.offset = 0;
   }
 
-  // TODO[Dmitry Teplov] wrap dynamic limit in a separate component.
+  // updates list based on table length
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
     this.getDataJson(limit, this.currentPage);
-    // this.table.recalculate();
-    setTimeout(() => {
-      if (this.table.bodyComponent.temp.length <= 0) {
-        // TODO[Dmitry Teplov] find a better way.
-        // TODO[Dmitry Teplov] test with server-side paging.
-        this.table.offset = Math.floor(
-          (this.table.rowCount - 1) / this.table.limit
-        );
-        // this.table.offset = 0;
-      }
-    });
   }
 
+  // changes number of elements to display
   private changePageLimit(limit: any): void {
     this.currentPageLimit = parseInt(limit, 10);
   }
 
-  onSelect({ selected }) {
-    console.log("Select Event", selected, this.selected);
-
-    this.selected.splice(0, this.selected.length);
-    this.selected.push(...selected);
-  }
-
+  // elements sorting
   onSort(event) {
     console.log(event);
     console.log(event.sorts[0].prop);
@@ -143,15 +110,18 @@ export class TablesComponent implements OnInit {
     );
   }
 
+  // change data based on page selected
   onFooterPage(event) {
     this.changePage(event.page);
     this.getDataJson(this.currentPageLimit, event.page);
   }
 
+  // change pages in footer
   changePage(page: any) {
     this.currentPage = parseInt(page, 10);
   }
 
+  // update package
   modify(data) {
     console.log(data.clientId);
     var navigationExtras: NavigationExtras = {
@@ -165,6 +135,7 @@ export class TablesComponent implements OnInit {
     this.router.navigate(["/modifier-colis"], navigationExtras);
   }
 
+  // delete package
   delete(data) {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce colis?")) {
       this.packageService.deletePackage(data._id).subscribe(() => {
@@ -184,6 +155,7 @@ export class TablesComponent implements OnInit {
     }
   }
 
+  // view more information
   view(data) {
     console.log(data.clientId);
     var navigationExtras: NavigationExtras = {
@@ -194,5 +166,46 @@ export class TablesComponent implements OnInit {
     console.log(navigationExtras.queryParams);
 
     this.router.navigate(["/details-colis"], navigationExtras);
+  }
+
+  // checkbox selection
+  onSelect(event) {
+    console.log("Select Event", event);
+
+    this.selected = event.selected
+
+    console.log(this.selected[0]._id);
+
+  }
+
+  // print selecetd elements
+  print() {
+    var ids = [];
+    for (var el of this.selected) {
+      ids.push(el._id);
+    }
+
+    // Create our query parameters object
+    const queryParams: any = {};
+    queryParams.packages = JSON.stringify(ids);
+    var navigationExtras: NavigationExtras = {
+      queryParams,
+    };
+    console.log(navigationExtras.queryParams);
+
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(["/imprimer-colis"], navigationExtras)
+    );
+
+    const WindowPrt = window.open(
+      url,
+      "_blank",
+      "left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0"
+    );
+    WindowPrt.setTimeout(function () {
+      WindowPrt.focus();
+      WindowPrt.print();
+      // WindowPrt.close();
+    }, 1000);
   }
 }

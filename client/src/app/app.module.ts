@@ -14,10 +14,8 @@ import { AppRoutingModule } from './app.routing';
 import { ComponentsModule } from './components/components.module';
 import { LoginComponent } from './pages/login/login.component';
 import { DatePipe } from '@angular/common';
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { GestionColisComponent } from './pages/gestion-colis/gestion-colis.component';
-import { FinanceComponent } from './pages/finance/finance.component';
 import { ImprimerComponent } from './pages/imprimer/imprimer.component';
+import { NgxBarcodeModule } from 'ngx-barcode';
 
 @NgModule({
   imports: [
@@ -29,7 +27,7 @@ import { ImprimerComponent } from './pages/imprimer/imprimer.component';
     NgbModule,
     RouterModule,
     AppRoutingModule,
-    NgxDatatableModule,
+    NgxBarcodeModule
   ],
   declarations: [
     AppComponent,

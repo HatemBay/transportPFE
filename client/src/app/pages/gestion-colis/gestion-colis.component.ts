@@ -127,7 +127,6 @@ export class GestionColisComponent implements OnInit {
             item.c_remboursement = parseFloat(
               item.c_remboursement.toString()
             ).toFixed(3);
-            console.log(item.c_remboursement);
           }
         });
     }
@@ -219,32 +218,14 @@ export class GestionColisComponent implements OnInit {
       this.startDate,
       this.today
     );
-    // this.table.recalculate();
-    setTimeout(() => {
-      if (this.table.bodyComponent.temp.length <= 0) {
-        // TODO[Dmitry Teplov] find a better way.
-        // TODO[Dmitry Teplov] test with server-side paging.
-        this.table.offset = Math.floor(
-          (this.table.rowCount - 1) / this.table.limit
-        );
-        // this.table.offset = 0;
-      }
-    });
   }
 
+  // changes number of elements to display
   private changePageLimit(limit: any): void {
     this.currentPageLimit = parseInt(limit, 10);
   }
 
-  // checkbox selection
-  // onSelect({ selected }) {
-  //   console.log("Select Event", selected, this.selected);
-
-  //   this.selected.splice(0, this.selected.length);
-  //   this.selected.push(...selected);
-  // }
-
-  //sorting elements
+  // elements sorting
   onSort(event) {
     var state = null;
 
@@ -284,10 +265,12 @@ export class GestionColisComponent implements OnInit {
     );
   }
 
+  // changes pages in footer
   changePage(page: any) {
     this.currentPage = parseInt(page, 10);
   }
 
+  // updates package
   modify(data) {
     console.log(data.clientId);
     var navigationExtras: NavigationExtras = {
@@ -301,6 +284,7 @@ export class GestionColisComponent implements OnInit {
     this.router.navigate(["/modifier-colis"], navigationExtras);
   }
 
+  // delete package
   delete(data) {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce colis?")) {
       this.packageService.deletePackage(data._id).subscribe(() => {
@@ -320,6 +304,7 @@ export class GestionColisComponent implements OnInit {
     }
   }
 
+  // view more information
   view(data) {
     console.log(data.clientId);
     var navigationExtras: NavigationExtras = {
@@ -332,21 +317,35 @@ export class GestionColisComponent implements OnInit {
     this.router.navigate(["/modifier-colis"], navigationExtras);
   }
 
+  // redirect to a printable page
   print(data) {
     console.log(data.clientId);
+    const ids = [data._id];
+    // Create our query parameters object
+    const queryParams: any = {};
+    queryParams.packages = JSON.stringify(ids);
     var navigationExtras: NavigationExtras = {
-      queryParams: {
-        packageId: data._id,
-      },
+      queryParams,
     };
     console.log(navigationExtras.queryParams);
 
     const url = this.router.serializeUrl(
-      this.router.createUrlTree(["/imprimer-colis-gestion"], navigationExtras)
+      this.router.createUrlTree(["/imprimer-colis"], navigationExtras)
     );
-    window.open(url, "_blank");
+
+    const WindowPrt = window.open(
+      url,
+      "_blank",
+      "left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0"
+    );
+    WindowPrt.setTimeout(function () {
+      WindowPrt.focus();
+      WindowPrt.print();
+      // WindowPrt.close();
+    }, 1000);
   }
 
+  // state filter
   searchValue(data) {
     for (let i = 0; i < this.etat.length; i++) {
       this.etat[i].active = false;

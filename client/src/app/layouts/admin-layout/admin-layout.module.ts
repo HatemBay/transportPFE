@@ -8,9 +8,9 @@ import { ClipboardModule } from 'ngx-clipboard';
 import { AdminLayoutRoutes } from './admin-layout.routing';
 import { DashboardComponent } from '../../pages/dashboard/dashboard.component';
 import { IconsComponent } from '../../pages/icons/icons.component';
-import { MapsComponent } from '../../pages/maps/maps.component';
+import { NouveauColisComponent } from '../../pages/nouveau-colis/nouveau-colis.component';
 import { UserProfileComponent } from '../../pages/user-profile/user-profile.component';
-import { TablesComponent } from '../../pages/tables/tables.component';
+import { ListeColisComponent } from '../../pages/liste-colis/liste-colis.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { CarnetAdresseComponent } from 'src/app/pages/carnet-adresse/carnet-adresse.component';
@@ -35,9 +35,9 @@ import { FinanceComponent } from 'src/app/pages/finance/finance.component';
   declarations: [
     DashboardComponent,
     UserProfileComponent,
-    TablesComponent,
+    ListeColisComponent,
     IconsComponent,
-    MapsComponent,
+    NouveauColisComponent,
     CarnetAdresseComponent,
     GestionColisComponent,
     FinanceComponent,
