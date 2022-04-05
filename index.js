@@ -5,12 +5,14 @@ const bodyParser = require("body-parser");
 const logger = require("morgan");
 const passport = require("passport");
 const cors = require("cors");
+const fileUpload = require('express-fileupload');
 require("./backend/db.js");
 var usersController = require("./backend/controllers/usersController");
 var packageController = require("./backend/controllers/packageController");
 var fournisseurController = require("./backend/controllers/fournisseurController");
 var clientController = require("./backend/controllers/clientController");
 var { register, login, verify, auth, authRole } = require("./backend/controllers/authentication");
+var upload = require("./backend/controllers/upload");
 // const _ = require("lodash");
 
 
@@ -28,6 +30,7 @@ require("./backend/config/passport");
 var app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(fileUpload());
 // app.use(express.urlencoded({ extended: true }));
 
 // Listen for requests
@@ -47,7 +50,7 @@ app.use(function (err, req, res, next) {
   }
 });
 
-app.use(cors(corsOptions)); // Use this after the variable declaration
+app.use(cors(corsOptions));
 
 
 // Routes
@@ -58,6 +61,8 @@ app.use("/api/clients", clientController);
 app.use("/api/register", register);
 app.use("/api/login", login);
 app.use("/api/user/verify/:id/:token", verify);
+app.use("/api/thumbnail-upload", upload);
+
 // app.use("/api/count", packageController);
 
 // router.get('/profile', auth, ctrlp);

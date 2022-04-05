@@ -22,11 +22,17 @@ export const ROUTES: RouteInfo[] = [
     class: "",
   },
   {
-    path: "/user-profile",
-    title: "User profile",
-    icon: "ni-single-02 text-yellow",
+    path: "/import-excel",
+    title: "Importation excel",
+    icon: "ni-pin-3 text-orange",
     class: "",
   },
+  // {
+  //   path: "/user-profile",
+  //   title: "User profile",
+  //   icon: "ni-single-02 text-yellow",
+  //   class: "",
+  // },
   {
     path: "/liste-colis",
     title: "Liste de colis crées",

@@ -1,0 +1,62 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <div class="header-body">
+    </div>
+  </div>
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow border-0">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h3 class="m-0 font-weight-bold">Importation</h3>
+
+          <a class="m-0 float-right btn btn-info btn-sm" href="../../pages/img/importExcel.xls" download="">
+            <i class="fas fa-download"></i> Télécharger l'exemple
+          </a>
+        </div>
+        <form method="POST" class="row" enctype="multipart/form-data">
+          <div class="col-md-5 offset-md-2 mt-4 form-group">
+            <input class="form-control" type="file" (change)="onFileSelected($event)" accept=".xls" />
+            {{fileName || "No file uploaded yet."}}
+            <!-- <input type="file" class="form-control" name="employee_file_excel" accept=".xlsx"> -->
+          </div>
+          <div class="col-md-3 mt-4 ml-5">
+            <button name="submit" type="submit" (click)="upload()" class="btn btn-info px-5">Appliquer</button>
+          </div>
+
+        </form>
+      </div>
+      <div class="card">
+        <div hidden="">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold">Importation excel</h6>
+            <div class="m-0 float-right">
+              <form method="POST">
+                <button name="add" type="submit" class="btn btn-success mr-3">Continuer</button>
+                <button name="vider" type="submit" class="btn btn-info mr-3">Annuler</button>
+              </form>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="myTable" class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Nom &amp; Prénom</th>
+                  <th>Téléphone</th>
+                  <th>Ville</th>
+                  <th>Délégation</th>
+                  <th>Adresse</th>
+                  <th>COD</th>
+                  <th>Libelle de marchandise</th>
+                </tr>
+              </thead>
+              <tbody id="filter_body">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

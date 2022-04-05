@@ -37,6 +37,7 @@
     "dateformat": "^5.0.3",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
+    "express-fileupload": "^1.3.1",
     "express-jwt": "^6.1.1",
     "font-awesome": "^4.7.0",
     "joi": "^17.6.0",
@@ -47,7 +48,6 @@
     "mongoose-generate-unique-key": "^0.1.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.4",
-    "ng-file-upload": "^12.2.13",
     "ngx-barcode": "^0.3.0",
     "ngx-clipboard": "14.0.1",
     "ngx-toastr": "14.0.0",
@@ -57,6 +57,9 @@
     "passport-local": "^1.0.0",
     "rxjs": "7.2.0",
     "underscore": "^1.13.2",
+    "xls-to-json": "^2.1.0",
+    "xls-to-json-lc": "^0.3.4",
+    "xlsx-to-json-lc": "^0.5.0",
     "zone.js": "0.11.4"
   },
   "devDependencies": {

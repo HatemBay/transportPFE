@@ -4,6 +4,8 @@ var _ = require("underscore");
 var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
 
+const { access }= require("../middlewares");
+
 //pdf
 var multer = require("multer");
 var upload = multer({
@@ -492,6 +494,7 @@ router.delete("/:id", (req, res) => {
 
 /********************** STATISTICS **********************/
 // count all packages and/or depending on state and/or time periods
+// router.get("/count/all/:fid", access(["admin"]) , (req, res) => {
 router.get("/count/all/:fid", (req, res) => {
   var state = req.query.etat || null;
   var startYear = req.query.startYear || null;

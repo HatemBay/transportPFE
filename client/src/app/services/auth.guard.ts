@@ -22,7 +22,6 @@ export class AuthGuard implements CanActivate {
   //   this.authService.logout();
   //   return false;
   // }
-
   constructor(private auth: AuthenticationService, private router: Router) {}
 
   canActivate() {

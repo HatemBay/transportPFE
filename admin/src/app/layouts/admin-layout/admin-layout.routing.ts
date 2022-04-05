@@ -9,6 +9,7 @@ import { CarnetAdresseComponent } from "src/app/pages/carnet-adresse/carnet-adre
 import { GestionColisComponent } from "src/app/pages/gestion-colis/gestion-colis.component";
 import { FinanceComponent } from "src/app/pages/finance/finance.component";
 import { ImprimerComponent } from "src/app/pages/imprimer/imprimer.component";
+import { RoleGuard } from "src/app/services/role.guard";
 
 export const AdminLayoutRoutes: Routes = [
   { path: "dashboard", component: DashboardComponent },
@@ -18,7 +19,14 @@ export const AdminLayoutRoutes: Routes = [
   { path: "nouveau-colis", component: MapsComponent },
   { path: "modifier-colis", component: MapsComponent },
   { path: "carnet-adresses", component: CarnetAdresseComponent },
-  { path: "gestion-colis", component: GestionColisComponent },
+  {
+    path: "gestion-colis",
+    component: GestionColisComponent,
+    canActivate: [RoleGuard],
+    data: {
+      expectedRoles: ['admin']
+    }
+  },
   { path: "finance", component: FinanceComponent },
   { path: "finance-f-h", component: FinanceComponent },
 ];

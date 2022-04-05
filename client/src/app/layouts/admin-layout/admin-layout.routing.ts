@@ -8,6 +8,8 @@ import { ListeColisComponent } from "../../pages/liste-colis/liste-colis.compone
 import { CarnetAdresseComponent } from "src/app/pages/carnet-adresse/carnet-adresse.component";
 import { GestionColisComponent } from "src/app/pages/gestion-colis/gestion-colis.component";
 import { FinanceComponent } from "src/app/pages/finance/finance.component";
+import { ExcelComponent } from 'src/app/pages/excel/excel.component';
+
 
 export const AdminLayoutRoutes: Routes = [
   { path: "dashboard", component: DashboardComponent },
@@ -21,4 +23,5 @@ export const AdminLayoutRoutes: Routes = [
   { path: "gestion-colis", component: GestionColisComponent },
   { path: "finance", component: FinanceComponent },
   { path: "finance-f-h", component: FinanceComponent },
+  { path: "import-excel", component: ExcelComponent },
 ];
