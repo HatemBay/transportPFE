@@ -14,7 +14,7 @@ export const ROUTES: RouteInfo[] = [
     icon: "ni-tv-2 text-primary",
     class: "",
   },
-  { path: "/icons", title: "Icons", icon: "ni-planet text-blue", class: "" },
+  // { path: "/icons", title: "Icons", icon: "ni-planet text-blue", class: "" },
   {
     path: "/nouveau-colis",
     title: "Créer un colis",

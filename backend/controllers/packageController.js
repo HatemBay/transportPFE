@@ -4,7 +4,7 @@ var _ = require("underscore");
 var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
 
-const { access }= require("../middlewares");
+const { access } = require("../middlewares");
 
 //pdf
 var multer = require("multer");
@@ -82,9 +82,10 @@ router.get("/all-info/:fid", (req, res) => {
   var limit = parseInt(req.query.limit) || 10;
   var page = parseInt(req.query.page) || 1;
   var skip = limit * page - limit;
-  var n = 1;
-  if (req.query.sort == "desc") n = -1;
-  sort[req.query.sortBy] = n;
+  var n = -1;
+  var sortBy = req.query.sortBy || "createdAt";
+  if (req.query.sort == "asc") n = 1;
+  sort[sortBy] = n;
 
   Package.aggregate([
     {
@@ -182,7 +183,7 @@ router.get("/all-info/:fid", (req, res) => {
                       .includes(req.query.search.toLowerCase())) &&
                   item.etat.toLowerCase().includes(state.toLowerCase()) &&
                   item.createdAt >= new Date(startYear, startMonth, startDay) &&
-                  item.createdAt < new Date(endYear, endMonth, endDay)
+                  item.createdAt <= new Date(endYear, endMonth, endDay+1)
               )
             );
           } else if (!state) {
@@ -212,7 +213,7 @@ router.get("/all-info/:fid", (req, res) => {
                       .toLowerCase()
                       .includes(req.query.search.toLowerCase())) &&
                   item.createdAt >= new Date(startYear, startMonth, startDay) &&
-                  item.createdAt < new Date(endYear, endMonth, endDay)
+                  item.createdAt <= new Date(endYear, endMonth, endDay+1)
               )
             );
           }
@@ -280,7 +281,7 @@ router.get("/all-info/:fid", (req, res) => {
                 (item) =>
                   item.etat.toLowerCase().includes(state.toLowerCase()) &&
                   item.createdAt >= new Date(startYear, startMonth, startDay) &&
-                  item.createdAt < new Date(endYear, endMonth, endDay)
+                  item.createdAt <= new Date(endYear, endMonth, endDay+1)
               )
             );
           } else if (!state) {
@@ -288,7 +289,7 @@ router.get("/all-info/:fid", (req, res) => {
               doc.filter(
                 (item) =>
                   item.createdAt >= new Date(startYear, startMonth, startDay) &&
-                  item.createdAt < new Date(endYear, endMonth, endDay)
+                  item.createdAt <= new Date(endYear, endMonth, endDay+1)
               )
             );
           }
@@ -406,8 +407,9 @@ router.post("/", (req, res) => {
     (package.pieces = req.body.pieces),
     (package.fournisseurId = req.body.fournisseurId),
     (package.clientId = req.body.clientId);
-  return package.save(package).then(
-    (doc) => {
+  return package
+    .save(package)
+    .then((doc) => {
       return Client.findByIdAndUpdate(
         package.clientId,
         { $push: { packages: doc._id } },
@@ -432,11 +434,10 @@ router.post("/", (req, res) => {
           console.log("Erreur lors du mis a jour du fournisseur: " + err);
         }
       );
-    },
-    (err) => {
-      console.log("Erreur lors du mis a jour du client: " + err);
-    }
-  );
+    })
+    .catch((err) => {
+      console.log("Erreur lors de l'enregistrement du colis: " + err);
+    });
 });
 
 // update package
@@ -512,7 +513,7 @@ router.get("/count/all/:fid", (req, res) => {
         fournisseurId: req.params.fid,
         createdAt: {
           $gte: new Date(startYear, startMonth, startDay),
-          $lt: new Date(endYear, endMonth, endDay),
+          $lte: new Date(endYear, endMonth, endDay + 1),
         },
       });
     } else {
@@ -520,7 +521,7 @@ router.get("/count/all/:fid", (req, res) => {
         fournisseurId: req.params.fid,
         createdAt: {
           $gte: new Date(startYear, startMonth, startDay),
-          $lt: new Date(endYear, endMonth, endDay),
+          $lte: new Date(endYear, endMonth, endDay + 1),
         },
       });
     }
@@ -553,6 +554,7 @@ router.get("/count/:id", (req, res) => {
       res.send({ count: count });
     } else console.log(err);
   });
+
   /********************** STATISTICS **********************/
 
   // Package.aggregate([
@@ -593,17 +595,5 @@ router.get("/count/:id", (req, res) => {
   //   else console.log("Erreur lors de la récupération du colis: " + err);
   // });
 });
-
-router.post(
-  "/uploadfile/pdf",
-  upload.single("uploadfile"),
-  (req, res, next) => {
-    importExcelData2MongoDB("uploads/" + req.file.filename);
-    // importExcelData2MongoDB();
-    // console.log(req.body);
-    // console.log(req.file);
-    console.log(res);
-  }
-);
 
 module.exports = router;

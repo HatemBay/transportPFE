@@ -13,11 +13,11 @@ import { ClientService, IClient } from "src/app/services/client.service";
 import { PackageService, IPackage } from "src/app/services/package.service";
 
 @Component({
-  selector: "app-maps",
-  templateUrl: "./maps.component.html",
-  styleUrls: ["./maps.component.scss"],
+  selector: "app-colis-jour",
+  templateUrl: "./colis-jour.component.html",
+  styleUrls: ["./colis-jour.component.scss"],
 })
-export class MapsComponent implements OnInit {
+export class ColisJourComponent implements OnInit {
   public clientData: IClient = {};
   packageData: IPackage = {};
   packageForm: FormGroup;

@@ -38,6 +38,7 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "express-jwt": "^6.1.1",
+    "file-saver": "^2.0.5",
     "font-awesome": "^4.7.0",
     "joi": "^17.6.0",
     "jshint": "^2.13.4",

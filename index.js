@@ -61,7 +61,7 @@ app.use("/api/clients", clientController);
 app.use("/api/register", register);
 app.use("/api/login", login);
 app.use("/api/user/verify/:id/:token", verify);
-app.use("/api/thumbnail-upload", upload);
+app.use("/api/excel-upload", upload);
 
 // app.use("/api/count", packageController);
 

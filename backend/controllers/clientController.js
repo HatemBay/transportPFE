@@ -15,9 +15,10 @@ router.get("/all/:fid", (req, res) => {
   var page = parseInt(req.query.page) || 1;
   var skip = ((limit * page) - limit);
   var sort = {};
-  var n = 1;
-  if (req.query.sort == "desc") n = -1
-  sort[req.query.sortBy] = n
+  var n = -1;
+  var sortBy = req.query.sortBy || "createdAt";
+  if (req.query.sort == "asc") n = 1;
+  sort[sortBy] = n;
 
   Client.aggregate([
     {
@@ -157,12 +158,12 @@ router.post("/", (req, res) => {
           res.send(doc);
         },
         (err) => {
-          console.log("Erreur lors de l'enregistrement du colis: " + err);
+          res.json("Erreur lors de l'enregistrement du colis: " + err);
         }
       );
     },
     (err) => {
-      console.log("Erreur lors du mis a jour du fournisseur: " + err);
+      res.json("Erreur lors de l'enregistrement du client: " + err.message);      
     }
   );
 });

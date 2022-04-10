@@ -115,7 +115,7 @@ export class GestionColisComponent implements OnInit {
             item.c_remboursement = parseFloat(
               item.c_remboursement.toString()
             ).toFixed(3);
-            console.log(item.c_remboursement);
+            // console.log(item.c_remboursement);
           }
         });
     } else {
@@ -136,7 +136,8 @@ export class GestionColisComponent implements OnInit {
   public setDates() {
     this.today = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
     const thisDate = this.myDate.getDate();
-    this.myDate.setDate(this.myDate.getMonth() - 2);
+    // this.myDate.setDate(this.myDate.getMonth() - 2);
+    this.myDate.setMonth(this.myDate.getMonth() - 1);
     this.myDate.setDate(thisDate);
 
     this.startDate = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
@@ -218,6 +219,7 @@ export class GestionColisComponent implements OnInit {
       this.startDate,
       this.today
     );
+
   }
 
   // changes number of elements to display
@@ -306,7 +308,7 @@ export class GestionColisComponent implements OnInit {
 
   // view more information
   view(data) {
-    console.log(data.clientId);
+    // console.log(data.clientId);
     var navigationExtras: NavigationExtras = {
       queryParams: {
         packageId: data._id,
@@ -370,5 +372,14 @@ export class GestionColisComponent implements OnInit {
     //dates are set when the view is initiated so when table search is implemented it will use those values regardless of initiating date periods search
     //so we need to use a variable that checks if the time periods search has been initiated at least once
     this.init = true;
+    this.getDataJson( null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      this.startDate,
+      this.today);
+
   }
 }

@@ -4,8 +4,13 @@ import {
   Component,
   OnInit,
 } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from "@angular/forms";
+import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { async, firstValueFrom, lastValueFrom } from "rxjs";
 import { startWith, map } from "rxjs/operators";
 import { AuthenticationService } from "src/app/services/authentication.service";
@@ -28,6 +33,7 @@ export class NouveauColisComponent implements OnInit {
   nextClicked = false;
   checkIds: boolean = false;
   package: any = [];
+  submit: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -44,31 +50,55 @@ export class NouveauColisComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.routePath == "nouveau-colis" || this.routePath == "modifier-colis") {
+    if (
+      this.routePath == "nouveau-colis" ||
+      this.routePath == "modifier-colis"
+    ) {
       if (this.checkData()) {
         this.getActors();
         // this.clientData = this.datacl[0]
       }
 
-      this.packageForm = this.fb.group({
-        tel: [this.clientData.tel, Validators.required],
-        nom: [this.clientData.nom, Validators.required],
-        ville: [this.clientData.ville, Validators.required],
-        delegation: [this.clientData.delegation, Validators.required],
-        adresse: [this.clientData.adresse, Validators.required],
-        codePostale: this.clientData.codePostale,
-        tel2: this.clientData.tel2,
+      // this.packageForm = this.fb.group({
+      //   tel: [this.clientData.tel, Validators.required],
+      //   nom: [this.clientData.nom, Validators.required],
+      //   ville: [this.clientData.ville, Validators.required],
+      //   delegation: [this.clientData.delegation, Validators.required],
+      //   adresse: [this.clientData.adresse, Validators.required],
+      //   codePostale: this.clientData.codePostale,
+      //   tel2: this.clientData.tel2,
 
-        c_remboursement: [
-          this.packageData.c_remboursement,
+      //   c_remboursement: [
+      //     this.packageData.c_remboursement,
+      //     Validators.required,
+      //   ],
+      //   service: [this.packageData.service, Validators.required],
+      //   libelle: [this.packageData.libelle, Validators.required],
+      //   volume: [this.packageData.volume, Validators.required],
+      //   poids: this.packageData.poids,
+      //   pieces: this.packageData.pieces,
+      //   remarque: this.packageData.remarque,
+      // });
+
+      this.packageForm = this.fb.group({
+        tel: new FormControl(this.clientData.tel, [
           Validators.required,
-        ],
-        service: [this.packageData.service, Validators.required],
-        libelle: [this.packageData.libelle, Validators.required],
-        volume: [this.packageData.volume, Validators.required],
-        poids: this.packageData.poids,
-        pieces: this.packageData.pieces,
-        remarque: this.packageData.remarque,
+          Validators.minLength(8)
+        ]),
+        nom: new FormControl(this.clientData.nom, [Validators.required]),
+        ville: ["", Validators.required],
+        delegation: ["", Validators.required],
+        adresse: ["", Validators.required],
+        codePostale: "",
+        tel2: "",
+
+        c_remboursement: ["", Validators.required],
+        service: ["", Validators.required],
+        libelle: ["", Validators.required],
+        volume: ["", Validators.required],
+        poids: "",
+        pieces: "",
+        remarque: "",
       });
 
       this.packageForm.valueChanges
@@ -76,9 +106,11 @@ export class NouveauColisComponent implements OnInit {
         .subscribe((data) => this.onPackageFormValueChanges(data));
     }
     if (this.routePath == "details-colis") {
-
       this.getPackage();
     }
+  }
+  get f() {
+    return this.packageForm.controls;
   }
 
   //************************ PATH = NOUVEAU-COLIS / MODIFIER-COLIS ************************
@@ -131,35 +163,32 @@ export class NouveauColisComponent implements OnInit {
   }
 
   save() {
+    this.submit = true;
     this.clientData.fournisseurId = this.auth.getUserDetails()._id;
-    this.client.createClient(this.clientData).subscribe(
-      (res) => {
-        // console.log(res);
-        this.client.getClientByPhone(res.tel).subscribe(
-          (result) => {
-            // console.log(result[0]._id);
-            this.packageData.clientId = result[0]._id;
-            this.packageData.fournisseurId = this.auth.getUserDetails()._id;
-            this.pack.createPackage(this.packageData).subscribe(
-              () => {
-                // console.log(res);
-                console.log("created");
-                this.router.navigate(["/tables"]);
-              }
-            );
-          },
-          (err) => {
-            console.log(err);
-          }
-        );
-      },
-      (err) => {
-        console.log(err);
-      }
-    );
+    this.client.createClient(this.clientData).subscribe((res) => {
+      // console.log(res);
+
+      this.client.getClientByPhone(res.tel).subscribe((result) => {
+        // console.log(result[0]._id);
+        this.packageData.clientId = result[0]._id;
+        this.packageData.fournisseurId = this.auth.getUserDetails()._id;
+        this.pack.createPackage(this.packageData).subscribe(() => {
+          var added: boolean = true;
+          // console.log(res);
+          console.log("created");
+          var navigationExtras: NavigationExtras = {
+            queryParams: {
+              added,
+            },
+          };
+          this.router.navigate(["/liste-colis"], navigationExtras);
+        });
+      });
+    });
   }
 
   update() {
+    this.submit = true;
     console.log(this.clientData);
 
     this.client
@@ -170,7 +199,15 @@ export class NouveauColisComponent implements OnInit {
         this.pack.updatePackage(this.packageId, this.packageData).subscribe(
           (res) => {
             // console.log(res);
-            this.router.navigate(["/colis-cree"]);
+            console.log("created");
+
+            var edited: boolean = true;
+            var navigationExtras: NavigationExtras = {
+              queryParams: {
+                edited,
+              },
+            };
+            this.router.navigate(["/liste-colis"], navigationExtras);
           },
           (error) => {
             console.log(error);
@@ -212,8 +249,7 @@ export class NouveauColisComponent implements OnInit {
 
       console.log("package:");
       console.log(this.package);
-
-    })
+    });
   }
 
   //************************ PATH = DETAILS-COLIS ************************

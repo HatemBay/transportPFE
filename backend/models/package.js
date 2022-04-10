@@ -27,15 +27,12 @@ var PackageSchema = new Schema(
       type: String,
       default: "petit",
       enum: ["petit", "moyen", "grand"],
-      reqiured: true,
     },
     poids: {
       type: Number,
-      required: true,
     },
     pieces: {
       type: Number,
-      required: true,
     },
     etat: {
       type: String,

@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from "@angular/core";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { PackageService } from "src/app/services/package.service";
 import { ClientService } from "src/app/services/client.service";
-import { NavigationExtras, Router } from "@angular/router";
+import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 
 @Component({
   selector: "app-tables",
@@ -32,12 +32,19 @@ export class ListeColisComponent implements OnInit {
   selected: any = [];
   public columns: Array<object>;
   count: any;
+  printable: boolean = false;
+  added: boolean;
+  edited: boolean;
 
   constructor(
     private packageService: PackageService,
     private clientService: ClientService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {
+    this.added = Boolean(this.route.snapshot.queryParamMap.get("added"));
+    this.edited = Boolean(this.route.snapshot.queryParamMap.get("edited"));
+  }
   ngOnInit(): void {
     // Initial columns, can be used for data list which is will be filtered
     this.columns = [
@@ -50,8 +57,10 @@ export class ListeColisComponent implements OnInit {
 
     this.countPackages();
 
-    this.getDataJson();
+    this.getDataJson(null, null, null, null, null);
     // this.findAll();
+    console.log(this.temp[0]);
+
   }
 
   // get data from backend
@@ -60,6 +69,11 @@ export class ListeColisComponent implements OnInit {
       .getFullPackages(limit, page, sortBy, sort, search)
       .subscribe((data) => {
         this.rows = this.temp = data;
+        console.log('data');
+
+        console.log(data);
+        // console.log(this.temp);
+
         for (const item of this.rows) {
           item.c_remboursement = parseFloat(
             item.c_remboursement.toString()
@@ -143,8 +157,10 @@ export class ListeColisComponent implements OnInit {
       });
       this.clientService.deleteClient(data.clientId).subscribe(() => {
         console.log("client deleted");
+
         var temp = this.temp.filter(
-          (item) => item.CAB.indexOf(data.CAB) === -1
+          (item) => item._id !== data._id
+          // (item) => item.CAB.indexOf(data.CAB) === -1
         );
         // update the rows after delete
         this.rows = temp;
@@ -170,12 +186,16 @@ export class ListeColisComponent implements OnInit {
 
   // checkbox selection
   onSelect(event) {
-    console.log("Select Event", event);
+    // console.log("Select Event", event);
 
     this.selected = event.selected
+    if (this.selected.length > 0) {
+      this.printable = true;
+    } else {
+      this.printable = false;
+    }
 
-    console.log(this.selected[0]._id);
-
+    // console.log(this.selected[0]._id);
   }
 
   // print selecetd elements

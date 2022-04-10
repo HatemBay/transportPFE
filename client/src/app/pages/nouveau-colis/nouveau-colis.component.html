@@ -17,12 +17,28 @@
                 <h3 class="card-title">Coordonnées du client</h3>
                 <div class="form-group">
                   <label class="form-label">Téléphone (*)</label>
-                  <input formControlName="tel" [value]="clientData.tel" class="form-control" type="number"
-                    autocomplete="off">
+                  <input formControlName="tel" id="tel" class="form-control" type="number" autocomplete="off">
+                  <div
+                    *ngIf="packageForm.controls['tel'].invalid"
+                    class="alert alert-danger mt-2"
+                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
+                    <div *ngIf="packageForm.controls['tel'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Tel est requise.
+                    </div>
+                    <div *ngIf="packageForm.controls['tel'].errors?.['minlength']">
+                      <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Tel doit avoir au moins 8
+                      caractères.
+                    </div>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Nom &amp; Prénom (*)</label>
-                  <input formControlName="nom" [value]="clientData.nom" name="nom_cl" id="nom_cl" class="form-control">
+                  <input formControlName="nom" id="nom" class="form-control">
+                  <div *ngIf="submit && packageForm.controls['nom'].errors?.['required']"
+                    class="alert alert-danger mt-2"
+                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
+                    <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Nom est requise.
+                  </div>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Ville (*)</label>
@@ -39,6 +55,11 @@
                     <option data-value="20" value="Sousse">Sousse</option>
                     <option data-value="23" value="Tunis">Tunis</option>
                   </select>
+                  <div *ngIf="submit && packageForm.controls['ville'].errors?.['required']"
+                    class="alert alert-danger mt-2"
+                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
+                    <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Ville est requise.
+                  </div>
                 </div>
                 <div class="form-group" id="delegation">
                   <label class="form-label">Délegation (*)</label>
@@ -49,18 +70,28 @@
                     <option data-value="3" value="Ben Arous">Ben Arous</option>
                     <option data-value="4" value="Bizerte">Bizerte</option>
                   </select>
+                  <div *ngIf="submit && packageForm.controls['delegation'].errors?.['required']"
+                    class="alert alert-danger mt-2"
+                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
+                    <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Delegation est requise.
+                  </div>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Adresse (*)</label>
                   <input formControlName="adresse" [value]="clientData.adresse" name="adresse_cl" id="adresse_cl"
                     type="text" class="form-control">
+                  <div *ngIf="submit" class="alert alert-danger mt-2"
+                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
+                    <div *ngIf="packageForm.controls['adresse'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Adresse est requise.
+                    </div>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Code postale</label>
                   <input formControlName="codePostale" [value]="clientData.codePostale" name="code_post_cl" type="text"
                     id="code_post_cl " class="form-control">
                 </div>
-
                 <div class="form-group">
                   <label class="form-label">Téléphone 2</label>
                   <input formControlName="tel2" [value]="clientData.tel2" name="tel_2_cl" class="form-control"
@@ -74,6 +105,12 @@
                   <label class="form-label">Contre remboursement <sup>TND</sup> (*)</label>
                   <input formControlName="c_remboursement" [value]="packageData.c_remboursement" name="cod"
                     type="number" class="form-control" step="any">
+                  <div *ngIf="submit" class="alert alert-danger mt-2"
+                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
+                    <div *ngIf="packageForm.controls['c_remboursement'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> COD est requise.
+                    </div>
+                  </div>
                 </div>
 
                 <div class="form-group">
@@ -88,6 +125,12 @@
                 <div class="form-group">
                   <label class="form-label">Libelle de marchandise (*)</label>
                   <input formControlName="libelle" [value]="packageData.libelle" name="libelle" class="form-control">
+                  <div *ngIf="submit" class="alert alert-danger mt-2"
+                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
+                    <div *ngIf="packageForm.controls['libelle'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Libellé est requise.
+                    </div>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Volume</label>
@@ -100,11 +143,12 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">Poids</label>
-                  <input formControlName="poids" [value]="packageData.poids" name="poids" class="form-control">
+                  <input formControlName="poids" [value]="packageData.poids" name="poids" type="number"
+                    class="form-control">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Nombre de pièce par colis</label>
-                  <input formControlName="pieces" [value]="packageData.pieces" name="nb_piece" type="text"
+                  <input formControlName="pieces" [value]="packageData.pieces" name="nb_piece" type="number"
                     class="form-control">
                 </div>
                 <div class="form-group">
@@ -128,7 +172,7 @@
             </div>
           </form>
         </div>
-         <!-- ************************ END: PATH = NOUVEAU-COLIS / MODIFIER-COLIS ************************ -->
+        <!-- ************************ END: PATH = NOUVEAU-COLIS / MODIFIER-COLIS ************************ -->
         <!-- ************************ START: PATH = DETAILS-COLIS ************************ -->
         <div *ngIf="routePath == 'details-colis'">
           <div class="row">
@@ -184,7 +228,8 @@
                         <label class="form-label h5">Etat</label>
                       </div>
                       <div class="form-group">
-                        <label class="form-label">Colis créé le {{package.createdAt | date:'dd-MM-yyyy à h:mm'}} </label>
+                        <label class="form-label">Colis créé le {{package.createdAt | date:'dd-MM-yyyy à h:mm'}}
+                        </label>
                       </div>
                     </div>
                   </div>

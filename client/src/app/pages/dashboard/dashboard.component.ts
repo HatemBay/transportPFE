@@ -111,7 +111,7 @@ export class DashboardComponent implements OnInit {
       startMonth = dateS.getMonth();
       startDay = dateS.getDate();
 
-      console.log(startDate);
+      // console.log(startDate);
 
 
       endYear = dateE.getFullYear();
@@ -215,8 +215,10 @@ export class DashboardComponent implements OnInit {
   public setDates() {
     this.today = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
     const thisDate = this.myDate.getDate();
-    this.myDate.setDate(this.myDate.getMonth() - 2);
+
+    this.myDate.setMonth(this.myDate.getMonth() - 1);
     this.myDate.setDate(thisDate);
+
 
     this.startDate = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
   }
