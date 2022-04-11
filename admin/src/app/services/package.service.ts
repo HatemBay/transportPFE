@@ -25,14 +25,11 @@ export interface IPackage {
   providedIn: "root",
 })
 export class PackageService {
-  userId: any;
   baseUri: string = "http://localhost:3000/api/packages";
   headers = new HttpHeaders({
     Authorization: `Bearer ${localStorage.getItem("mean-token")!}`,
   }).set("Content-Type", "application/json");
-  constructor(private http: HttpClient, private auth: AuthenticationService) {
-    this.userId = this.auth.getUserDetails()._id;
-  }
+  constructor(private http: HttpClient, private auth: AuthenticationService) {}
 
   // Create package
   createPackage(data: any): Observable<any> {
@@ -50,7 +47,7 @@ export class PackageService {
 
   // Get all packages with all foreign info
   getFullPackage(id: any) {
-    const url = `${this.baseUri}/all-info/${id}/${this.userId}`;
+    const url = `${this.baseUri}/all-info/${id}`;
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }
 
@@ -61,31 +58,54 @@ export class PackageService {
     sortBy?: any,
     sort?: any,
     search?: any,
-    etat?: any,
-    startDate?:any,
-    endDate?:any,
+    startDate?: any,
+    endDate?: any
   ) {
-    const url = `${this.baseUri}/all-info/${this.userId}`;
+    const url = `${this.baseUri}/all-info-period/admin`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);
     if (sortBy) {
-      queryParams = queryParams.append("sortBy", sortBy || "");
+      queryParams = queryParams.append("sortBy", sortBy);
     }
     if (sort) {
-      queryParams = queryParams.append("sort", sort || "");
+      queryParams = queryParams.append("sort", sort);
     }
     if (search) {
-      queryParams = queryParams.append("search", search || "");
-    }
-    if (etat) {
-      queryParams = queryParams.append("etat", etat || "");
+      queryParams = queryParams.append("search", search);
     }
     if (startDate) {
-      queryParams = queryParams.append("startDate", startDate || "");
+      queryParams = queryParams.append("startDate", startDate);
     }
     if (endDate) {
-      queryParams = queryParams.append("endDate", endDate || "");
+      queryParams = queryParams.append("endDate", endDate);
+    }
+    return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
+  }
+
+  getDailyPackages(
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any,
+    date?: any
+  ) {
+    const url = `${this.baseUri}/all-info-daily/admin`;
+    var queryParams = new HttpParams();
+    queryParams = queryParams.append("limit", limit);
+    queryParams = queryParams.append("page", page);
+    if (sortBy) {
+      queryParams = queryParams.append("sortBy", sortBy);
+    }
+    if (sort) {
+      queryParams = queryParams.append("sort", sort);
+    }
+    if (search) {
+      queryParams = queryParams.append("search", search);
+    }
+    if (date) {
+      queryParams = queryParams.append("date", date);
     }
     return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
   }
@@ -119,38 +139,51 @@ export class PackageService {
   }
 
   // Count packages
-  countAllPackages(etat?: any, startYear?:any, startMonth?:any, startDay?:any, endYear?:any, endMonth?:any, endDay?: any): Observable<any> {
-    let url = `${this.baseUri}/count/all/${this.userId}`;
+  countAllPackagesAdmin(
+    etat?: any,
+    startDate?: any,
+    endDate?: any,
+  ): Observable<any> {
+    let url = `${this.baseUri}/count/all-period`;
     var queryParams = new HttpParams();
     if (etat) {
       queryParams = queryParams.append("etat", etat || "");
     }
-    if (startYear) {
-      queryParams = queryParams.append("startYear", startYear || "");
+    if (startDate) {
+      startDate = queryParams.append("startDate", startDate || "");
     }
-    if (startMonth) {
-      queryParams = queryParams.append("startMonth", startMonth || "");
-    }
-    if (startDay) {
-      queryParams = queryParams.append("startDay", startDay || "");
-    }
-    if (endYear) {
-      queryParams = queryParams.append("endYear", endYear || "");
-    }
-    if (endMonth) {
-      queryParams = queryParams.append("endMonth", endMonth || "");
-    }
-    if (endDay) {
-      queryParams = queryParams.append("endDay", endDay || "");
+    if (endDate) {
+      queryParams = queryParams.append("endDate", endDate || "");
     }
 
-    return this.http.get(url, { headers: this.headers, params: queryParams }).pipe(
-      map((res: any) => {
-        return res || {};
-      }),
-      catchError(this.errorMgmt)
-    );
+    return this.http
+      .get(url, { headers: this.headers, params: queryParams })
+      .pipe(
+        map((res: any) => {
+          return res || {};
+        }),
+        catchError(this.errorMgmt)
+      );
   }
+
+    // Count packages
+    countAllPackagesAdminDaily(date?: any): Observable<any> {
+      let url = `${this.baseUri}/count/all-daily`;
+      var queryParams = new HttpParams();
+      if (date) {
+        queryParams = queryParams.append("date", date || "");
+      }
+
+      return this.http
+        .get(url, { headers: this.headers, params: queryParams })
+        .pipe(
+          map((res: any) => {
+            return res || {};
+          }),
+          catchError(this.errorMgmt)
+        );
+    }
+
   // Count packages for a client
   // not working
   countByClient(id: any): Observable<any> {

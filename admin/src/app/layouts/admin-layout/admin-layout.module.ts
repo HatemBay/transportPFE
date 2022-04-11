@@ -16,8 +16,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { CarnetAdresseComponent } from 'src/app/pages/carnet-adresse/carnet-adresse.component';
 import { GestionColisComponent } from 'src/app/pages/gestion-colis/gestion-colis.component';
 import { FinanceComponent } from 'src/app/pages/finance/finance.component';
-
-
+import { CsvModule } from '@ctrl/ngx-csv';
 
 // import { ToastrModule } from 'ngx-toastr';
 
@@ -30,7 +29,8 @@ import { FinanceComponent } from 'src/app/pages/finance/finance.component';
     NgbModule,
     ClipboardModule,
     ReactiveFormsModule,
-    NgxDatatableModule
+    NgxDatatableModule,
+    CsvModule
   ],
   declarations: [
     DashboardComponent,

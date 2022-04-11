@@ -1,199 +1,156 @@
 <div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
   <div class="container-fluid">
     <div class="header-body">
+      <!-- Search dates -->
+      <div class="row">
+        <div class="col-lg-12 col-xl-12">
+          <div class="card mb-4 text-center">
+            <form class="card-body col-xl-5 offset-2 col-xs-12" [formGroup]="dateForm" (ngSubmit)="update()">
+              <div class="input-group">
+                <input formControlName="date" [value]="date | date:'yyyy-MM-dd'" type="date" name="dateD"
+                  class="form-control" placeholder="tape ici..." value="">
+                <div class="input-group-append">
+                  <button name="search" type="submit"
+                    class="input-group-text bg-primary text-white px-5">Chercher</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+      <!-- Search dates -->
     </div>
   </div>
 </div>
 <!-- Page content -->
 <div class="container-fluid mt--7">
+
+  <!-- Table -->
   <div class="row">
     <div class="col">
-      <div class="card shadow border-0">
-        <!-- ************************ START: PATH = NOUVEAU-COLIS ************************ -->
-        <div *ngIf="routePath == 'nouveau-colis'">
-          <form class="card-body" (ngSubmit)="onSubmit()" [formGroup]="packageForm">
-            <div class="row">
-              <div class="col-sm-5 offset-1">
-                <h3 class="card-title">Coordonnées du client</h3>
-                <div class="form-group">
-                  <label class="form-label">Téléphone (*)</label>
-                  <input formControlName="tel" [value]="clientData.tel" class="form-control" type="number"
-                    autocomplete="off">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Nom &amp; Prénom (*)</label>
-                  <input formControlName="nom" [value]="clientData.nom" name="nom_cl" id="nom_cl" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Ville (*)</label>
-                  <select formControlName="ville" [value]="clientData.ville" class="form-control" name="ville_cl"
-                    id="ville_cl">
-                    <option hidden="" value="">-- Choisir --</option>
-                    <option data-value="1" value="Ariana">Ariana</option>
-                    <option data-value="3" value="Ben Arous">Ben Arous</option>
-                    <option data-value="4" value="Bizerte">Bizerte</option>
-                    <option data-value="12" value="Mahdia">Mahdia</option>
-                    <option data-value="13" value="La Manouba">La Manouba</option>
-                    <option data-value="15" value="Monastir">Monastir</option>
-                    <option data-value="16" value="Nabeul">Nabeul</option>
-                    <option data-value="20" value="Sousse">Sousse</option>
-                    <option data-value="23" value="Tunis">Tunis</option>
-                  </select>
-                </div>
-                <div class="form-group" id="delegation">
-                  <label class="form-label">Délegation (*)</label>
-                  <select formControlName="delegation" [value]="clientData.delegation" class="form-control"
-                    name="delegation_cl" id="delegation_cl">
-                    <option hidden="" value="">-- Choisir ville --</option>
-                    <option data-value="1" value="Ariana">Ariana</option>
-                    <option data-value="3" value="Ben Arous">Ben Arous</option>
-                    <option data-value="4" value="Bizerte">Bizerte</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Adresse (*)</label>
-                  <input formControlName="adresse" [value]="clientData.adresse" name="adresse_cl" id="adresse_cl"
-                    type="text" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Code postale</label>
-                  <input formControlName="codePostale" [value]="clientData.codePostale" name="code_post_cl" type="text"
-                    id="code_post_cl " class="form-control">
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Téléphone 2</label>
-                  <input formControlName="tel2" [value]="clientData.tel2" name="tel_2_cl" class="form-control"
-                    id="tel_2_cl">
-                </div>
-              </div>
-
-              <div class="col-sm-5">
-                <h3 class="card-title">Coordonnées de colis</h3>
-                <div class="form-group">
-                  <label class="form-label">Contre remboursement <sup>TND</sup> (*)</label>
-                  <input formControlName="c_remboursement" [value]="packageData.c_remboursement" name="cod"
-                    type="number" class="form-control" step="any">
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Service</label>
-                  <select formControlName="service" [value]="packageData.service || null" name="service"
-                    class="form-control">
-                    <option value="livraison" selected>Livraison</option>
-                    <option value="collection">Collecte</option>
-                    <option value="echange">Echange</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Libelle de marchandise (*)</label>
-                  <input formControlName="libelle" [value]="packageData.libelle" name="libelle" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Volume</label>
-                  <select formControlName="volume" [value]="packageData.volume" name="volume" class="form-control">
-                    <option hidden="" value="">-- Choisir volume--</option>
-                    <option value="petit">Petit</option>
-                    <option value="moyen">Moyen</option>
-                    <option value="grand">Grand</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Poids</label>
-                  <input formControlName="poids" [value]="packageData.poids" name="poids" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Nombre de pièce par colis</label>
-                  <input formControlName="pieces" [value]="packageData.pieces" name="nb_piece" type="text"
-                    class="form-control">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Remarque</label>
-                  <textarea formControlName="remarque" [value]="packageData.remarque" name="remarque"
-                    class="form-control" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="customControlAutosizing">
-                    <label class="custom-control-label" for="customControlAutosizing">Décharge facture</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="form-footer text-right">
-              <button *ngIf="!checkData() || (checkData() && !checkIds)" [disabled] (click)="onNextClick()" name="add"
-                class="btn btn-primary px-5">Créer nouveau</button>
-              <button *ngIf="checkData() && checkIds" (click)="onPreviousClick()" name="add"
-                class="btn btn-primary px-5">Modifier</button>
-            </div>
-          </form>
-        </div>
-         <!-- ************************ END: PATH = NOUVEAU-COLIS ************************ -->
-        <!-- ************************ START: PATH = MODIFIER-COLIS ************************ -->
-        <div *ngIf="routePath == 'modifier-colis'">
+      <div class="card shadow">
+        <div class="card-header">
+          <div *ngIf="success" class="alert alert-success ml-4 mr-4">
+            <span class="closebtn" onclick="this.parentElement.style.display='none'; success = false;">&times;</span>
+            Colis supprimé avec succes
+          </div>
+          <div class="row mb-4">
+            <div class="col-8">Colis des jour: </div>
+          </div>
           <div class="row">
-            <div class="col-12">
-              <div class="card">
-                <h1 class="card-header text-center bg-danger text-white">{{package.CAB}}</h1>
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-sm-3 text-right">
-                      <div class="form-group">
-                        <label class="form-label">Téléphone : {{package.telc}} / {{package.tel2c}}</label>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Nom &amp; Prénom : {{package.nomc}}</label>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Ville : {{package.villec}} </label>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Délegation : {{package.delegationc}} </label>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Adresse : {{package.adressec}} </label>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Code postale : {{package.codePostalec}} </label>
-                      </div>
-                    </div>
-
-                    <div class="col-sm-3 offset-1" style="border-right: 1px solid #aaa;">
-                      <div class="form-group">
-                        <label class="form-label h4">COD : {{package.c_remboursement}} </label>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Service : {{package.service}} </label>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Poids : {{package.poids}} </label>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Libelle marchandise : {{package.libelle}} </label>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Volume : {{package.volume}} </label>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Nombre de pièce : {{package.pieces}} </label>
-                      </div>
-                    </div>
-
-                    <div class="col-sm-4 offset-1">
-                      <div class="form-group">
-                        <label class="form-label h5">Etat</label>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Colis créé le {{package.createdAt | date:'dd-MM-yyyy à h:mm'}} </label>
-                      </div>
-                    </div>
-                  </div>
+            <div class="col-6 pr-4">
+              <div class="row">
+                <div class="col-2">
+                  <label for="per-page">
+                    Afficher
+                  </label>
+                </div>
+                <div class="col-2">
+                  <select class="form-control" id="per-page" (change)="onLimitChange($event.target.value)">
+                    <option *ngFor="let option of pageLimitOptions" [value]="option.value"
+                      [selected]="option.value == currentPageLimit">
+                      {{ option.value }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label for="per-page">
+                    éléments
+                  </label>
                 </div>
               </div>
+
+            </div>
+            <div class="col-6 float-right" style="padding-left: 300px !important;">
+              <input #search class="form-control" type="text" placeholder="Rechercher" (keyup)="updateFilter($event)"
+                autocomplete="false" />
             </div>
           </div>
         </div>
-        <!-- ************************ END: PATH = MODIFIER-COLIS ************************ -->
+        <div>
+          <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
+            [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
+            (sort)="onSort($event)" [messages]="{emptyMessage:'No results available.'}">
+
+            <ngx-datatable-column name="Code à barre" prop="CAB">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  <a href="#">
+                    {{row.CAB}}
+                  </a>
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Expéditeur" prop="nomf">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.nomf}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Tél éxpéditeur" prop="telf">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.telf}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Destinataire" prop="nomc">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.nomc}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Tél/Tél2" prop="telc">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.telc}} / {{row.tel2c}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column *ngFor="let column of columns;
+        let i = index;" name="{{column.name}}" prop="{{column.prop}}">
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="COD" prop="c_remboursement">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.c_remboursement}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Date" prop="createdAtSearch">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.createdAtSearch}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-footer>
+              <ng-template ngx-datatable-footer-template [let-rowCount]="count" let-pageSize="pageSize"
+                let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
+                <div class="pl-2">
+                  Elements: {{ count }} | Taille: {{ pageSize }} | Page:
+                  {{ curPage }}
+                </div>
+                <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'"
+                  [pagerRightArrowIcon]="'datatable-icon-right'" [pagerPreviousIcon]="'datatable-icon-prev'"
+                  [pagerNextIcon]="'datatable-icon-skip'" [page]="curPage" [size]="pageSize" [count]="count"
+                  [hidden]="!((count / pageSize) > 1)" (change)="onFooterPage($event)">
+                </datatable-pager>
+              </ng-template>
+            </ngx-datatable-footer>
+          </ngx-datatable>
+        </div>
       </div>
     </div>
   </div>

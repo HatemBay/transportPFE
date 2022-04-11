@@ -27,7 +27,7 @@ export class RoleGuard implements CanActivate {
   }
 
   isAuthorized(route: ActivatedRouteSnapshot): boolean {
-    var roles = ["d"];
+    var roles = ["admin"];
     // const role = this.auth.getUserDetails().role;
     // roles.push(role);
     const expectedRoles = route.data.expectedRoles;

@@ -1,16 +1,16 @@
+import { DatePipe } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
   OnInit,
+  ViewChild,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
-import { async, firstValueFrom, lastValueFrom } from "rxjs";
-import { startWith, map } from "rxjs/operators";
-import { AuthenticationService } from "src/app/services/authentication.service";
-import { ClientService, IClient } from "src/app/services/client.service";
-import { PackageService, IPackage } from "src/app/services/package.service";
+import {  Router } from "@angular/router";
+import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { ClientService } from "src/app/services/client.service";
+import { PackageService } from "src/app/services/package.service";
 
 @Component({
   selector: "app-colis-jour",
@@ -18,204 +18,185 @@ import { PackageService, IPackage } from "src/app/services/package.service";
   styleUrls: ["./colis-jour.component.scss"],
 })
 export class ColisJourComponent implements OnInit {
-  public clientData: IClient = {};
-  packageData: IPackage = {};
-  packageForm: FormGroup;
-  modifData: any;
-  packageId: any;
-  clientId: any;
-  routePath: any;
-  nextClicked = false;
-  checkIds: boolean = false;
-  package: any = [];
+  @ViewChild(DatatableComponent) search: DatatableComponent;
+  @ViewChild(DatatableComponent) table: DatatableComponent;
+  @ViewChild(alert) alert: any;
+
+  success: boolean = false;
+
+  public currentPageLimit: number = 10;
+  public currentPage: number = 1;
+
+  public readonly pageLimitOptions = [
+    { value: 5 },
+    { value: 10 },
+    { value: 25 },
+    { value: 50 },
+    { value: 100 },
+  ];
+
+  myDate = new Date();
+  temp: any = [];
+  rows: any = [];
+  selected: any = [];
+  public columns: Array<object>;
+  count: any;
+  dateForm: FormGroup;
+  date: string;
 
   constructor(
     private fb: FormBuilder,
-    public client: ClientService,
-    private pack: PackageService,
-    private auth: AuthenticationService,
-    private route: ActivatedRoute,
+    private datePipe: DatePipe,
+    private packageService: PackageService,
+    private clientService: ClientService,
     private router: Router
+  ) {}
+  ngOnInit(): void {
+    // Initial columns, can be used for data list which is will be filtered
+    this.columns = [
+      { prop: "villec", name: "Ville" },
+      { prop: "delegationc", name: "Délégation" },
+      { prop: "adressec", name: "Adresse" },
+    ];
+    this.setDates();
+
+    this.dateForm = this.fb.group({
+      date: this.date,
+    });
+
+    this.dateForm.valueChanges.subscribe((data) =>
+      this.onDateFormValueChange(data)
+    );
+
+    this.countPackages();
+
+    this.getDataJson();
+    // this.findAll();
+  }
+  setDates() {
+    this.date = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
+  }
+
+  // get data from backend
+  getDataJson(
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any,
   ) {
-    this.routePath = this.route.snapshot.routeConfig.path;
-
-    this.packageId = this.route.snapshot.queryParamMap.get("packageId");
-    this.clientId = this.route.snapshot.queryParamMap.get("clientId");
-  }
-
-  ngOnInit() {
-    if (this.routePath == "nouveau-colis") {
-      if (this.checkData()) {
-        this.getActors();
-        // this.clientData = this.datacl[0]
-      }
-
-      this.packageForm = this.fb.group({
-        tel: [this.clientData.tel, Validators.required],
-        nom: [this.clientData.nom, Validators.required],
-        ville: [this.clientData.ville, Validators.required],
-        delegation: [this.clientData.delegation, Validators.required],
-        adresse: [this.clientData.adresse, Validators.required],
-        codePostale: this.clientData.codePostale,
-        tel2: this.clientData.tel2,
-
-        c_remboursement: [
-          this.packageData.c_remboursement,
-          Validators.required,
-        ],
-        service: [this.packageData.service, Validators.required],
-        libelle: [this.packageData.libelle, Validators.required],
-        volume: [this.packageData.volume, Validators.required],
-        poids: this.packageData.poids,
-        pieces: this.packageData.pieces,
-        remarque: this.packageData.remarque,
+    this.packageService
+      .getDailyPackages(limit, page, sortBy, sort, search, this.date)
+      .subscribe((data) => {
+        this.rows = this.temp = data;
+        for (const item of this.rows) {
+          item.c_remboursement = parseFloat(
+            item.c_remboursement.toString()
+          ).toFixed(3);
+          console.log(item.c_remboursement);
+        }
       });
-
-      this.packageForm.valueChanges
-        .pipe(startWith(this.packageForm.value))
-        .subscribe((data) => this.onPackageFormValueChanges(data));
-    }
-    if (this.routePath == "modifier-colis") {
-
-      this.getPackage();
-    }
+  }
+  // save changes in credentials
+  private onDateFormValueChange(data: any): void {
+    this.date = data.date;
   }
 
-  //************************ PATH = NOUVEAU-COLIS ************************
-  getActors() {
-    this.pack.getPackage(this.packageId).subscribe((data) => {
-      if (
-        data.clientId == this.clientId &&
-        data.fournisseurId == this.auth.getUserDetails()._id
-      ) {
-        this.packageData = data;
-        console.log("s");
-        console.log(this.packageData);
-        this.client.getClient(this.clientId).subscribe((data) => {
-          this.clientData = data;
-          console.log("s");
-          console.log(this.clientData);
-        });
-        this.checkIds = true;
-      } else {
-        console.log("wrong data");
-      }
+  private countPackages() {
+    this.packageService.countAllPackagesAdminDaily(this.date).subscribe((res) => {
+      this.count = res.count;
     });
   }
 
-  onPackageFormValueChanges(data: any): void {
-    this.clientData.tel = data.tel || this.clientData.tel;
-    this.clientData.nom = data.nom || this.clientData.nom;
-    this.clientData.ville = data.ville || this.clientData.ville;
-    this.clientData.delegation = data.delegation || this.clientData.delegation;
-    this.clientData.adresse = data.adresse || this.clientData.adresse;
-    this.clientData.codePostale =
-      data.codePostale || this.clientData.codePostale;
-    this.clientData.tel2 = data.tel2 || this.clientData.tel2;
-
-    this.packageData.c_remboursement =
-      data.c_remboursement || this.packageData.c_remboursement;
-    this.packageData.service = data.service || this.packageData.service;
-    this.packageData.libelle = data.libelle || this.packageData.libelle;
-    this.packageData.volume = data.volume || this.packageData.volume;
-    this.packageData.poids = data.poids || this.packageData.poids;
-    this.packageData.pieces = data.pieces || this.packageData.pieces;
-    this.packageData.remarque = data.remarque || this.packageData.remarque;
-    this.packageData.fournisseurId =
-      this.auth.getUserDetails()._id || this.packageData.fournisseurId;
-  }
-
-  validate(): void {
-    this.client.createClient(this.clientData);
-    this.pack.createPackage(this.packageData);
-  }
-
-  save() {
-    this.client.createClient(this.clientData).subscribe(
-      (res) => {
-        // console.log(res);
-        this.client.getClientByPhone(res.tel).subscribe(
-          (result) => {
-            // console.log(result[0]._id);
-            this.packageData.clientId = result[0]._id;
-            this.pack.createPackage(this.packageData).subscribe(
-              (res) => {
-                // console.log(res);
-                console.log("created");
-                this.router.navigate(["/tables"]);
-              },
-              (error) => {
-                console.log(error);
-              }
-            );
-          },
-          (err) => {
-            console.log(err);
-          }
-        );
-      },
-      (err) => {
-        console.log(err);
-      }
-    );
-  }
-
-  update() {
-    console.log(this.clientData);
-
-    this.client
-      .updateClient(this.clientId, this.clientData)
-      .subscribe((res) => {
-        // console.log(res);
-        this.packageData.clientId = this.clientId;
-        this.pack.updatePackage(this.packageId, this.packageData).subscribe(
-          (res) => {
-            // console.log(res);
-            this.router.navigate(["/tables"]);
-          },
-          (error) => {
-            console.log(error);
-          }
-        );
-      });
-    (err) => {
-      console.log(err);
-    };
-  }
-
-  public onSubmit(): void {
-    if (this.nextClicked) {
-      this.update();
+  updateFilter(event) {
+    if (event.target.value.length > 2) {
+      const val = event.target.value.toLowerCase();
+      this.getDataJson(this.currentPageLimit, 1, null, null, val);
     } else {
-      this.save();
+      this.getDataJson(this.currentPageLimit, 1);
     }
   }
 
-  public onPreviousClick(): void {
-    this.nextClicked = true;
+  // TODO[Dmitry Teplov] wrap dynamic limit in a separate component.
+  public onLimitChange(limit: any): void {
+    this.changePageLimit(limit);
+    this.table.limit = this.currentPageLimit;
+    this.getDataJson(limit, this.currentPage);
+    // this.table.recalculate();
+    // setTimeout(() => {
+    //   if (this.table.bodyComponent.temp.length <= 0) {
+    //     // TODO[Dmitry Teplov] find a better way.
+    //     // TODO[Dmitry Teplov] test with server-side paging.
+    //     this.table.offset = Math.floor(
+    //       (this.table.rowCount - 1) / this.table.limit
+    //     );
+    //     // this.table.offset = 0;
+    //   }
+    // });
   }
 
-  public onNextClick(): void {
-    this.nextClicked = false;
+  private changePageLimit(limit: any): void {
+    this.currentPageLimit = parseInt(limit, 10);
   }
 
-  checkData(): boolean {
-    return this.packageId && this.clientId;
+  onSelect({ selected }) {
+    console.log("Select Event", selected, this.selected);
+
+    this.selected.splice(0, this.selected.length);
+    this.selected.push(...selected);
   }
 
-  //************************ PATH = NOUVEAU-COLIS ************************
-  //************************ PATH = MODIFIER-COLIS ************************
-  public getPackage() {
-    this.pack.getFullPackage(this.packageId).subscribe((data) => {
-      this.package = data[0];
-      console.log("data:");
-      console.log(data);
-
-      console.log("package:");
-      console.log(this.package);
-
-    })
+  onSort(event) {
+    console.log(event);
+    console.log(event.sorts[0].prop);
+    this.getDataJson(
+      this.currentPageLimit,
+      event.page,
+      event.sorts[0].prop,
+      event.newValue
+    );
   }
 
-  //************************ PATH = MODIFIER-COLIS ************************
+  onFooterPage(event) {
+    this.changePage(event.page);
+    this.getDataJson(this.currentPageLimit, event.page);
+  }
+
+  changePage(page: any) {
+    this.currentPage = parseInt(page, 10);
+  }
+
+  modify(data) {
+    console.log(data.clientId);
+    this.router.navigate(["/modifier-colis"]);
+  }
+
+  delete(data) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer ce colis?")) {
+      this.packageService.deletePackage(data._id).subscribe(() => {
+        console.log("package deleted");
+      });
+      this.clientService.deleteClient(data.clientId).subscribe(() => {
+        console.log("client deleted");
+        var temp = this.temp.filter(
+          (item) => item.CAB.indexOf(data.CAB) === -1
+        );
+        // update the rows after delete
+        this.rows = temp;
+        // trigger to show alert
+        this.success = true;
+        // setTimeout(() => this.success = false, 3000)
+      });
+    }
+  }
+
+  view(data) {
+    console.log(data.clientId);
+    this.router.navigate(["/modifier-colis"]);
+  }
+
+  update() {
+    this.getDataJson();
+    this.countPackages();
+  }
 }

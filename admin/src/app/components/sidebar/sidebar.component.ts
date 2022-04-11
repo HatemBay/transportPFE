@@ -19,8 +19,8 @@ export const ROUTES: RouteInfo[] = [
   },
   { path: "/icons", title: "Icons", icon: "ni-planet text-blue", class: "", roles: [] },
   {
-    path: "/nouveau-colis",
-    title: "Créer un colis",
+    path: "/colis-jour",
+    title: "Colis de jour",
     icon: "ni-pin-3 text-orange",
     class: "",
     roles: [],
@@ -29,6 +29,13 @@ export const ROUTES: RouteInfo[] = [
     path: "/user-profile",
     title: "User profile",
     icon: "ni-single-02 text-yellow",
+    class: "",
+    roles: [],
+  },
+  {
+    path: "/gestion-colis",
+    title: "Gestion de colis",
+    icon: "ni-circle-08 text-pink",
     class: "",
     roles: [],
   },
@@ -51,15 +58,9 @@ export const ROUTES: RouteInfo[] = [
     title: "Finance",
     icon: "ni-circle-08 text-pink",
     class: "",
-    roles: [],
-  },
-  {
-    path: "/gestion-colis",
-    title: "Gestion de colis",
-    icon: "ni-circle-08 text-pink",
-    class: "",
     roles: ["admin", "fourn"],
-  },
+  }
+
 ];
 
 @Component({

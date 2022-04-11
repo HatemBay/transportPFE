@@ -69,7 +69,7 @@ export class FinanceComponent implements OnInit {
   }
 
   private countPackages() {
-    this.packageService.countAllPackages().subscribe((res) => {
+    this.packageService.countAllPackagesAdmin().subscribe((res) => {
       this.count = res.count;
     });
   }

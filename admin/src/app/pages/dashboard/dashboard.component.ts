@@ -95,117 +95,65 @@ export class DashboardComponent implements OnInit {
 
   // returns statistics
   public getStats(startDate, endDate) {
-    var startYear = null;
-    var startMonth = null;
-    var startDay = null;
-
-    var endYear = null;
-    var endMonth = null;
-    var endDay = null;
-
-    if (startDate && endDate) {
-      const dateS = new Date(startDate);
-      const dateE = new Date(endDate);
-
-      startYear = dateS.getFullYear();
-      startMonth = dateS.getMonth();
-      startDay = dateS.getDate();
-
-      console.log(startDate);
-
-
-      endYear = dateE.getFullYear();
-      endMonth = dateE.getMonth();
-      endDay = dateE.getDate();
-    }
-
     this.packageService
-      .countAllPackages(
+      .countAllPackagesAdmin(
         null,
-        startYear,
-        startMonth,
-        startDay,
-        endYear,
-        endMonth,
-        endDay
+        startDate,
+        endDate,
       )
       .subscribe((data) => {
         this.allPackages = data.count;
       });
     this.packageService
-      .countAllPackages(
+      .countAllPackagesAdmin(
         "nouveau",
-        startYear,
-        startMonth,
-        startDay,
-        endYear,
-        endMonth,
-        endDay
+        startDate,
+        endDate,
       )
       .subscribe((data) => {
         this.nouveau = data.count;
       });
     this.packageService
-      .countAllPackages(
+      .countAllPackagesAdmin(
         "collecté",
-        startYear,
-        startMonth,
-        startDay,
-        endYear,
-        endMonth,
-        endDay
+        startDate,
+        endDate,
       )
       .subscribe((data) => {
         this.collecte = data.count;
       });
     this.packageService
-      .countAllPackages(
+      .countAllPackagesAdmin(
         "en cours",
-        startYear,
-        startMonth,
-        startDay,
-        endYear,
-        endMonth,
-        endDay
+        startDate,
+        endDate,
       )
       .subscribe((data) => {
         this.enCours = data.count;
       });
     this.packageService
-      .countAllPackages(
+      .countAllPackagesAdmin(
         "annulé",
-        startYear,
-        startMonth,
-        startDay,
-        endYear,
-        endMonth,
-        endDay
+        startDate,
+        endDate,
       )
       .subscribe((data) => {
         this.annule = data.count;
       });
     this.packageService
-      .countAllPackages(
+      .countAllPackagesAdmin(
         "payé",
-        startYear,
-        startMonth,
-        startDay,
-        endYear,
-        endMonth,
-        endDay
+        startDate,
+        endDate,
       )
       .subscribe((data) => {
         this.paye = data.count;
       });
     this.packageService
-      .countAllPackages(
+      .countAllPackagesAdmin(
         "livré",
-        startYear,
-        startMonth,
-        startDay,
-        endYear,
-        endMonth,
-        endDay
+        startDate,
+        endDate,
       )
       .subscribe((data) => {
         this.livre = data.count;

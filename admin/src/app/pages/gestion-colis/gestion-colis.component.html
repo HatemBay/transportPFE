@@ -39,25 +39,28 @@
           </div>
           <div class="row mb-4">
             <div class="col-8">Gestion des colis: </div>
-            <div class="col-4 text-right">
-              <button class="btn btn-primary" [routerLink]="['/nouveau-colis']">Créer un colis</button>
-            </div>
           </div>
           <div class="mb-4">
             <ul #myEl class="nav nav-pills row text-center" id="myTab" role="tablist">
-              <div class="col-3">
+              <div class="col-12">
                 <div class="row">
-                  <li class="nav-item col-12">
-                    <a class="nav-link btn btn-primary" (click)="searchValue(etat[0])"
-                      [ngClass]="{'active': etat[0].active}" aria-selected="false">{{etat[0].name}}</a>
+                  <li class="nav-item col-2">
+                    <a class="nav-link btn btn-primary" (click)="copyToClipboard()"
+                      type="button">{{printList[0].name}}</a>
                   </li>
-                </div>
-              </div>
-              <div class="col-9">
-                <div class="row">
-                  <li *ngFor="let i of etat| slice:1;" class="nav-item col-2">
-                    <a class="nav-link btn btn-primary" (click)="searchValue(i)" [ngClass]="{'active': i.active}"
-                      aria-selected="false">{{i.name}}</a>
+                  <li class="nav-item col-2">
+                    <a csvLink [data]="rows" [headers]="headers" class="nav-link btn btn-primary"
+                      (click)="exportToExcel()" type="button">{{printList[1].name}}</a>
+                  </li>
+                  <li class="nav-item col-2">
+                    <a class="nav-link btn btn-primary" (click)="exportToExcel()"
+                      type="button">{{printList[2].name}}</a>
+                  </li>
+                  <li class="nav-item col-2">
+                    <a class="nav-link btn btn-primary" (click)="exportToPdf()" type="button">{{printList[3].name}}</a>
+                  </li>
+                  <li class="nav-item col-2">
+                    <a class="nav-link btn btn-primary" (click)="print()" type="button">{{printList[4].name}}</a>
                   </li>
                 </div>
               </div>
@@ -101,7 +104,9 @@
             <ngx-datatable-column name="Code à barre">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  {{row.CAB}}
+                  <a href="#">
+                    {{row.CAB}}
+                  </a>
                 </span>
               </ng-template>
             </ngx-datatable-column>
@@ -114,24 +119,40 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column name="Tél/Tél2" prop="tel">
+            <ngx-datatable-column name="Expéditeur" prop="nomf">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  {{row.telc}} / {{row.tel2c}}
+                  {{row.nomf}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Tél éxpéditeur" prop="telf">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.telf}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Destinataire" prop="nomc">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.nomc}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Tél/Tél2" prop="telc">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.telc}} <ng-container *ngIf="row.tel2c">/</ng-container> {{row.tel2c}}
                 </span>
               </ng-template>
             </ngx-datatable-column>
 
             <ngx-datatable-column *ngFor="let column of columns;
         let i = index;" name="{{column.name}}" prop="{{column.prop}}">
-            </ngx-datatable-column>
-
-            <ngx-datatable-column name="COD" prop="c_remboursement">
-              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                <span>
-                  {{row.c_remboursement}}
-                </span>
-              </ng-template>
             </ngx-datatable-column>
 
             <ngx-datatable-column name="Date">
@@ -142,18 +163,6 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
-              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
-                <span>
-                  <a [routerLink]="" (click)="view(row)" class="btn btn-sm btn-warning rounded-circle">
-                    <i class="fas fa-eye"></i>
-                  </a>
-                  <a [routerLink]="" (click)="print(row)" class="btn btn-sm rounded-circle text-white" style="background: blue">
-                    <i class="fas fa-print"></i>
-                  </a>
-                </span>
-              </ng-template>
-            </ngx-datatable-column>
             <ngx-datatable-footer>
               <ng-template ngx-datatable-footer-template [let-rowCount]="count" let-pageSize="pageSize"
                 let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
@@ -514,4 +523,86 @@
       </div>
     </div>
   </div>
+</div>
+
+<div id="hidden" hidden class="dt-print-view">
+  <h1>Colis Express - Gestion de colis</h1>
+  <div></div>
+  <table class="table dataTableHover dataTable no-footer">
+    <thead>
+      <tr>
+        <th>Code à barre</th>
+        <th>Etat</th>
+        <th>Date payé</th>
+        <th>Expéditeur</th>
+        <th>Tél expéditeur</th>
+        <th>Destinataire</th>
+        <th>Tél / Tél 2</th>
+        <th>Ville</th>
+        <th>Déligation</th>
+        <th>Adresse</th>
+        <th>COD</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>36317513</td>
+        <td>Livré - espèce</td>
+        <td>01/04/2022 23:31</td>
+        <td>hatem</td>
+        <td>20202020</td>
+        <td>dfsfds</td>
+        <td>45544554</td>
+        <td>Ben Arous</td>
+        <td>Fouchana</td>
+        <td>sdfds</td>
+        <td>1.000</td>
+        <td>06/03/2022 18:23</td>
+      </tr>
+      <tr>
+        <td>36317523</td>
+        <td>Colis créé</td>
+        <td>03/04/2022 16:24</td>
+        <td>hatem</td>
+        <td>20202020</td>
+        <td>John</td>
+        <td>14254758</td>
+        <td>Monastir</td>
+        <td>Moknine</td>
+        <td>baghded street</td>
+        <td>10.000</td>
+        <td>03/04/2022 16:24</td>
+      </tr>
+      <tr>
+        <td>36317524</td>
+        <td>Colis créé</td>
+        <td>03/04/2022 17:56</td>
+        <td>hatem</td>
+        <td>20202020</td>
+        <td>John</td>
+        <td>14254758</td>
+        <td>Monastir</td>
+        <td>Jemmal</td>
+        <td>baghded street</td>
+        <td>10.000</td>
+        <td>03/04/2022 17:56</td>
+      </tr>
+      <tr>
+        <td>36317525</td>
+        <td>Colis créé</td>
+        <td>03/04/2022 17:57</td>
+        <td>hatem</td>
+        <td>20202020</td>
+        <td>John2</td>
+        <td>14254758</td>
+        <td>Monastir</td>
+        <td>Moknine</td>
+        <td>baghded street</td>
+        <td>10.000</td>
+        <td>03/04/2022 17:57</td>
+      </tr>
+    </tbody>
+  </table>
+  <div></div>
 </div>

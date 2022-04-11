@@ -63,19 +63,19 @@ export class TablesComponent implements OnInit {
 
   // get data from backend
   getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?:any) {
-    this.packageService
-      .getFullPackages(limit, page, sortBy, sort, search)
-      .subscribe((data) => {
-        this.rows = this.temp = data;
-        for (const item of this.rows) {
-          item.c_remboursement = parseFloat(item.c_remboursement.toString()).toFixed(3);
-          console.log(item.c_remboursement);
-        }
-      });
+    // this.packageService
+    //   .getFullPackages(limit, page, sortBy, sort, search)
+    //   .subscribe((data) => {
+    //     this.rows = this.temp = data;
+    //     for (const item of this.rows) {
+    //       item.c_remboursement = parseFloat(item.c_remboursement.toString()).toFixed(3);
+    //       console.log(item.c_remboursement);
+    //     }
+    //   });
   }
 
   private countPackages() {
-    this.packageService.countAllPackages(null).subscribe((res) => {
+    this.packageService.countAllPackagesAdmin(null).subscribe((res) => {
       this.count = res.count;
     });
   }
