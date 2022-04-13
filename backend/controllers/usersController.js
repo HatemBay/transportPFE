@@ -5,6 +5,7 @@ var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
 
 var { User, validate } = require("../models/users");
+var { Filiere } = require("../models/filiere");
 
 router.get("/", (req, res) => {
   User.find((err, docs) => {
@@ -48,22 +49,28 @@ router.post("/", (req, res) => {
     (user.tel2 = req.body.tel2),
     (user.salt = encrypted[0]),
     (user.hash = encrypted[1]),
-    user.save((err, doc) => {
-      // If Passport throws/catches an error
-      if (err) {
-        res.status(404).json(err);
-        return;
-      }
-
-      if (user) {
-        res.status(200);
-        res.json({
-          message: "user registered successfully",
-        });
-      }
-      // If user is not found
-      else res.status(401).json(info);
-    });
+    (user.filiereId = req.body.filiereId);
+  return user.save(user).then(
+    (doc) => {
+      return Filiere.findByIdAndUpdate(
+        user.filiereId,
+        { $push: { users: doc._id } },
+        { new: true, useFindAndModify: false }
+      ).then(
+        () => {
+          res.status(200).send(doc);
+        },
+        (err) => {
+          res.json("Erreur lors de l'enregistrement de la filiere: " + err);
+        }
+      );
+    },
+    (err) => {
+      res.json(
+        "Erreur lors de l'enregistrement de l'utilisateur: " + err.message
+      );
+    }
+  );
 });
 
 router.put("/:id", (req, res) => {
@@ -105,11 +112,18 @@ router.delete("/:id", (req, res) => {
     return res.status(400).send(`no record with given id ${req.params.id}`);
   User.findByIdAndRemove(req.params.id, (err, doc) => {
     if (!err) {
-      res.status(200);
-      res.json({
-        message: "user deleted successfully",
-      });
-      console.log("success");
+      Filiere.findByIdAndUpdate(
+        doc.filiereId,
+        { $pull: { users: doc._id } },
+        (err2) => {
+          if (!err2) {
+            res.status(200);
+            res.json({
+              message: "user deleted successfully",
+            });
+          } else console.log(err2);
+        }
+      );
     } else console.log(err);
   });
 });

@@ -23,8 +23,6 @@ export class GestionColisComponent implements OnInit {
   myDate = new Date();
   today: string;
   startDate: string;
-  dateD: string;
-  dateF: Date;
   dateForm: FormGroup;
 
   success: boolean = false;
@@ -187,7 +185,7 @@ export class GestionColisComponent implements OnInit {
     }
   }
 
-  // TODO[Dmitry Teplov] wrap dynamic limit in a separate component.
+  // When number of displayed elements changes
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
@@ -224,9 +222,8 @@ export class GestionColisComponent implements OnInit {
     this.selected.push(...selected);
   }
 
+  // Data sorting
   onSort(event) {
-    console.log(event);
-    console.log(event.sorts[0].prop);
     this.getDataJson(
       this.currentPageLimit,
       event.page,
@@ -238,6 +235,7 @@ export class GestionColisComponent implements OnInit {
     );
   }
 
+  // When page changes
   onFooterPage(event) {
     this.changePage(event.page);
     this.getDataJson(

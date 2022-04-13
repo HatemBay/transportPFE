@@ -62,6 +62,10 @@ var UserSchema = new Schema(
     },
     hash: String,
     salt: String,
+    filiereId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Filiere",
+    }
   },
   {
     timestamps: true,

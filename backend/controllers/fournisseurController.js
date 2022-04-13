@@ -1,5 +1,4 @@
 const express = require("express");
-var crypto = require("crypto");
 
 var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
@@ -9,10 +8,7 @@ var { Fournisseur, validate } = require("../models/fournisseur");
 router.get("/", (req, res) => {
   Fournisseur.find((err, docs) => {
     if (!err) res.send(docs);
-    else
-      console.log(
-        "Erreur lors de la récupération des fournisseurs: " + JSON.stringify(err, undefined, 2)
-      );
+    else console.log("Erreur lors de la récupération des fournisseurs: " + err);
   });
 });
 
@@ -21,10 +17,7 @@ router.get("/:id", (req, res) => {
     return res.status(400).send(`no record with given id: ${req.params.id}`);
   Fournisseur.findById(req.params.id, (err, doc) => {
     if (!err) res.send(doc);
-    else
-      console.log(
-        "Erreur lors de la récupération des fournisseurs: " + JSON.stringify(err, undefined, 2)
-      );
+    else console.log("Erreur lors de la récupération des fournisseurs: " + err);
   });
 });
 
@@ -32,7 +25,7 @@ router.get("/:id", (req, res) => {
 router.get("/:id/packages", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
-  Fournisseur.findById(req.params.id).populate('packages');
+  Fournisseur.findById(req.params.id).populate("packages");
 });
 
 router.post("/", (req, res) => {
@@ -91,12 +84,9 @@ router.put("/:id", (req, res) => {
         if (!err) {
           res.status(200);
           res.json({
-            message: "fournisseur updated successfully",
+            message: "Fournisseur mis à jours avec succès",
           });
-        } else
-          console.log(
-            "Error in fournisseur update: " + JSON.stringify(err, undefined, 2)
-          );
+        } else console.log("Erreur dans la mis à jour du fournisseur: " + err);
       }
     );
 });
@@ -104,10 +94,16 @@ router.put("/:id", (req, res) => {
 router.delete("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id ${req.params.id}`);
-  Fournisseur.findByIdAndRemove(req.params.id, (err, doc) => {});
+  Fournisseur.findByIdAndRemove(req.params.id, (err, doc) => {
+    if (!err) {
+      res.status(200);
+      res.json({
+        message: "Fournisseur supprimé avec succès",
+      });
+    } else {
+      console.log("Erreur dans la suppression du fournisseur: " + err);
+    }
+  });
 });
-
-
-
 
 module.exports = router;
