@@ -437,21 +437,14 @@ export class GestionColisComponent implements OnInit {
     }, 1000);
   }
 
-  // print(data) {
-  //   console.log(data.clientId);
-  //   var navigationExtras: NavigationExtras = {
-  //     queryParams: {
-  //       packageId: data._id,
-  //     },
-  //   };
-  //   console.log(navigationExtras.queryParams);
-
-  //   const url = this.router.serializeUrl(
-  //     this.router.createUrlTree(["/imprimer-colis-gestion"], navigationExtras)
-  //   );
-  //   window.open(url, "_blank");
-  // }
-
+  details(row) {
+    var navigationExtras: NavigationExtras = {
+      queryParams: {
+        CAB: row.CAB,
+      },
+    };
+    this.router.navigate(["/recherche"], navigationExtras);
+  }
   update() {
     //dates are set when the view is initiated so when table search is implemented it will use those values regardless of initiating date periods search
     //so we need to use a variable that checks if the time periods search has been initiated at least once

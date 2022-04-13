@@ -40,8 +40,8 @@ export const ROUTES: RouteInfo[] = [
     roles: [],
   },
   {
-    path: "/tables",
-    title: "Liste de colis crées",
+    path: "/recherche-av",
+    title: "Recherche",
     icon: "ni-bullet-list-67 text-red",
     class: "",
     roles: [],

@@ -21,6 +21,7 @@ const { Package } = require("../models/package");
 var { Client } = require("../models/client");
 var { Fournisseur } = require("../models/fournisseur");
 const { default: mongoose } = require("mongoose");
+const { parse } = require("path");
 
 // Read all
 router.get("/", (req, res) => {
@@ -47,7 +48,7 @@ router.get("/:id", (req, res) => {
   });
 });
 
-// Read all with all client and provider data (fullpackage)
+// Read all with all client and provider data (provider restricted)
 router.get("/all-info/:fid", (req, res) => {
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
@@ -87,7 +88,7 @@ router.get("/all-info/:fid", (req, res) => {
   if (req.query.sort == "asc") n = 1;
   sort[sortBy] = n;
 
-  Package.aggregate([
+  data = [
     {
       $lookup: {
         from: "clients",
@@ -151,7 +152,20 @@ router.get("/all-info/:fid", (req, res) => {
     {
       $sort: sort,
     },
-  ]).exec((err, doc) => {
+  ];
+
+  if (startDate && endDate) {
+    data.push({
+      $match: {
+        createdAt: {
+          $gte: new Date(startYear, startMonth, startDay, 0, 0, 0, 0),
+          $lte: new Date(endYear, endMonth, endDay, 23, 59, 59, 999),
+        },
+      },
+    });
+  }
+
+  Package.aggregate(data).exec((err, doc) => {
     if (!err) {
       if (req.query.search && req.query.search.length > 2) {
         if (startDate && endDate) {
@@ -181,39 +195,31 @@ router.get("/all-info/:fid", (req, res) => {
                     item.adressec
                       .toLowerCase()
                       .includes(req.query.search.toLowerCase())) &&
-                  item.etat.toLowerCase().includes(state.toLowerCase()) &&
-                  item.createdAt >= new Date(startYear, startMonth, startDay) &&
-                  item.createdAt <= new Date(endYear, endMonth, endDay+1)
+                  item.etat.toLowerCase().includes(state.toLowerCase())
               )
             );
           } else if (!state) {
             res.send(
               doc.filter(
                 (item) =>
-                  (item.CAB.toString().includes(req.query.search) ||
-                    item.telc.toString().includes(req.query.search) ||
-                    item.tel2c?.toString().includes(req.query.search) ||
-                    item.c_remboursement
-                      .toString()
-                      .includes(req.query.search) ||
-                    item.codePostalec.toString().includes(req.query.search) ||
-                    item.createdAtSearch
-                      .toString()
-                      .includes(req.query.search) ||
-                    item.nomc
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.villec
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.delegationc
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.adressec
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase())) &&
-                  item.createdAt >= new Date(startYear, startMonth, startDay) &&
-                  item.createdAt <= new Date(endYear, endMonth, endDay+1)
+                  item.CAB.toString().includes(req.query.search) ||
+                  item.telc.toString().includes(req.query.search) ||
+                  item.tel2c?.toString().includes(req.query.search) ||
+                  item.c_remboursement.toString().includes(req.query.search) ||
+                  item.codePostalec.toString().includes(req.query.search) ||
+                  item.createdAtSearch.toString().includes(req.query.search) ||
+                  item.nomc
+                    .toLowerCase()
+                    .includes(req.query.search.toLowerCase()) ||
+                  item.villec
+                    .toLowerCase()
+                    .includes(req.query.search.toLowerCase()) ||
+                  item.delegationc
+                    .toLowerCase()
+                    .includes(req.query.search.toLowerCase()) ||
+                  item.adressec
+                    .toLowerCase()
+                    .includes(req.query.search.toLowerCase())
               )
             );
           }
@@ -281,7 +287,7 @@ router.get("/all-info/:fid", (req, res) => {
                 (item) =>
                   item.etat.toLowerCase().includes(state.toLowerCase()) &&
                   item.createdAt >= new Date(startYear, startMonth, startDay) &&
-                  item.createdAt <= new Date(endYear, endMonth, endDay+1)
+                  item.createdAt <= new Date(endYear, endMonth, endDay + 1)
               )
             );
           } else if (!state) {
@@ -289,7 +295,7 @@ router.get("/all-info/:fid", (req, res) => {
               doc.filter(
                 (item) =>
                   item.createdAt >= new Date(startYear, startMonth, startDay) &&
-                  item.createdAt <= new Date(endYear, endMonth, endDay+1)
+                  item.createdAt <= new Date(endYear, endMonth, endDay + 1)
               )
             );
           }
@@ -304,6 +310,282 @@ router.get("/all-info/:fid", (req, res) => {
             res.send(doc);
           }
         }
+      }
+    } else console.log("Erreur lors de la récupération des colis: " + err);
+  });
+});
+
+// Read all with all client and provider data (per day)
+router.get("/all-info-daily/admin", (req, res) => {
+  var date = new Date();
+  if (req.query.date) {
+    date = new Date(req.query.date);
+  }
+  var year = date.getFullYear();
+  var month = date.getMonth();
+  var day = date.getDate();
+
+  // adapting request id to aggregate options
+  var sort = {};
+  var limit = parseInt(req.query.limit) || 10;
+  var page = parseInt(req.query.page) || 1;
+  var skip = limit * page - limit;
+  var n = -1;
+  var sortBy = req.query.sortBy || "createdAt";
+  if (req.query.sort == "asc") n = 1;
+  sort[sortBy] = n;
+
+  Package.aggregate([
+    {
+      $lookup: {
+        from: "clients",
+        localField: "clientId",
+        foreignField: "_id",
+        as: "clients",
+      },
+    },
+    { $unwind: "$clients" },
+    {
+      $lookup: {
+        from: "fournisseurs",
+        localField: "fournisseurId",
+        foreignField: "_id",
+        as: "fournisseurs",
+      },
+    },
+    { $unwind: "$fournisseurs" },
+    {
+      $project: {
+        _id: 1,
+        CAB: 1,
+        service: 1,
+        libelle: 1,
+        c_remboursement: 1,
+        volume: 1,
+        poids: 1,
+        pieces: 1,
+        etat: 1,
+        clientId: "$clients._id",
+        nomc: "$clients.nom",
+        villec: "$clients.ville",
+        delegationc: "$clients.delegation",
+        adressec: "$clients.adresse",
+        codePostalec: "$clients.codePostale",
+        telc: "$clients.tel",
+        tel2c: "$clients.tel2",
+        fournisseurId: "$fournisseurs._id",
+        nomf: "$fournisseurs.nom",
+        telf: "$fournisseurs.tel",
+        createdAt: 1,
+        updatedAt: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
+        },
+      },
+    },
+    {
+      $addFields: {
+        createdAtSearch: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
+        },
+      },
+    },
+    {
+      $match: {
+        createdAt: {
+          $gte: new Date(year, month, day, 0, 0, 0, 0),
+          $lte: new Date(year, month, day, 23, 59, 59, 999),
+        },
+      },
+    },
+    {
+      $skip: skip,
+    },
+    {
+      $limit: limit,
+    },
+    {
+      $sort: sort,
+    },
+  ]).exec((err, doc) => {
+    if (!err) {
+      if (req.query.search && req.query.search.length > 2) {
+        res.send(
+          doc.filter(
+            (item) =>
+              item.CAB.toString().includes(req.query.search) ||
+              item.telc.toString().includes(req.query.search) ||
+              item.tel2c?.toString().includes(req.query.search) ||
+              item.telf.toString().includes(req.query.search) ||
+              item.c_remboursement.toString().includes(req.query.search) ||
+              item.createdAtSearch.toString().includes(req.query.search) ||
+              item.nomc
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.nomf
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.villec
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.delegationc
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.adressec
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase())
+          )
+        );
+      } else {
+        res.send(doc);
+      }
+    } else console.log("Erreur lors de la récupération des colis: " + err);
+  });
+});
+
+// Read all with all client and provider data (provider restricted)
+router.get("/all-info-period/admin", (req, res) => {
+  const startDate = req.query.startDate || null;
+  const endDate = req.query.endDate || null;
+
+  var startYear = null;
+  var startMonth = null;
+  var startDay = null;
+
+  var endYear = null;
+  var endMonth = null;
+  var endDay = null;
+
+  if (startDate && endDate) {
+    const dateS = new Date(req.query.startDate);
+    const dateE = new Date(req.query.endDate);
+
+    startYear = dateS.getFullYear();
+    startMonth = dateS.getMonth();
+    startDay = dateS.getDate();
+
+    endYear = dateE.getFullYear();
+    endMonth = dateE.getMonth();
+    endDay = dateE.getDate();
+
+    console.log(startDay);
+  }
+
+  var sort = {};
+  var limit = parseInt(req.query.limit) || 10;
+  var page = parseInt(req.query.page) || 1;
+  var skip = limit * page - limit;
+  var n = -1;
+  var sortBy = req.query.sortBy || "createdAt";
+  if (req.query.sort == "asc") n = 1;
+  sort[sortBy] = n;
+
+  data = [
+    {
+      $lookup: {
+        from: "clients",
+        localField: "clientId",
+        foreignField: "_id",
+        as: "clients",
+      },
+    },
+    { $unwind: "$clients" },
+    {
+      $lookup: {
+        from: "fournisseurs",
+        localField: "fournisseurId",
+        foreignField: "_id",
+        as: "fournisseurs",
+      },
+    },
+    { $unwind: "$fournisseurs" },
+    {
+      $project: {
+        _id: 1,
+        CAB: 1,
+        service: 1,
+        libelle: 1,
+        c_remboursement: 1,
+        volume: 1,
+        poids: 1,
+        pieces: 1,
+        etat: 1,
+        clientId: "$clients._id",
+        nomc: "$clients.nom",
+        villec: "$clients.ville",
+        delegationc: "$clients.delegation",
+        adressec: "$clients.adresse",
+        codePostalec: "$clients.codePostale",
+        telc: "$clients.tel",
+        tel2c: "$clients.tel2",
+        fournisseurId: "$fournisseurs._id",
+        nomf: "$fournisseurs.nom",
+        telf: "$fournisseurs.tel",
+        createdAt: 1,
+        updatedAt: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
+        },
+      },
+    },
+    {
+      $addFields: {
+        createdAtSearch: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
+        },
+      },
+    },
+    {
+      $skip: skip,
+    },
+    {
+      $limit: limit,
+    },
+    {
+      $sort: sort,
+    },
+  ];
+
+  if (startDate && endDate) {
+    data.push({
+      $match: {
+        createdAt: {
+          $gte: new Date(startYear, startMonth, startDay, 0, 0, 0, 0),
+          $lte: new Date(endYear, endMonth, endDay, 23, 59, 59, 999),
+        },
+      },
+    });
+  }
+
+  Package.aggregate(data).exec((err, doc) => {
+    if (!err) {
+      if (req.query.search && req.query.search.length > 2) {
+        res.send(
+          doc.filter(
+            (item) =>
+              item.CAB.toString().includes(req.query.search) ||
+              item.telc.toString().includes(req.query.search) ||
+              item.tel2c?.toString().includes(req.query.search) ||
+              item.telf.toString().includes(req.query.search) ||
+              item.c_remboursement.toString().includes(req.query.search) ||
+              item.createdAtSearch.toString().includes(req.query.search) ||
+              item.nomc
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.nomf
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.villec
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.delegationc
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.adressec
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase())
+          )
+        );
+      } else {
+        res.send(doc);
       }
     } else console.log("Erreur lors de la récupération des colis: " + err);
   });
@@ -369,6 +651,114 @@ router.get("/all-info/:id/:fid", (req, res) => {
   ]).exec((err, doc) => {
     if (!err) res.send(doc);
     else console.log("Erreur lors de la récupération du colis: " + err);
+  });
+});
+
+// Read one with all client and provider data (for admin)
+router.get("/all-info-search/admin", (req, res) => {
+  var CAB = parseInt(req.query.CAB) || null;
+  var tel = parseInt(req.query.tel) || null;
+  var nom = req.query.nom;
+  var adresse = req.query.adresse;
+  var delegation = req.query.delegation;
+
+  var data = [
+    {
+      $lookup: {
+        from: "clients",
+        localField: "clientId",
+        foreignField: "_id",
+        as: "clients",
+      },
+    },
+    { $unwind: "$clients" },
+    {
+      $lookup: {
+        from: "fournisseurs",
+        localField: "fournisseurId",
+        foreignField: "_id",
+        as: "fournisseurs",
+      },
+    },
+    { $unwind: "$fournisseurs" },
+    {
+      $project: {
+        _id: 1,
+        CAB: 1,
+        service: 1,
+        libelle: 1,
+        c_remboursement: 1,
+        volume: 1,
+        poids: 1,
+        pieces: 1,
+        etat: 1,
+        clientId: "$clients._id",
+        nomc: "$clients.nom",
+        villec: "$clients.ville",
+        delegationc: "$clients.delegation",
+        adressec: "$clients.adresse",
+        codePostalec: "$clients.codePostale",
+        telc: "$clients.tel",
+        tel2c: "$clients.tel2",
+        fournisseurId: "$fournisseurs._id",
+        nomf: "$fournisseurs.nom",
+        telf: "$fournisseurs.tel",
+        villef: "$fournisseurs.ville",
+        delegationf: "$fournisseurs.delegation",
+        adressef: "$fournisseurs.adresse",
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    },
+  ];
+
+  // var regex = /[0-9]*2391203218[0-9]*/;
+  // var regex = new RegExp(`[0-9]*${CAB}[0-9]*`, "g");
+  // regex = regex.replace(/\D/g, "");
+
+  if (nom) {
+    data.push({
+      $match: {
+        nomc: new RegExp(`.*${nom}.*`, "gi"),
+      },
+    });
+  }
+
+  if (adresse) {
+    data.push({
+      $match: {
+        adressec: new RegExp(`.*${adresse}.*`, "gi"),
+      },
+    });
+  }
+
+  if (delegation) {
+    data.push({
+      $match: {
+        delegationc: new RegExp(`.*${delegation}.*`, "gi"),
+      },
+    });
+  }
+
+  Package.aggregate(data).exec((err, doc) => {
+    if (!err) {
+      if (tel && CAB) {
+        // console.dir(res.headersSent);
+        res.send(
+          doc.filter(
+            (item) =>
+              item.CAB.toString().includes(CAB) &&
+              item.telc.toString().includes(tel)
+          )
+        );
+      } else if (CAB) {
+        res.send(doc.filter((item) => item.CAB.toString().includes(CAB)));
+      } else if (tel) {
+        res.send(doc.filter((item) => item.telc.toString().includes(tel)));
+      } else {
+        res.send(doc);
+      }
+    } else console.log("Erreur lors de la récupération du colis: " + err);
   });
 });
 
@@ -496,7 +886,7 @@ router.delete("/:id", (req, res) => {
 /********************** STATISTICS **********************/
 // count all packages and/or depending on state and/or time periods
 // router.get("/count/all/:fid", access(["admin"]) , (req, res) => {
-router.get("/count/all/:fid", (req, res) => {
+router.get("/count-for-provider/:fid", (req, res) => {
   var state = req.query.etat || null;
   var startYear = req.query.startYear || null;
   var startMonth = req.query.startMonth || null;
@@ -547,53 +937,141 @@ router.get("/count/all/:fid", (req, res) => {
 });
 
 //count packages that a client has
-router.get("/count/:id", (req, res) => {
+router.get("/count-for-client/:id", (req, res) => {
   var query = Package.find({ clientId: req.params.id });
   query.count((err, count) => {
     if (!err) {
       res.send({ count: count });
     } else console.log(err);
   });
-
-  /********************** STATISTICS **********************/
-
-  // Package.aggregate([
-  //   {
-  //     $lookup: {
-  //       from: "clients",
-  //       localField: "clientId",
-  //       foreignField: "_id",
-  //       as: "clients",
-  //     },
-  //   },
-  //   { $unwind: "$clients" },
-  //   {
-  //     $project: {
-  //       clientId: "$clients._id",
-  //       nomc: "$clients.nom",
-  //       villec: "$clients.ville",
-  //       delegationc: "$clients.delegation",
-  //       adressec: "$clients.adresse",
-  //       codePostalec: "$clients.codePostale",
-  //       telc: "$clients.tel",
-  //       tel2c: "$clients.tel2",
-  //       fournisseurId: "$fournisseurs._id",
-  //       createdAt: "$clients.createdAt",
-  //       updatedAt: "$clients.updatedAt",
-  //     },
-  //   },
-  //   {
-  //     $addFields: {
-  //       count: {$count: {$cond: "$clients._id" }}
-  //     }
-  //   },
-  //   {
-  //     $match: { fournisseurId: fid, _id: id },
-  //   },
-  // ]).exec((err, doc) => {
-  //   if (!err) res.send(doc);
-  //   else console.log("Erreur lors de la récupération du colis: " + err);
-  // });
 });
+
+//count all packages in a given day
+router.get("/count/all-daily", (req, res) => {
+  if (req.query.date) {
+    var date = new Date(req.query.date) || Date.now();
+    var day = date.getDate();
+    var month = date.getMonth();
+    var year = date.getFullYear();
+
+    var query = Package.find({
+      createdAt: {
+        $gt: new Date(year, month, day),
+        $lt: new Date(year, month, day + 1),
+      },
+    });
+  } else {
+    var query = Package.find();
+  }
+  query.count((err, count) => {
+    if (!err) {
+      res.send({ count: count });
+    } else console.log(err);
+  });
+});
+//count all packages
+router.get("/count/all-period", (req, res) => {
+  var state = req.query.etat || null;
+  var query;
+  const startDate = req.query.startDate || null;
+  const endDate = req.query.endDate || null;
+
+  var startYear = null;
+  var startMonth = null;
+  var startDay = null;
+
+  var endYear = null;
+  var endMonth = null;
+  var endDay = null;
+
+  if (startDate && endDate) {
+    const dateS = new Date(req.query.startDate);
+    const dateE = new Date(req.query.endDate);
+
+    startYear = dateS.getFullYear();
+    startMonth = dateS.getMonth();
+    startDay = dateS.getDate();
+
+    endYear = dateE.getFullYear();
+    endMonth = dateE.getMonth();
+    endDay = dateE.getDate();
+
+    console.log(startDay);
+  }
+
+  if (startDate && endDate) {
+    if (state) {
+      query = Package.find({
+        etat: state,
+        createdAt: {
+          $gte: new Date(startYear, startMonth, startDay),
+          $lte: new Date(endYear, endMonth, endDay + 1),
+        },
+      });
+    } else {
+      query = Package.find({
+        createdAt: {
+          $gte: new Date(startYear, startMonth, startDay),
+          $lte: new Date(endYear, endMonth, endDay + 1),
+        },
+      });
+    }
+  } else {
+    if (state) {
+      console.log(state);
+      query = Package.find({
+        etat: state,
+      });
+    } else {
+      query = Package.find({});
+    }
+  }
+
+  query.count((err, count) => {
+    if (!err) {
+      res.send({ count: count });
+    } else console.log(err);
+  });
+});
+
+/********************** STATISTICS **********************/
+
+// Package.aggregate([
+//   {
+//     $lookup: {
+//       from: "clients",
+//       localField: "clientId",
+//       foreignField: "_id",
+//       as: "clients",
+//     },
+//   },
+//   { $unwind: "$clients" },
+//   {
+//     $project: {
+//       clientId: "$clients._id",
+//       nomc: "$clients.nom",
+//       villec: "$clients.ville",
+//       delegationc: "$clients.delegation",
+//       adressec: "$clients.adresse",
+//       codePostalec: "$clients.codePostale",
+//       telc: "$clients.tel",
+//       tel2c: "$clients.tel2",
+//       fournisseurId: "$fournisseurs._id",
+//       createdAt: "$clients.createdAt",
+//       updatedAt: "$clients.updatedAt",
+//     },
+//   },
+//   {
+//     $addFields: {
+//       count: {$count: {$cond: "$clients._id" }}
+//     }
+//   },
+//   {
+//     $match: { fournisseurId: fid, _id: id },
+//   },
+// ]).exec((err, doc) => {
+//   if (!err) res.send(doc);
+//   else console.log("Erreur lors de la récupération du colis: " + err);
+// });
 
 module.exports = router;

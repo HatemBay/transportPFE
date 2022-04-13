@@ -91,12 +91,40 @@
       <!-- Navigation -->
       <ul class="navbar-nav">
         <li *ngFor="let menuItem of menuItems" class="{{menuItem.class}} nav-item">
-          <span *ngIf="!menuItem.roles.includes(role)">
+          <ng-container *ngIf="!menuItem.roles.includes(role)">
             <a routerLinkActive="active" [routerLink]="[menuItem.path]" class="nav-link">
               <i class="ni {{menuItem.icon}}"></i>
               {{menuItem.title}}
             </a>
-          </span>
+          </ng-container>
+        </li>
+        <li class="nav-item">
+          <a routerLinkActive="false" class="nav-link">
+            <i class="ni ni-settings-gear-65 text-info"></i>
+            Gestion
+          </a>
+          <ul class="navbar-nav ml-5 mr-4 bg-secondary">
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="['/gestion-filiere']">Filiere</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="['/']">Personel</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="['/']">Client</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="['/']">Véhicule</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="['/']">Ville</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="['/']">Délégation</a>
+            </li>
+
+
+          </ul>
         </li>
       </ul>
       <!-- Divider -->

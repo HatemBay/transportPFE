@@ -219,7 +219,6 @@ export class GestionColisComponent implements OnInit {
       this.startDate,
       this.today
     );
-
   }
 
   // changes number of elements to display
@@ -372,14 +371,15 @@ export class GestionColisComponent implements OnInit {
     //dates are set when the view is initiated so when table search is implemented it will use those values regardless of initiating date periods search
     //so we need to use a variable that checks if the time periods search has been initiated at least once
     this.init = true;
-    this.getDataJson( null,
+    this.getDataJson(
+      null,
       null,
       null,
       null,
       null,
       null,
       this.startDate,
-      this.today);
-
+      this.today
+    );
   }
 }

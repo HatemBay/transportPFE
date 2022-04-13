@@ -83,6 +83,7 @@ export class PackageService {
     return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
   }
 
+  // get all packages created in a certain day
   getDailyPackages(
     limit?: any,
     page?: any,
@@ -110,7 +111,35 @@ export class PackageService {
     return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
   }
 
-  // Get package
+  // get all packages that meet search criterias
+  getSearchPackages(
+    CAB?: any,
+    tel?: any,
+    nom?: any,
+    adresse?: any,
+    delegation?: any
+  ) {
+    const url = `${this.baseUri}/all-info-search/admin`;
+    var queryParams = new HttpParams();
+    if (CAB) {
+      queryParams = queryParams.append("CAB", CAB);
+    }
+    if (tel) {
+      queryParams = queryParams.append("tel", tel);
+    }
+    if (nom) {
+      queryParams = queryParams.append("nom", nom);
+    }
+    if (adresse) {
+      queryParams = queryParams.append("adresse", adresse);
+    }
+    if (delegation) {
+      queryParams = queryParams.append("delegation", delegation);
+    }
+    return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
+  }
+
+  // Get package by provider
   getPackage(id: any): Observable<any> {
     const url = `${this.baseUri}/${id}`;
     return this.http.get(url, { headers: this.headers }).pipe(

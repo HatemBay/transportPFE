@@ -4,21 +4,26 @@ import { DashboardComponent } from "../../pages/dashboard/dashboard.component";
 import { IconsComponent } from "../../pages/icons/icons.component";
 import { ColisJourComponent } from "../../pages/colis-jour/colis-jour.component";
 import { UserProfileComponent } from "../../pages/user-profile/user-profile.component";
-import { TablesComponent } from "../../pages/tables/tables.component";
+import { RechercheComponent } from "../../pages/recherche/recherche.component";
 import { CarnetAdresseComponent } from "src/app/pages/carnet-adresse/carnet-adresse.component";
 import { GestionColisComponent } from "src/app/pages/gestion-colis/gestion-colis.component";
 import { FinanceComponent } from "src/app/pages/finance/finance.component";
 import { ImprimerComponent } from "src/app/pages/imprimer/imprimer.component";
 import { RoleGuard } from "src/app/services/role.guard";
+import { GestionFiliereComponent } from 'src/app/pages/gestion-filiere/gestion-filiere.component';
+
 
 export const AdminLayoutRoutes: Routes = [
   { path: "dashboard", component: DashboardComponent },
   { path: "colis-jour", component: ColisJourComponent },
   { path: "user-profile", component: UserProfileComponent },
-  { path: "tables", component: TablesComponent },
+  { path: "recherche", component: RechercheComponent },
+  { path: "recherche-av", component: RechercheComponent },
+  { path: "recherche-av-sub", component: RechercheComponent },
   { path: "icons", component: IconsComponent },
   { path: "modifier-colis", component: ColisJourComponent },
   { path: "carnet-adresses", component: CarnetAdresseComponent },
+  { path: "gestion-filiere", component: GestionFiliereComponent },
   {
     path: "gestion-colis",
     component: GestionColisComponent,

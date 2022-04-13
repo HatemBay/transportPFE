@@ -1,0 +1,268 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <div class="header-body">
+    </div>
+  </div>
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <!-- ************************ START: PATH = RECHRCHE-AV ************************ -->
+      <ng-container *ngIf="routePath == 'recherche-av'">
+        <ng-container *ngIf="!packageAction">
+          <div class="card mb-4 shadow border-0">
+            <form class="card-body" (ngSubmit)="onSubmit()" [formGroup]="searchForm">
+              <div class="form-row">
+                <div class="col-md-8 col-xs-12 offset-1">
+                  <div class="form-group row">
+                    <label class="text-right my-auto col-md-4" for="inputAddress">Code à barre</label>
+                    <input formControlName="CAB" id="code_barre" name="code_barre" type="number"
+                      class="form-control col-md-6">
+                  </div>
+                  <div class="form-group row">
+                    <label class="text-right my-auto col-md-4" for="inputAddress">Téléphone</label>
+                    <input formControlName="tel" id="tel_cl" name="tel_cl" type="number" class="form-control col-md-6">
+                  </div>
+                  <div class="form-group row">
+                    <label class="text-right my-auto col-md-4" for="inputPassword4">Nom &amp; Prénom</label>
+                    <input formControlName="nom" id="nom_prenom_cl" name="nom_prenom_cl" type="text"
+                      class="form-control col-md-6">
+                  </div>
+                  <div class="form-group row">
+                    <label class="text-right my-auto col-md-4" for="inputPassword4">Adresse</label>
+                    <input formControlName="adresse" id="adresse_cl" name="adresse_cl" type="text"
+                      class="form-control col-md-6">
+                  </div>
+                  <div class="form-group row">
+                    <label class="text-right my-auto col-md-4" for="inputEmail4">Gouvernorat</label>
+                    <select formControlName="delegation" name="ville_cl" class="form-control col-md-6" id="ville">
+                      <option hidden="" value="" selected="">-- Choisir --</option>
+                      <option data-value="1" value="Ariana">Ariana</option>
+                      <option data-value="2" value="Béja">Béja</option>
+                      <option data-value="3" value="Ben Arous">Ben Arous</option>
+                      <option data-value="4" value="Bizerte">Bizerte</option>
+                      <option data-value="5" value="Gabés">Gabés</option>
+                      <option data-value="6" value="Gafsa">Gafsa</option>
+                      <option data-value="7" value="Jendouba">Jendouba</option>
+                      <option data-value="8" value="Kairouan">Kairouan</option>
+                      <option data-value="9" value="Kasserine">Kasserine</option>
+                      <option data-value="10" value="Kébili">Kébili</option>
+                      <option data-value="11" value="Le Kef">Le Kef</option>
+                      <option data-value="12" value="Mahdia">Mahdia</option>
+                      <option data-value="13" value="La Manouba">La Manouba</option>
+                      <option data-value="14" value="Médenine">Médenine</option>
+                      <option data-value="15" value="Monastir">Monastir</option>
+                      <option data-value="16" value="Nabeul">Nabeul</option>
+                      <option data-value="17" value="Sfax">Sfax</option>
+                      <option data-value="18" value="Sidi Bouzid">Sidi Bouzid</option>
+                      <option data-value="19" value="Siliana">Siliana</option>
+                      <option data-value="20" value="Sousse">Sousse</option>
+                      <option data-value="21" value="Tataouine">Tataouine</option>
+                      <option data-value="22" value="Tozeur">Tozeur</option>
+                      <option data-value="23" value="Tunis">Tunis</option>
+                      <option data-value="24" value="Zaghouan">Zaghouan</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button type="submit" name="submit" value="1"
+                  class="btn float-right btn-primary text-white px-5">Rechercher</button>
+              </div>
+            </form>
+          </div>
+        </ng-container>
+      </ng-container>
+      <!-- ************************ END: PATH = RECHRCHE-AV ************************ -->
+      <!-- ************************ START: PATH = RECHRCHE ************************ -->
+      <ng-container *ngIf="routePath == 'recherche-av-sub'">
+        <h3 class="card-header bg-success text-white text-center mb-4" style="border-radius: 50px;">Vous avez <u>{{packageData.length}}</u> résultats pour votre recherche</h3>
+        <ng-container *ngIf="packageData.length === 0">
+          <h1 class="card-header text-center text-white alert alert-warning" >Bordereau n'existe pas.</h1>
+        </ng-container>
+        <ng-container *ngFor="let item of packageData">
+          <div class="card mb-4" style="position: relative;">
+            <h1 class="card-header bg-primary text-white">{{item.CAB}}</h1>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-sm-12">
+                  <h5 class="card-title">Nombre de tentative: 0</h5>
+                  <hr>
+                </div>
+                <div class="col-sm-3">
+                  <h5 class="card-title">Coordonnées de l'expéditeur</h5>
+                  <hr>
+                  <div class="form-group">
+                    <label class="form-label">Téléphone : {{item.telf}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Nom &amp; Prénom : {{item.nomf}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Ville : {{item.villef}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Délegation : {{item.delegationf}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Adresse : {{item.adressef}}</label>
+                  </div>
+                </div>
+                <div class="col-sm-3">
+                  <h5 class="card-title">Coordonnées du client</h5>
+                  <hr>
+                  <div class="form-group">
+                    <label class="form-label">Téléphone : {{item.telc}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Nom &amp; Prénom : {{item.nomc}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Ville : {{item.villec}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Délegation : {{item.delegationc}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Adresse : {{item.adressec}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Code postale : {{item.codePostalec}}</label>
+                  </div>
+                </div>
+
+                <div class="col-sm-3" style="border-right: 1px solid #aaa;">
+
+                  <h5 class="card-title">Coordonnées de colis</h5>
+                  <hr>
+                  <div class="form-group">
+                    <label class="form-label h4">COD : {{item.c_remboursement}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label h5 text-success">Dernier etat : {{item.etat}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Service : {{item.service}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Libelle marchandise : {{item.libelle}}</label>
+                  </div>
+                </div>
+
+                <div class="col-sm-3">
+                  <h5 class="card-title">Etat du colis</h5>
+                  <hr>
+                  <div class="form-group" id="etat_195905">
+                    <button class="btn btn-danger btn-sm" title="Supprimer etat"
+                      ondblclick="supp_etat(195905, 36317525)">x</button>
+                    <label class="form-label">Colis créé le 03/04/2022 à 17:57 </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+      <ng-container *ngIf="routePath == 'recherche'">
+        <ng-container *ngFor="let item of packageData">
+          <div class="card mb-4" style="position: relative;">
+            <h1 class="card-header bg-primary text-white">{{item.CAB}}</h1>
+            <div style="position: absolute; right: 1%; top: 4%;">
+              <a href="modifier_colis?code_barre=36317525" class="btn btn-sm btn-success mr-3"><i
+                  class="fa fa-edit"></i></a>
+              <button class="btn btn-sm btn-danger mr-3" data-toggle="modal" data-target="#deleteModal"
+                onclick="supprimer(36317525)"><i class="fa fa-trash"></i></button>
+
+              <!-- <button class="btn btn-sm btn-success mr-3" data-toggle="modal" data-target="#etatModal" onclick="etat_modal(36317525)"><i class="fa fa-check"></i></button> -->
+
+              <a href="imprimers_colis?code_barre=36317525" target="_blank" class="btn btn-sm btn-warning mr-3">
+                <i class="fa fa-print"></i>
+              </a>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-sm-12">
+                  <h5 class="card-title">Nombre de tentative: 0</h5>
+                  <hr>
+                </div>
+                <div class="col-sm-3">
+                  <h5 class="card-title">Coordonnées de l'expéditeur</h5>
+                  <hr>
+                  <div class="form-group">
+                    <label class="form-label">Téléphone : {{item.telf}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Nom &amp; Prénom : {{item.nomf}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Ville : {{item.villef}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Délegation : {{item.delegationf}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Adresse : {{item.adressef}}</label>
+                  </div>
+                </div>
+                <div class="col-sm-3">
+                  <h5 class="card-title">Coordonnées du client</h5>
+                  <hr>
+                  <div class="form-group">
+                    <label class="form-label">Téléphone : {{item.telc}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Nom &amp; Prénom : {{item.nomc}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Ville : {{item.villec}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Délegation : {{item.delegationc}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Adresse : {{item.adressec}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Code postale : {{item.codePostalec}}</label>
+                  </div>
+                </div>
+
+                <div class="col-sm-3" style="border-right: 1px solid #aaa;">
+
+                  <h5 class="card-title">Coordonnées de colis</h5>
+                  <hr>
+                  <div class="form-group">
+                    <label class="form-label h4">COD : {{item.c_remboursement}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label h5 text-success">Dernier etat : {{item.etat}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Service : {{item.service}}</label>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Libelle marchandise : {{item.libelle}}</label>
+                  </div>
+                </div>
+
+                <div class="col-sm-3">
+                  <h5 class="card-title">Etat du colis</h5>
+                  <hr>
+                  <div class="form-group" id="etat_195905">
+                    <button class="btn btn-danger btn-sm" title="Supprimer etat"
+                      ondblclick="supp_etat(195905, 36317525)">x</button>
+                    <label class="form-label">Colis créé le 03/04/2022 à 17:57 </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+      <!-- ************************ END: PATH = RECHRCHE ************************ -->
+
+    </div>
+  </div>
+
+</div>

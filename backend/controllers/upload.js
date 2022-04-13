@@ -54,13 +54,13 @@ router.post("/:fid", (req, res) => {
               client.ville = el.ville;
               client.adresse = el.adresse;
               client.delegation = el.délegation;
-              client.fournisseurId = fournisseurId;
+              client.fournisseurId.push(fournisseurId);
 
               package.CAB = el["code à barre"];
               package.etat = el.etat;
               package.c_remboursement = el.cod;
               package.libelle = el.libelle;
-              package.fournisseurId = fournisseurId;
+              package.fournisseurId.push(fournisseurId);
 
               // Package.findOne({ CAB: package.CAB }, (req, res) => {
               //   if (res.length == 0)
@@ -75,6 +75,7 @@ router.post("/:fid", (req, res) => {
               if (package.CAB != "" && client.tel != "") {
                 await client.save().then(
                   async (doc) => {
+                    package.clientId.push(doc._id);
                     await package.save().then(
                       async (doc2) => {
                         await Fournisseur.findByIdAndUpdate(

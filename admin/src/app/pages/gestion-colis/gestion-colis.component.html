@@ -49,7 +49,7 @@
                       type="button">{{printList[0].name}}</a>
                   </li>
                   <li class="nav-item col-2">
-                    <a csvLink [data]="rows" [headers]="headers" class="nav-link btn btn-primary"
+                    <a csvLink [data]="rows" [headers]="headers" style="color: #5e72e4 !important;" class="nav-link btn btn-primary"
                       (click)="exportToExcel()" type="button">{{printList[1].name}}</a>
                   </li>
                   <li class="nav-item col-2">
@@ -104,7 +104,7 @@
             <ngx-datatable-column name="Code à barre">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  <a href="#">
+                  <a [routerLink]="['/']" (click)="details(row)">
                     {{row.CAB}}
                   </a>
                 </span>
@@ -533,7 +533,6 @@
       <tr>
         <th>Code à barre</th>
         <th>Etat</th>
-        <th>Date payé</th>
         <th>Expéditeur</th>
         <th>Tél expéditeur</th>
         <th>Destinataire</th>
@@ -546,62 +545,21 @@
       </tr>
     </thead>
     <tbody>
+      <ng-container *ngFor="let row of rows">
       <tr>
-        <td>36317513</td>
-        <td>Livré - espèce</td>
-        <td>01/04/2022 23:31</td>
-        <td>hatem</td>
-        <td>20202020</td>
-        <td>dfsfds</td>
-        <td>45544554</td>
-        <td>Ben Arous</td>
-        <td>Fouchana</td>
-        <td>sdfds</td>
-        <td>1.000</td>
-        <td>06/03/2022 18:23</td>
+        <td>{{row.CAB}}</td>
+        <td>{{row.etat}}</td>
+        <td>{{row.nomf}}</td>
+        <td>{{row.nomc}}</td>
+        <td>{{row.telc}}</td>
+        <td>{{row.tel2c}}</td>
+        <td>{{row.villec}}</td>
+        <td>{{row.delegationc}}</td>
+        <td>{{row.adressec}}</td>
+        <td>{{row.c_remboursement}}</td>
+        <td>{{row.createdAtSearch}}/td>
       </tr>
-      <tr>
-        <td>36317523</td>
-        <td>Colis créé</td>
-        <td>03/04/2022 16:24</td>
-        <td>hatem</td>
-        <td>20202020</td>
-        <td>John</td>
-        <td>14254758</td>
-        <td>Monastir</td>
-        <td>Moknine</td>
-        <td>baghded street</td>
-        <td>10.000</td>
-        <td>03/04/2022 16:24</td>
-      </tr>
-      <tr>
-        <td>36317524</td>
-        <td>Colis créé</td>
-        <td>03/04/2022 17:56</td>
-        <td>hatem</td>
-        <td>20202020</td>
-        <td>John</td>
-        <td>14254758</td>
-        <td>Monastir</td>
-        <td>Jemmal</td>
-        <td>baghded street</td>
-        <td>10.000</td>
-        <td>03/04/2022 17:56</td>
-      </tr>
-      <tr>
-        <td>36317525</td>
-        <td>Colis créé</td>
-        <td>03/04/2022 17:57</td>
-        <td>hatem</td>
-        <td>20202020</td>
-        <td>John2</td>
-        <td>14254758</td>
-        <td>Monastir</td>
-        <td>Moknine</td>
-        <td>baghded street</td>
-        <td>10.000</td>
-        <td>03/04/2022 17:57</td>
-      </tr>
+    </ng-container>
     </tbody>
   </table>
   <div></div>

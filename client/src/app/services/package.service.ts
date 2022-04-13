@@ -120,7 +120,7 @@ export class PackageService {
 
   // Count packages
   countAllPackages(etat?: any, startYear?:any, startMonth?:any, startDay?:any, endYear?:any, endMonth?:any, endDay?: any): Observable<any> {
-    let url = `${this.baseUri}/count/all/${this.userId}`;
+    let url = `${this.baseUri}/count-for-provider/${this.userId}`;
     var queryParams = new HttpParams();
     if (etat) {
       queryParams = queryParams.append("etat", etat || "");
