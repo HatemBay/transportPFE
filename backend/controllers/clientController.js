@@ -13,7 +13,7 @@ router.get("/all/:fid", (req, res) => {
   var fid = ObjectId(req.params.fid);
   var limit = parseInt(req.query.limit) || 10;
   var page = parseInt(req.query.page) || 1;
-  var skip = ((limit * page) - limit);
+  var skip = limit * page - limit;
   var sort = {};
   var n = -1;
   var sortBy = req.query.sortBy || "createdAt";
@@ -57,34 +57,34 @@ router.get("/all/:fid", (req, res) => {
     {
       $sort: sort,
     },
-  ])
-    .exec((err, docs) => {
-      if (!err) {
-        if (req.query.search && req.query.search.length > 2) {
-          res.send(
-            docs.filter(
-              (item) =>
-                item.tel.toString().includes(req.query.search) ||
-                item.tel2?.toString().includes(req.query.search) ||
-                item.codePostale?.toString().includes(req.query.search) ||
-                item.createdAtSearch.toString().includes(req.query.search) ||
-                item.nom
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.ville
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.delegation
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.adresse
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase())
-            )
-          );
-        } else res.send(docs);
-      } else console.log(err);
-    });
+  ]).exec((err, docs) => {
+    if (!err) {
+      if (req.query.search && req.query.search.length > 2) {
+        res.send(
+          docs.filter(
+            (item) =>
+              item.tel.toString().includes(req.query.search) ||
+              item.tel2?.toString().includes(req.query.search) ||
+              item.codePostale?.toString().includes(req.query.search) ||
+              item.createdAtSearch.toString().includes(req.query.search) ||
+              item.nom.toLowerCase().includes(req.query.search.toLowerCase()) ||
+              item.ville
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.delegation
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.adresse
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase())
+          )
+        );
+      } else res.send(docs);
+    } else {
+      console.log(err);
+      res.status(400).send(err.message);
+    }
+  });
 });
 
 // get client by id
@@ -93,11 +93,10 @@ router.get("/:id", (req, res) => {
     return res.status(400).send(`no record with given id: ${req.params.id}`);
   Client.findById(req.params.id, (err, doc) => {
     if (!err) res.send(doc);
-    else
-      console.log(
-        "Erreur lors de la récupération des clients: " +
-          JSON.stringify(err, undefined, 2)
-      );
+    else {
+      console.log("Erreur lors de la récupération des clients: " + err);
+      res.status(400).send(err.message);
+    }
   });
 });
 
@@ -112,10 +111,10 @@ router.get("/:id", (req, res) => {
 router.get("/tel/:tel", (req, res) => {
   Client.find({ tel: req.params.tel }, (err, docs) => {
     if (!err) res.send(docs);
-    else
-      console.log(
-        "Error in retrieving Clients: " + JSON.stringify(err, undefined, 2)
-      );
+    else {
+      console.log("Error in retrieving Clients: " + err);
+      res.status(400).send(err.message);
+    }
   });
 });
 
@@ -130,7 +129,8 @@ router.get("/packages/:id", (req, res) => {
     })
     .catch(function (err) {
       // If an error occurred, send it to the client
-      res.json(err);
+      console.log(err);
+      res.status(400).send(err.message);
     });
 });
 
@@ -158,12 +158,14 @@ router.post("/", (req, res) => {
           res.send(doc);
         },
         (err) => {
-          res.json("Erreur lors de l'enregistrement du colis: " + err);
+          console.log("Erreur lors de l'enregistrement du colis: " + err);
+          res.status(400).send(err.message);
         }
       );
     },
     (err) => {
-      res.json("Erreur lors de l'enregistrement du client: " + err.message);      
+      console.log("Erreur lors de l'enregistrement du client: " + err);
+      res.status(400).send(err.message);
     }
   );
 });
@@ -191,9 +193,12 @@ router.put("/:id", (req, res) => {
       if (!err) {
         res.status(200);
         res.json({
-          message: "client updated successfully",
+          message: "client mis à jour",
         });
-      } else console.log(err);
+      } else {
+        console.log("Erreur dans la modification du client: " + err);
+        res.status(400).send(err.message);
+      }
     }
   );
 });
@@ -212,22 +217,31 @@ router.delete("/:id", (req, res) => {
           if (!err2) {
             res.status(200);
             res.json({
-              message: "client deleted successfully",
+              message: "client supprimé",
             });
-          } else console.log(err2);
+          } else {
+            console.log(err2);
+            res.status(400).send(err2.message);
+          }
         }
       );
-    } else console.log(err);
+    } else {
+      res.status(400).send(err.message);
+      console.log(err);
+    }
   });
 });
 
 // count clients
 router.get("/count/all/:fid", (req, res) => {
   var fid = req.params.fid;
-  Client.count({ fournisseurId: '6225db0081105d73941b5108' }, (err, count) => {
+  Client.count({ fournisseurId: "6225db0081105d73941b5108" }, (err, count) => {
     if (!err) {
       res.send({ count: count });
-    } else console.log(err);
+    } else {
+      console.log(err);
+      res.status(400).send(err.message);
+    }
   });
 });
 

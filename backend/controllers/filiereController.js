@@ -60,6 +60,7 @@ router.post("/", (req, res) => {
       res.send(doc);
     } else {
       console.log("Erreur lors de la création de la filière: " + err);
+      res.status(400).send(err.message);
     }
   });
 });
@@ -81,7 +82,10 @@ router.put("/:id", (req, res) => {
         res.json({
           message: "filière mis à jours avec succès",
         });
-      } else console.log("Erreur dans la mis à jour de la filière: " + err);
+      } else {
+        console.log("Erreur dans la mis à jour de la filière: " + err);
+        res.status(400).send(err.message);
+      }
     }
   );
 });
@@ -97,6 +101,7 @@ router.delete("/:id", (req, res) => {
       });
     } else {
       console.log("Erreur dans la suppression de la filière: " + err);
+      res.status(400).send(err.message);
     }
   });
 });
@@ -107,7 +112,10 @@ router.get("/count/all", (req, res) => {
   query.count((err, count) => {
     if (!err) {
       res.send({ count: count });
-    } else console.log(err);
+    } else {
+      console.log(err);
+      res.status(400).send(err.message);
+    }
   });
 });
 /********************** STATISTICS **********************/

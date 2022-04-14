@@ -9,6 +9,15 @@ import { Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { FiliereService } from "src/app/services/filiere.service";
 import { NgbActiveModal, NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
+import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({
   selector: "app-gestion-filiere",
@@ -40,22 +49,30 @@ export class GestionFiliereComponent implements OnInit {
   selected: any = [];
   public columns: Array<object>;
   count: any;
+  filiereForm: any;
+  error: any = "none";
   constructor(
     private router: Router,
+    private fb: FormBuilder,
     private filiereService: FiliereService,
     public modalService: NgbModal,
     public activeModal: NgbActiveModal
   ) {}
 
   ngOnInit(): void {
-    this.columns = [
-      { prop: "nom", name: "Filière" },
-      { prop: "adresse", name: "Adresse" },
-    ];
+    this.filiereForm = this.fb.group({
+      nom: ["", Validators.required],
+      adresse: ["", Validators.required],
+    });
 
     this.countFilieres();
 
     this.getDataJson();
+    console.log(this.error != "none");
+  }
+
+  get f() {
+    return this.filiereForm.controls;
   }
 
   // get data from backend
@@ -70,7 +87,7 @@ export class GestionFiliereComponent implements OnInit {
   // count branches
   countFilieres() {
     this.filiereService.countFilieres().subscribe((data) => {
-      this.count = data;
+      this.count = data.count;
     });
   }
 
@@ -126,8 +143,35 @@ export class GestionFiliereComponent implements OnInit {
   }
 
   closeModal(modal) {
+    this.filiereForm.value.nom = this.filiereForm.value.nom.toLowerCase();
 
-    modal.close('Cross click');
+    console.log(this.filiereForm.value.nom);
+
+    this.filiereService.createFiliere(this.filiereForm.value).subscribe(
+      (res) => {
+        this.error = "none";
+        this.filiereForm.reset();
+        this.getDataJson();
+        modal.close("Cross click");
+      },
+      (err) => {
+        this.error = err.message;
+      }
+    );
   }
 
+  dismissModal(modal) {
+    this.filiereForm.reset();
+    modal.dismiss("Cross click");
+  }
+
+  // delete filiere
+  delete(data) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cette filière?")) {
+      this.filiereService.deleteFiliere(data._id).subscribe(() => {
+        console.log("filiere supprimée");
+        this.getDataJson();
+      });
+    }
+  }
 }

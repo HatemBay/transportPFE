@@ -817,16 +817,19 @@ router.post("/", (req, res) => {
             },
             (err) => {
               console.log("Erreur lors de l'enregistrement du colis: " + err);
+              res.status(400).send(err.message);
             }
           );
         },
         (err) => {
           console.log("Erreur lors du mis a jour du fournisseur: " + err);
+          res.status(400).send(err.message);
         }
       );
     })
     .catch((err) => {
       console.log("Erreur lors de l'enregistrement du colis: " + err);
+      res.status(400).send(err.message);
     });
 });
 
@@ -847,7 +850,10 @@ router.put("/:id", (req, res) => {
         res.json({
           message: "package updated successfully",
         });
-      } else console.log(err);
+      } else {
+        console.log(err);
+        res.status(400).send(err.message);
+      }
     }
   );
 });
@@ -873,13 +879,22 @@ router.delete("/:id", (req, res) => {
                   res.json({
                     message: "package deleted successfully",
                   });
-                } else console.log(err3);
+                } else {
+                  console.log(err3);
+                  res.status(400).send(err3.message);
+                }
               }
             );
-          } else console.log(err2);
+          } else {
+            console.log(err2);
+            res.status(400).send(err2.message);
+          }
         }
       );
-    } else console.log(err);
+    } else {
+      console.log(err);
+      res.status(400).send(err.message);
+    }
   });
 });
 
@@ -932,7 +947,10 @@ router.get("/count-for-provider/:fid", (req, res) => {
   query.count((err, count) => {
     if (!err) {
       res.send({ count: count });
-    } else console.log(err);
+    } else {
+      console.log(err);
+      res.status(400).send(err.message);
+    }
   });
 });
 
@@ -942,7 +960,10 @@ router.get("/count-for-client/:id", (req, res) => {
   query.count((err, count) => {
     if (!err) {
       res.send({ count: count });
-    } else console.log(err);
+    } else {
+      console.log(err);
+      res.status(400).send(err.message);
+    }
   });
 });
 
@@ -966,7 +987,10 @@ router.get("/count/all-daily", (req, res) => {
   query.count((err, count) => {
     if (!err) {
       res.send({ count: count });
-    } else console.log(err);
+    } else {
+      console.log(err);
+      res.status(400).send(err.message);
+    }
   });
 });
 //count all packages
@@ -1030,7 +1054,10 @@ router.get("/count/all-period", (req, res) => {
   query.count((err, count) => {
     if (!err) {
       res.send({ count: count });
-    } else console.log(err);
+    } else {
+      console.log(err);
+      res.status(400).send(err.message);
+    }
   });
 });
 

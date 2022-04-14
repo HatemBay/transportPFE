@@ -8,7 +8,10 @@ var { Fournisseur, validate } = require("../models/fournisseur");
 router.get("/", (req, res) => {
   Fournisseur.find((err, docs) => {
     if (!err) res.send(docs);
-    else console.log("Erreur lors de la récupération des fournisseurs: " + err);
+    else {
+      console.log("Erreur lors de la récupération des fournisseurs: " + err);
+      res.status(400).send(err.message);
+    }
   });
 });
 
@@ -17,16 +20,19 @@ router.get("/:id", (req, res) => {
     return res.status(400).send(`no record with given id: ${req.params.id}`);
   Fournisseur.findById(req.params.id, (err, doc) => {
     if (!err) res.send(doc);
-    else console.log("Erreur lors de la récupération des fournisseurs: " + err);
+    else {
+      console.log("Erreur lors de la récupération des fournisseurs: " + err);
+      res.status(400).send(err.message);
+    }
   });
 });
 
 //get all packages belonging to fournisseur id
-router.get("/:id/packages", (req, res) => {
-  if (!ObjectId.isValid(req.params.id))
-    return res.status(400).send(`no record with given id: ${req.params.id}`);
-  Fournisseur.findById(req.params.id).populate("packages");
-});
+// router.get("/:id/packages", (req, res) => {
+//   if (!ObjectId.isValid(req.params.id))
+//     return res.status(400).send(`no record with given id: ${req.params.id}`);
+//   Fournisseur.findById(req.params.id).populate("packages");
+// });
 
 router.post("/", (req, res) => {
   // console.log(req.body);
@@ -58,7 +64,10 @@ router.post("/", (req, res) => {
         });
       }
       // If fournisseur is not found
-      else res.status(401).json(info);
+      else {
+        console.log("Erreur lors de l'enregistrement du fournisseur: " + err);
+        res.status(400).send(err.message);
+      }
     });
 });
 
@@ -86,7 +95,10 @@ router.put("/:id", (req, res) => {
           res.json({
             message: "Fournisseur mis à jours avec succès",
           });
-        } else console.log("Erreur dans la mis à jour du fournisseur: " + err);
+        } else {
+          console.log("Erreur dans la mis à jour du fournisseur: " + err);
+          res.status(400).send(err.message);
+        }
       }
     );
 });
@@ -102,6 +114,7 @@ router.delete("/:id", (req, res) => {
       });
     } else {
       console.log("Erreur dans la suppression du fournisseur: " + err);
+      res.status(400).send(err.message);
     }
   });
 });

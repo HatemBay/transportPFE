@@ -58,16 +58,14 @@
               ]
             },
             "development": {
+              "optimization": false,
+              "outputHashing": "all",
+              "sourceMap": true,
+              "namedChunks": true,
+              "extractLicenses": false,
+              "vendorChunk": true,
               "buildOptimizer": false,
-              "optimization": {
-                "scripts": true,
-                "styles": {
-                  "minify": false,
-                  "inlineCritical": true
-                },
-                "fonts": true
-              },
-              "outputHashing": "all"
+              "budgets": []
             }
           }
         },
@@ -84,7 +82,7 @@
               "browserTarget": "argon-dashboard-angular:build:development"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",

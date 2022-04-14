@@ -11,27 +11,16 @@
         <div class="card-header">
           <div *ngIf="success" class="alert alert-success ml-4 mr-4">
             <span class="closebtn" onclick="this.parentElement.style.display='none'; success = false;">&times;</span>
-            Colis supprimé avec succes
+            Filière supprimée avec succes
           </div>
           <div class="row mb-4">
             <div class="col-8">Gestion Filières: </div>
             <div class="col-4 text-right">
-              <button (click)="addModal()" data-target="" class="m-0 float-right btn btn-success btn-sm">
-              Ajouter <i class="fas fa-plus"></i>
-            </button>
+              <button [formGroup]="filiereForm" (click)="addModal()" data-target=""
+                class="m-0 float-right btn btn-success btn-sm">
+                Ajouter <i class="fas fa-plus"></i>
+              </button>
             </div>
-            <ng-template #editModal let-modal>
-              <div class="modal-header">
-                <h4 class="modal-title">Hi there!</h4>
-                <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">X</button>
-              </div>
-              <div class="modal-body">
-                <p>Hello, {{name}}!</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-outline-dark" (click)="closeModal(modal)">Close</button>
-              </div>
-            </ng-template>
           </div>
           <div class="row">
             <div class="col-6 pr-4">
@@ -67,13 +56,32 @@
           <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
             [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
             (sort)="onSort($event)">
-
-            <ngx-datatable-column *ngFor="let column of columns;
-        let i = index;" name="{{column.name}}" prop="{{column.prop}}">
+            <ngx-datatable-column name="Filière" prop="nom">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.nom | titlecase}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Adresse" prop="adresse">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.adresse | titlecase}}
+                </span>
+              </ng-template>
             </ngx-datatable-column>
 
+            <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
+                <span>
+                  <button [routerLink]="" (click)="delete(row)" class="btn btn-sm btn-danger rounded-circle">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
             <ngx-datatable-footer>
-              <ng-template ngx-datatable-footer-template [let-rowCount]="count" let-pageSize="pageSize"
+              <ng-template ngx-datatable-footer-template let-rowCount="count" let-pageSize="pageSize"
                 let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
                 <div class="pl-2">
                   Elements: {{ count }} | Taille: {{ pageSize }} | Page:
@@ -92,4 +100,49 @@
     </div>
   </div>
 </div>
+<ng-template #editModal let-modal>
+  <form class="modal-content" [formGroup]="filiereForm" (ngSubmit)="closeModal(modal)">
+    <div class="modal-header bg-success">
+      <h4 class="modal-title">Ajouter Filière</h4>
+      <button type="button" class="close" aria-label="Close" (click)="dismissModal(modal)">X</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nom Filière</label>
+        <input formControlName="nom" type="text" required="" class="form-control">
+        <ng-container
+          *ngIf="filiereForm.controls['nom'].invalid && (filiereForm.controls['nom'].dirty || filiereForm.controls['nom'].touched)">
+          <ng-container *ngIf="filiereForm.controls['nom'].errors?.['required']">
+            <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+            <small class="text-danger">
+              Nom filière est requis.
+            </small>
+          </ng-container>
+        </ng-container>
+        <ng-container *ngIf="error != 'none'">
+          <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+          <small class="text-danger">
+            Nom filière existe déjà.
+          </small>
+        </ng-container>
+      </div>
+      <div class="form-group">
+        <label>Adresse</label>
+        <input formControlName="adresse" type="text" required="" class="form-control">
+        <ng-container
+          *ngIf="filiereForm.controls['adresse'].invalid && (filiereForm.controls['adresse'].dirty || filiereForm.controls['adresse'].touched)">
+          <ng-container *ngIf="filiereForm.controls['adresse'].errors?.['required']">
+            <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+            <small class="text-danger">
+              Adresse est requise.
+            </small>
+          </ng-container>
+        </ng-container>
+      </div>
 
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-outline-dark" [disabled]="filiereForm.invalid">Ajouter</button>
+    </div>
+  </form>
+</ng-template>

@@ -88,13 +88,13 @@ export class FiliereService {
 
   // Error handling
   errorMgmt(error: HttpErrorResponse) {
-    let errorMessage = "";
+    let errorMessage;
     if (error.error instanceof ErrorEvent) {
       // Get client-side error
-      errorMessage = error.error.message;
+      errorMessage = { message: error.message };
     } else {
       // Get server-side error
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      errorMessage = { code: error.status, message: error.error };
     }
     console.log(errorMessage);
     return throwError(errorMessage);

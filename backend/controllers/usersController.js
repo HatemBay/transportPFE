@@ -10,11 +10,10 @@ var { Filiere } = require("../models/filiere");
 router.get("/", (req, res) => {
   User.find((err, docs) => {
     if (!err) res.send(docs);
-    else
-      console.log(
-        "Erreur lors de la récupération des utilisateurs: " +
-          JSON.stringify(err, undefined, 2)
-      );
+    else {
+      console.log("Erreur lors de la récupération des utilisateurs: " + err);
+      res.status(400).send(err.message);
+    }
   });
 });
 
@@ -23,11 +22,10 @@ router.get("/:id", (req, res) => {
     return res.status(400).send(`no record with given id: ${req.params.id}`);
   User.findById(req.params.id, (err, doc) => {
     if (!err) res.send(doc);
-    else
-      console.log(
-        "Erreur lors de la récupération des utilisateurs: " +
-          JSON.stringify(err, undefined, 2)
-      );
+    else {
+      console.log("Erreur lors de la récupération des utilisateurs: " + err);
+      res.status(400).send(err.message);
+    }
   });
 });
 
@@ -61,14 +59,14 @@ router.post("/", (req, res) => {
           res.status(200).send(doc);
         },
         (err) => {
-          res.json("Erreur lors de l'enregistrement de la filiere: " + err);
+          console.log("Erreur lors de l'enregistrement de la filiere: " + err);
+          res.status(400).send(err.message);
         }
       );
     },
     (err) => {
-      res.json(
-        "Erreur lors de l'enregistrement de l'utilisateur: " + err.message
-      );
+      console.log("Erreur lors de l'enregistrement de l'utilisateur: " + err);
+      res.status(400).send(err.message);
     }
   );
 });
@@ -99,10 +97,10 @@ router.put("/:id", (req, res) => {
           res.json({
             message: "user updated successfully",
           });
-        } else
-          console.log(
-            "Error in user update: " + JSON.stringify(err, undefined, 2)
-          );
+        } else {
+          console.log("Error in user update: " + err);
+          res.status(400).send(err.message);
+        }
       }
     );
 });
@@ -121,10 +119,16 @@ router.delete("/:id", (req, res) => {
             res.json({
               message: "user deleted successfully",
             });
-          } else console.log(err2);
+          } else {
+            console.log(err2);
+            res.status(400).send(err2.message);
+          }
         }
       );
-    } else console.log(err);
+    } else {
+      console.log(err);
+      res.status(400).send(err.message);
+    }
   });
 });
 
