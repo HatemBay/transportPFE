@@ -254,7 +254,6 @@ export class GestionColisComponent implements OnInit {
   }
 
   modify(data) {
-    console.log(data.clientId);
     var navigationExtras: NavigationExtras = {
       queryParams: {
         packageId: data._id,

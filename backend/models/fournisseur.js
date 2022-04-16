@@ -73,12 +73,12 @@ FournisseurSchema.methods.setPassword = (password, res) => {
 // check password validity
 FournisseurSchema.methods.validPassword = (salt, fournisseurHash, password) => {
   // const fournisseur = this;
-  console.log("tf:" + salt);
+  // console.log("tf:" + salt);
   var hash = crypto
     .pbkdf2Sync(password, salt, 1000, 64, "sha512")
     .toString("hex");
-  console.log("hash:" + hash);
-  console.log("fournisseur hash:" + fournisseurHash);
+  // console.log("hash:" + hash);
+  // console.log("fournisseur hash:" + fournisseurHash);
   return fournisseurHash === hash;
 };
 

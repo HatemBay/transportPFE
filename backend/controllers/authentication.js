@@ -7,6 +7,7 @@ var Token = require("../models/token");
 var { validate, validateLogin } = require("../models/users");
 var crypto = require("crypto");
 var jwt = require("express-jwt");
+const { log } = require("console");
 
 const register = async (req, res) => {
   const { error } = validate(req.body);
@@ -58,8 +59,37 @@ const register = async (req, res) => {
     });
 };
 
-const login = (req, res) => {
-  passport.authenticate("local", function (err, user, info) {
+const loginUser = (req, res) => {
+  passport.authenticate("user-local", function (err, user, info) {
+    var token;
+
+    // If Passport throws/catches an error
+    if (err) {
+      console.log(err);
+      res.status(404).json(err);
+      return;
+    }
+
+    // If a user is found
+    if (user) {
+      token = user.generateJWT();
+      // console.log("username:" + user.nom);
+      res.status(200);
+      res.json({
+        token: token,
+        message: "login successful",
+      });
+    } else {
+      // If user is not found
+      const { error } = validateLogin(req.body);
+      if (error) return res.status(400).send(error.details[0].message);
+      res.status(401).json(info);
+    }
+  })(req, res);
+};
+
+const loginProvider = (req, res) => {
+  passport.authenticate("provider-local", function (err, user, info) {
     var token;
 
     // If Passport throws/catches an error
@@ -158,7 +188,8 @@ const allowIfLoggedin = async (req, res, next) => {
 
 module.exports = {
   register,
-  login,
+  loginUser,
+  loginProvider,
   verify,
   authRole,
   auth,

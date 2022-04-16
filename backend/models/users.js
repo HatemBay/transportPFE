@@ -74,12 +74,12 @@ UserSchema.methods.setPassword = (password, res) => {
 // check password validity
 UserSchema.methods.validPassword = (salt, userHash, password) => {
   // const user = this;
-  console.log("tf:" + salt);
+  // console.log("tf:" + salt);
   var hash = crypto
     .pbkdf2Sync(password, salt, 1000, 64, "sha512")
     .toString("hex");
-  console.log("hash:" + hash);
-  console.log("user hash:" + userHash);
+  // console.log("hash:" + hash);
+  // console.log("user hash:" + userHash);
   return userHash === hash;
 };
 

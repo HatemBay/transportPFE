@@ -12,7 +12,7 @@ var packageController = require("./backend/controllers/packageController");
 var fournisseurController = require("./backend/controllers/fournisseurController");
 var clientController = require("./backend/controllers/clientController");
 var filiereController = require("./backend/controllers/filiereController");
-var { register, login, verify, auth, authRole } = require("./backend/controllers/authentication");
+var { register, loginUser, loginProvider, verify, auth, authRole } = require("./backend/controllers/authentication");
 var upload = require("./backend/controllers/upload");
 // const _ = require("lodash");
 
@@ -55,15 +55,16 @@ app.use(cors(corsOptions));
 
 
 // Routes
-app.use("/api/packages", packageController);
-app.use("/api/users", usersController);
-app.use("/api/fournisseurs", fournisseurController);
-app.use("/api/clients", clientController);
-app.use("/api/filieres", filiereController);
-app.use("/api/register", register);
-app.use("/api/login", login);
-app.use("/api/user/verify/:id/:token", verify);
-app.use("/api/excel-upload", upload);
+app.use("/api/packages",auth ,packageController);
+app.use("/api/users",auth , usersController);
+app.use("/api/fournisseurs",auth , fournisseurController);
+app.use("/api/clients",auth , clientController);
+app.use("/api/filieres",auth , filiereController);
+app.use("/api/register",auth , register);
+app.use("/api/login-user" , loginUser);
+app.use("/api/login-provider" , loginProvider);
+app.use("/api/user/verify/:id/:token",auth , verify);
+app.use("/api/excel-upload",auth , upload);
 
 // app.use("/api/count", packageController);
 
