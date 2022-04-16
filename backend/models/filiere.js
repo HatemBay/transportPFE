@@ -26,18 +26,6 @@ var FiliereSchema = new Schema(
 
 const Filiere = mongoose.model("Filiere", FiliereSchema);
 
-const validate = (client) => {
-  const schema = Joi.object({
-    nom: Joi.string()
-      .required()
-      .unique((a, b) => a.nom === b.nom),
-    adresse: Joi.string().required(),
-  });
-
-  return schema.validate(client);
-};
-
 module.exports = {
   Filiere,
-  validate,
 };

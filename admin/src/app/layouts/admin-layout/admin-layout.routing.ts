@@ -8,9 +8,10 @@ import { RechercheComponent } from "../../pages/recherche/recherche.component";
 import { CarnetAdresseComponent } from "src/app/pages/carnet-adresse/carnet-adresse.component";
 import { GestionColisComponent } from "src/app/pages/gestion-colis/gestion-colis.component";
 import { FinanceComponent } from "src/app/pages/finance/finance.component";
-import { ImprimerComponent } from "src/app/pages/imprimer/imprimer.component";
 import { RoleGuard } from "src/app/services/role.guard";
 import { GestionFiliereComponent } from 'src/app/pages/gestion-filiere/gestion-filiere.component';
+import { GestionPersonelComponent } from 'src/app/pages/gestion-personel/gestion-personel.component';
+
 
 
 export const AdminLayoutRoutes: Routes = [
@@ -24,6 +25,9 @@ export const AdminLayoutRoutes: Routes = [
   { path: "modifier-colis", component: ColisJourComponent },
   { path: "carnet-adresses", component: CarnetAdresseComponent },
   { path: "gestion-filiere", component: GestionFiliereComponent },
+  { path: "gestion-personel", component: GestionPersonelComponent },
+  { path: "modifier-personel", component: GestionPersonelComponent },
+
   {
     path: "gestion-colis",
     component: GestionColisComponent,

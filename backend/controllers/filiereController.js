@@ -24,7 +24,9 @@ router.get("/", (req, res) => {
           res.send(
             filieres.filter(
               (item) =>
-                item.nom.toString().includes(req.query.search) ||
+                item.nom
+                  .toLowerCase()
+                  .includes(req.query.search.toLowerCase()) ||
                 item.adresse
                   .toLowerCase()
                   .includes(req.query.search.toLowerCase())
@@ -68,22 +70,21 @@ router.post("/", (req, res) => {
 router.put("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
-  const filiere = new Filiere();
 
-  filiere.nom = req.body.nom;
-  filiere.adresse = req.body.adresse;
   Filiere.findByIdAndUpdate(
     req.params.id,
-    { $set: filiere },
+    {
+      $set: req.body,
+    },
     { new: true },
     (err, doc) => {
       if (!err) {
         res.status(200);
         res.json({
-          message: "filière mis à jours avec succès",
+          message: "Filière mis à jour",
         });
       } else {
-        console.log("Erreur dans la mis à jour de la filière: " + err);
+        console.log("Erreur lors de mis à jour de la filière: " + err);
         res.status(400).send(err.message);
       }
     }

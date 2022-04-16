@@ -19,6 +19,8 @@ import { GestionColisComponent } from "src/app/pages/gestion-colis/gestion-colis
 import { FinanceComponent } from "src/app/pages/finance/finance.component";
 import { CsvModule } from "@ctrl/ngx-csv";
 import { GestionFiliereComponent } from "src/app/pages/gestion-filiere/gestion-filiere.component";
+import { GestionPersonelComponent } from 'src/app/pages/gestion-personel/gestion-personel.component';
+
 
 // import { NgxPrintModule } from 'ngx-print';
 
@@ -46,6 +48,7 @@ import { GestionFiliereComponent } from "src/app/pages/gestion-filiere/gestion-f
     GestionColisComponent,
     FinanceComponent,
     GestionFiliereComponent,
+    GestionPersonelComponent,
   ],
   providers: [NgbActiveModal],
 })

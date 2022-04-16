@@ -19,30 +19,20 @@ var UserSchema = new Schema(
     role: {
       type: String,
       default: "admin",
-      enum: [
-        "admin",
-        "financier",
-        "commercial",
-        "chef bureau",
-        "chauffeur",
-      ],
+      enum: ["admin", "financier", "commercial", "chef bureau", "chauffeur"],
       required: true,
     },
     ville: {
       type: String,
-      required: true,
     },
     delegation: {
       type: String,
-      required: true,
     },
     adresse: {
       type: String,
-      required: true,
     },
     codePostale: {
       type: Number,
-      required: true,
     },
     tel: {
       type: Number,
@@ -51,10 +41,8 @@ var UserSchema = new Schema(
       maxlength: 8,
       unique: true,
     },
-    tel2: {
-      type: Number,
-      minlength: 8,
-      maxlength: 8,
+    password: {
+      type: String,
     },
     verified: {
       type: Boolean,
@@ -65,7 +53,7 @@ var UserSchema = new Schema(
     filiereId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Filiere",
-    }
+    },
   },
   {
     timestamps: true,

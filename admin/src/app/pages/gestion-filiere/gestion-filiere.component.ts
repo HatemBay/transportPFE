@@ -52,7 +52,6 @@ export class GestionFiliereComponent implements OnInit {
   filiereForm: any;
   error: any = "none";
   constructor(
-    private router: Router,
     private fb: FormBuilder,
     private filiereService: FiliereService,
     public modalService: NgbModal,
@@ -60,6 +59,10 @@ export class GestionFiliereComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.columns = [
+      { prop: "nom", name: "Nom & Prénom" },
+      { prop: "adresse", name: "Ville" },
+    ];
     this.filiereForm = this.fb.group({
       nom: ["", Validators.required],
       adresse: ["", Validators.required],

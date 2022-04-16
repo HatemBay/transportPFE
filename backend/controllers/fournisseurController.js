@@ -74,33 +74,25 @@ router.post("/", (req, res) => {
 router.put("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
-  const fournisseur = new Fournisseur();
 
-  fournisseur.setPassword(req.body.password);
-
-  (fournisseur.email = req.body.email),
-    (fournisseur.nom = req.body.nom),
-    (fournisseur.ville = req.body.ville),
-    (fournisseur.delegation = req.body.delegation),
-    (fournisseur.adresse = req.body.adresse),
-    (fournisseur.codePostale = req.body.codePostale),
-    (fournisseur.tel = req.body.tel),
-    Fournisseur.findByIdAndUpdate(
-      req.params.id,
-      { $set: fournisseur },
-      { new: true },
-      (err, doc) => {
-        if (!err) {
-          res.status(200);
-          res.json({
-            message: "Fournisseur mis à jours avec succès",
-          });
-        } else {
-          console.log("Erreur dans la mis à jour du fournisseur: " + err);
-          res.status(400).send(err.message);
-        }
+  Fournisseur.findByIdAndUpdate(
+    req.params.id,
+    {
+      $set: req.body,
+    },
+    { new: true },
+    (err, doc) => {
+      if (!err) {
+        res.status(200);
+        res.json({
+          message: "Fournisseir mis à jour",
+        });
+      } else {
+        console.log("Erreur lors de mis à jour du fournisseur: " + err);
+        res.status(400).send(err.message);
       }
-    );
+    }
+  );
 });
 
 router.delete("/:id", (req, res) => {

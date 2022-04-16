@@ -56,21 +56,14 @@
           <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
             [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
             (sort)="onSort($event)">
-            <ngx-datatable-column name="Filière" prop="nom">
+            <ngx-datatable-column *ngFor="let column of columns;
+        let i = index;" name="{{column.name}}" prop="{{column.prop}}">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  {{row.nom | titlecase}}
+                  {{row[column.prop] | titlecase }}
                 </span>
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Adresse" prop="adresse">
-              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                <span>
-                  {{row.adresse | titlecase}}
-                </span>
-              </ng-template>
-            </ngx-datatable-column>
-
             <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
                 <span>
@@ -104,7 +97,8 @@
   <form class="modal-content" [formGroup]="filiereForm" (ngSubmit)="closeModal(modal)">
     <div class="modal-header bg-success">
       <h4 class="modal-title">Ajouter Filière</h4>
-      <button type="button" class="close" aria-label="Close" (click)="dismissModal(modal)">X</button>
+      <button type="button" class="close" aria-label="Close" (click)="dismissModal(modal)"><i
+          class="fas fa-times text-white"></i></button>
     </div>
     <div class="modal-body">
       <div class="form-group">
