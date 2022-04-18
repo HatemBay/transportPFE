@@ -5,25 +5,30 @@ const bodyParser = require("body-parser");
 const logger = require("morgan");
 const passport = require("passport");
 const cors = require("cors");
-const fileUpload = require('express-fileupload');
+const fileUpload = require("express-fileupload");
 require("./backend/db.js");
 var usersController = require("./backend/controllers/usersController");
 var packageController = require("./backend/controllers/packageController");
 var fournisseurController = require("./backend/controllers/fournisseurController");
 var clientController = require("./backend/controllers/clientController");
 var filiereController = require("./backend/controllers/filiereController");
-var { register, loginUser, loginProvider, verify, auth, authRole } = require("./backend/controllers/authentication");
+var vehiculeController = require("./backend/controllers/vehiculeController");
+var {
+  register,
+  loginUser,
+  loginProvider,
+  verify,
+  auth,
+  authRole,
+} = require("./backend/controllers/authentication");
 var upload = require("./backend/controllers/upload");
 // const _ = require("lodash");
-
 
 const corsOptions = {
   origin: "*",
   credentials: true, //access-control-allow-credentials:true
   optionSuccessStatus: 200,
 };
-
-
 
 //passport
 require("./backend/config/passport");
@@ -53,18 +58,18 @@ app.use(function (err, req, res, next) {
 
 app.use(cors(corsOptions));
 
-
 // Routes
-app.use("/api/packages",auth ,packageController);
-app.use("/api/users",auth , usersController);
-app.use("/api/fournisseurs",auth , fournisseurController);
-app.use("/api/clients",auth , clientController);
-app.use("/api/filieres",auth , filiereController);
-app.use("/api/register",auth , register);
-app.use("/api/login-user" , loginUser);
-app.use("/api/login-provider" , loginProvider);
-app.use("/api/user/verify/:id/:token",auth , verify);
-app.use("/api/excel-upload",auth , upload);
+app.use("/api/packages", auth, packageController);
+app.use("/api/users", auth, usersController);
+app.use("/api/fournisseurs", auth, fournisseurController);
+app.use("/api/clients", auth, clientController);
+app.use("/api/filieres", auth, filiereController);
+app.use("/api/vehicules", auth, vehiculeController);
+app.use("/api/register", auth, register);
+app.use("/api/login-user", loginUser);
+app.use("/api/login-provider", loginProvider);
+app.use("/api/user/verify/:id/:token", auth, verify);
+app.use("/api/excel-upload", auth, upload);
 
 // app.use("/api/count", packageController);
 

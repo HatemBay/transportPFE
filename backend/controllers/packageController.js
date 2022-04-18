@@ -846,13 +846,10 @@ router.put("/:id", (req, res) => {
     { new: true },
     (err, doc) => {
       if (!err) {
-        res.status(200);
-        res.json({
-          message: "package updated successfully",
-        });
+        res.status(200).send(doc);
       } else {
-        console.log(err);
-        res.status(400).send(err.message);
+        console.log("Erreur lors de mis à jour du colis: " + err);
+        res.status(400).send("Erreur lors de mis à jour du colis: " + err);
       }
     }
   );

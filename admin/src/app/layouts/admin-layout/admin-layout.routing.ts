@@ -11,6 +11,7 @@ import { FinanceComponent } from "src/app/pages/finance/finance.component";
 import { RoleGuard } from "src/app/services/role.guard";
 import { GestionFiliereComponent } from 'src/app/pages/gestion-filiere/gestion-filiere.component';
 import { GestionPersonelComponent } from 'src/app/pages/gestion-personel/gestion-personel.component';
+import { GestionClientComponent } from "src/app/pages/gestion-client/gestion-client.component";
 
 
 
@@ -27,6 +28,8 @@ export const AdminLayoutRoutes: Routes = [
   { path: "gestion-filiere", component: GestionFiliereComponent },
   { path: "gestion-personel", component: GestionPersonelComponent },
   { path: "modifier-personel", component: GestionPersonelComponent },
+  { path: "gestion-client", component: GestionClientComponent },
+  { path: "modifier-client", component: GestionClientComponent },
 
   {
     path: "gestion-colis",

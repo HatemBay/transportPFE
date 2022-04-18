@@ -16,7 +16,7 @@
               Filière supprimée avec succes
             </div>
             <div class="row mb-4">
-              <div class="col-8">Gestion Personel: </div>
+              <div class="col-8">Gestion Personel </div>
               <div class="col-4 text-right">
                 <button [formGroup]="userForm" (click)="addModal()" data-target=""
                   class="m-0 float-right btn btn-success btn-sm">
@@ -58,6 +58,7 @@
             <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
               [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
               (sort)="onSort($event)">
+
               <ngx-datatable-column *ngFor="let column of columns;
         let i = index;" name="{{column.name}}" prop="{{column.prop}}">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
@@ -109,7 +110,7 @@
     </div>
     <!-- Modal -->
     <ng-template #editModal let-modal>
-      <form class="modal-content" [formGroup]="userModifyForm" (ngSubmit)="closeModal(modal)">
+      <form class="modal-content" [formGroup]="userForm" (ngSubmit)="closeModal(modal)">
         <div class="modal-header bg-success">
           <h5 class="modal-title text-white">Ajouter Personel</h5>
           <button type="button" class="close text-white" aria-label="Close" (click)="dismissModal(modal)"><i
@@ -180,6 +181,12 @@
                 <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
                 <small class="text-danger">
                   Téléphone est requis.
+                </small>
+              </ng-container>
+              <ng-container *ngIf="userForm.controls['tel'].errors?.['min'] || userForm.controls['tel'].errors?.['max']">
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  Téléphone est invalide.
                 </small>
               </ng-container>
               <ng-container *ngIf="error != 'none'">

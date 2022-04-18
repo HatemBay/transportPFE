@@ -77,7 +77,7 @@ export class GestionPersonelComponent implements OnInit {
         filiereId: ["", Validators.required],
         role: ["", Validators.required],
         nom: ["", Validators.required],
-        tel: ["", Validators.required],
+        tel: ["", [Validators.required, Validators.min(10000000), Validators.max(99999999)]],
         email: "",
       });
 
@@ -85,12 +85,12 @@ export class GestionPersonelComponent implements OnInit {
 
       this.getDataJson();
       this.getFilieres();
-      console.log(this.error != "none");
+      // console.log(this.error != "none");
     } else {
       this.userModifyForm = this.fb.group({
         role: ["", Validators.required],
         nom: ["", Validators.required],
-        tel: ["", Validators.required],
+        tel: ["", [Validators.required, Validators.min(10000000), Validators.max(99999999)]],
         password: ["", Validators.required],
         email: "",
       });
@@ -240,9 +240,11 @@ export class GestionPersonelComponent implements OnInit {
   // confirm user modification
   save() {
     console.log(this.userModifyForm.value);
-    this.userService.updateUser(this.userId, this.userModifyForm.value).subscribe((data) => {
-      console.log(data);
-      this.router.navigate(["/gestion-personel"]);
-    })
+    this.userService
+      .updateUser(this.userId, this.userModifyForm.value)
+      .subscribe((data) => {
+        console.log(data);
+        this.router.navigate(["/gestion-personel"]);
+      });
   }
 }

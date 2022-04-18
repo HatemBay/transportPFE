@@ -83,13 +83,12 @@ router.put("/:id", (req, res) => {
     { new: true },
     (err, doc) => {
       if (!err) {
-        res.status(200);
-        res.json({
-          message: "Fournisseir mis à jour",
-        });
+        res.status(200).send(doc);
       } else {
         console.log("Erreur lors de mis à jour du fournisseur: " + err);
-        res.status(400).send(err.message);
+        res
+          .status(400)
+          .send("Erreur lors de mis à jour du fournisseur: " + err);
       }
     }
   );

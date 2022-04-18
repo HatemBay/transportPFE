@@ -1,0 +1,356 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+  </div>
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <!-- PATH = GESTION-CLIENT -->
+  <ng-container *ngIf="routePath == 'gestion-client'">
+    <!-- Table -->
+    <div class="row">
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-header">
+            <div *ngIf="success" class="alert alert-success ml-4 mr-4">
+              <span class="closebtn"
+                onclick="this.parentElement.style.display='none'; success = false; console.log(success);">&times;</span>
+              Client supprimé avec succes
+            </div>
+            <div class="row mb-4">
+              <div class="col-8">Gestion Client </div>
+              <div class="col-4 text-right">
+                <button [formGroup]="clientForm" (click)="addModal()" data-target=""
+                  class="m-0 float-right btn btn-success btn-sm">
+                  Ajouter <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 pr-4">
+                <div class="row">
+                  <div class="col-2">
+                    <label for="per-page">
+                      Afficher
+                    </label>
+                  </div>
+                  <div class="col-2">
+                    <select class="form-control" id="per-page" (change)="onLimitChange($event.target.value)">
+                      <option *ngFor="let option of pageLimitOptions" [value]="option.value"
+                        [selected]="option.value == currentPageLimit">
+                        {{ option.value }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label for="per-page">
+                      éléments
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+              <div class="col-6 float-right" style="padding-left: 300px !important;">
+                <input #search class="form-control" type="text" placeholder="Rechercher" (keyup)="updateFilter($event)"
+                  autocomplete="false" />
+              </div>
+            </div>
+          </div>
+          <div>
+            <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
+              [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
+              [externalSorting]="true" (select)="onSelect($event)" (sort)="onSort($event)">
+
+              <ngx-datatable-column name="Tél/Tél2" prop="tel">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.tel}} / {{row.tel2}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column *ngFor="let column of columns;
+        let i = index;" name="{{column.name}}" prop="{{column.prop}}">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span *ngIf="row[column.prop] !== undefined">
+                    {{row[column.prop] + '' | titlecase }}
+                  </span>
+                  <span *ngIf="row[column.prop] === undefined">
+                    -
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Date" prop="createdAtSearch">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.createdAtSearch}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
+                  <span>
+                    <a [routerLink]="" (click)="modify(row)" class="btn btn-sm rounded-circle text-white"
+                      style="background: blue">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <button [routerLink]="" (click)="delete(row)" class="btn btn-sm btn-danger rounded-circle">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                    <!-- <a [routerLink]="" (click)="view(row)" class="btn btn-sm btn-warning rounded-circle">
+                      <i class="fas fa-eye"></i>
+                    </a> -->
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-footer>
+                <ng-template ngx-datatable-footer-template let-rowCount="count" let-pageSize="pageSize"
+                  let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
+                  <div class="pl-2">
+                    Elements: {{ count }} | Taille: {{ pageSize }} | Page:
+                    {{ curPage }}
+                  </div>
+                  <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'"
+                    [pagerRightArrowIcon]="'datatable-icon-right'" [pagerPreviousIcon]="'datatable-icon-prev'"
+                    [pagerNextIcon]="'datatable-icon-skip'" [page]="curPage" [size]="pageSize" [count]="count"
+                    [hidden]="!((count / pageSize) > 1)" (change)="onFooterPage($event)">
+                  </datatable-pager>
+                </ng-template>
+              </ngx-datatable-footer>
+            </ngx-datatable>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal -->
+    <ng-template #editModal let-modal>
+      <form class="modal-content" [formGroup]="clientForm" (ngSubmit)="closeModal(modal)">
+        <div class="modal-header bg-success">
+          <h5 class="modal-title text-white">Ajouter Personel</h5>
+          <button type="button" class="close text-white" aria-label="Close" (click)="dismissModal(modal)"><i
+              class="fas fa-times text-white"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Raison sociale (*)</label>
+            <input formControlName="nom" type="text" required="" class="form-control">
+            <ng-container
+              *ngIf="clientForm.controls['nom'].invalid && (clientForm.controls['nom'].dirty || clientForm.controls['nom'].touched)">
+              <ng-container *ngIf="clientForm.controls['nom'].errors?.['required']">
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  Raison sociale est requise.
+                </small>
+              </ng-container>
+            </ng-container>
+          </div>
+          <div class="form-group">
+            <label>Téléphone (*)</label>
+            <input formControlName="tel" type="number" required="" class="form-control">
+            <ng-container
+              *ngIf="clientForm.controls['tel'].invalid && (clientForm.controls['tel'].dirty || clientForm.controls['tel'].touched)">
+              <ng-container *ngIf="clientForm.controls['tel'].errors?.['required']">
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  Téléphone est requis.
+                </small>
+              </ng-container>
+              <ng-container
+                *ngIf="userForm.controls['tel'].errors?.['min'] || userForm.controls['tel'].errors?.['max']">
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  Téléphone est invalide.
+                </small>
+              </ng-container>
+              <ng-container *ngIf="error != 'none'">
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  Téléphone existe déjà.
+                </small>
+              </ng-container>
+            </ng-container>
+          </div>
+          <!-- <div class="form-group">
+            <label>Email</label>
+            <input formControlName="email" type="text" required="" class="form-control">
+          </div> -->
+          <div class="form-group">
+            <label class="form-label">Ville (*)</label>
+            <select formControlName="ville"  class="form-control">
+              <option hidden="" value="">-- Choisir --</option>
+              <option value="sousse">Sousse </option>
+              <option value="monastir">Monastir </option>
+              <!-- <option *ngFor="let ville of villes" [value]="filiere._id">
+                {{ ville.nom | titlecase }} </option> -->
+            </select>
+            <ng-container
+              *ngIf="clientForm.controls['ville'].invalid && (clientForm.controls['ville'].dirty || clientForm.controls['ville'].touched)">
+              <ng-container *ngIf="clientForm.controls['ville'].errors?.['required']">
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  Ville est requise.
+                </small>
+              </ng-container>
+            </ng-container>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Delegation (*)</label>
+            <select formControlName="delegation" class="form-control">
+              <option hidden="" value="">-- Choisir --</option>
+              <option value="sousse">Sousse</option>
+              <option value="ben arous">Ben Arous</option>
+              <!-- <option *ngFor="let delegation of delegations" [value]="filiere._id">
+                {{ delegation.nom | titlecase }} </option> -->
+            </select>
+            <ng-container
+              *ngIf="clientForm.controls['delegation'].invalid && (clientForm.controls['delegation'].dirty || clientForm.controls['delegation'].touched)">
+              <ng-container *ngIf="clientForm.controls['delegation'].errors?.['required']">
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  Delegation est requise.
+                </small>
+              </ng-container>
+            </ng-container>
+          </div>
+          <div class="form-group">
+            <label>Adresse (*)</label>
+            <input formControlName="adresse" type="text" required="" class="form-control">
+            <ng-container
+              *ngIf="clientForm.controls['adresse'].invalid && (clientForm.controls['adresse'].dirty || clientForm.controls['adresse'].touched)">
+              <ng-container *ngIf="clientForm.controls['adresse'].errors?.['required']">
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  Adresse est requise.
+                </small>
+              </ng-container>
+            </ng-container>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-outline-dark" [disabled]="clientForm.invalid">Ajouter</button>
+        </div>
+      </form>
+    </ng-template>
+    <!-- Modal -->
+  </ng-container>
+  <!-- PATH = GESTION-CLIENT -->
+  <!-- PATH = MODIFIER-CLIENT -->
+  <ng-container *ngIf="routePath == 'modifier-client'">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card mb-4">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+            style="border-bottom: 1px solid #eee;">
+            <h5 class="m-0 font-weight-bold text-primary">Gestion client</h5>
+          </div>
+          <div class="table-responsive p-3">
+            <form [formGroup]="clientModifyForm" (ngSubmit)="save()">
+              <div class="modal-body">
+                <div class="form-group">
+                  <label>Raison sociale (*)</label>
+                  <input formControlName="nom" type="text" required="" class="form-control">
+                  <ng-container
+                    *ngIf="clientModifyForm.controls['nom'].invalid && (clientModifyForm.controls['nom'].dirty || clientModifyForm.controls['nom'].touched)">
+                    <ng-container *ngIf="clientModifyForm.controls['nom'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Raison sociale est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <div class="form-group">
+                  <label>Téléphone (*)</label>
+                  <input formControlName="tel" type="text" required="" class="form-control">
+                  <ng-container
+                    *ngIf="clientModifyForm.controls['tel'].invalid && (clientModifyForm.controls['tel'].dirty || clientModifyForm.controls['tel'].touched)">
+                    <ng-container *ngIf="clientModifyForm.controls['tel'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Téléphone est requis.
+                      </small>
+                    </ng-container>
+                    <ng-container
+                      *ngIf="userForm.controls['tel'].errors?.['min'] || userForm.controls['tel'].errors?.['max']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Téléphone est invalide.
+                      </small>
+                    </ng-container>
+                    <ng-container *ngIf="error != 'none'">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Téléphone existe déjà.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <!-- <div class="form-group">
+                  <label>Email</label>
+                  <input formControlName="email" type="text" required="" class="form-control">
+                </div> -->
+                <div class="form-group">
+                  <label class="form-label">Ville (*)</label>
+                  <select formControlName="ville" class="form-control">
+                    <option hidden="" value="">-- Choisir --</option>
+                    <option value="sousse">Sousse </option>
+                    <option value="Monastir">Monastir </option>
+                    <!-- <option *ngFor="let ville of villes" [value]="filiere._id">
+                      {{ ville.nom | titlecase }} </option> -->
+                  </select>
+                  <ng-container
+                    *ngIf="clientModifyForm.controls['ville'].invalid && (clientModifyForm.controls['ville'].dirty || clientModifyForm.controls['ville'].touched)">
+                    <ng-container *ngIf="clientModifyForm.controls['ville'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Ville est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Delegation (*)</label>
+                  <select formControlName="delegation" class="form-control">
+                    <option hidden="" value="">-- Choisir --</option>
+                    <option value="sousse">Sousse </option>
+                    <option value="Ben Arous">Ben Arous </option>
+                    <!-- <option *ngFor="let delegation of delegations" [value]="filiere._id">
+                      {{ delegation.nom | titlecase }} </option> -->
+                  </select>
+                  <ng-container
+                    *ngIf="clientModifyForm.controls['delegation'].invalid && (clientModifyForm.controls['delegation'].dirty || clientModifyForm.controls['delegation'].touched)">
+                    <ng-container *ngIf="clientModifyForm.controls['delegation'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Delegation est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <div class="form-group">
+                  <label>Adresse (*)</label>
+                  <input formControlName="adresse" type="text" required="" class="form-control">
+                  <ng-container
+                    *ngIf="clientModifyForm.controls['adresse'].invalid && (clientModifyForm.controls['adresse'].dirty || clientModifyForm.controls['adresse'].touched)">
+                    <ng-container *ngIf="clientModifyForm.controls['adresse'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Adresse est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-primary" type="submit" name="save_personel">Modifier</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <!-- PATH = MODIFIER-CLIENT -->
+
+</div>

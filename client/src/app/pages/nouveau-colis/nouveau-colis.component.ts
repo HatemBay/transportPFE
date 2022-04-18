@@ -81,10 +81,14 @@ export class NouveauColisComponent implements OnInit {
       // });
 
       this.packageForm = this.fb.group({
-        tel: new FormControl(this.clientData.tel, [
-          Validators.required,
-          Validators.minLength(8)
-        ]),
+        tel: [
+          "",
+          [
+            Validators.required,
+            Validators.min(10000000),
+            Validators.max(99999999),
+          ],
+        ],
         nom: new FormControl(this.clientData.nom, [Validators.required]),
         ville: ["", Validators.required],
         delegation: ["", Validators.required],

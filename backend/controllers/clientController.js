@@ -8,9 +8,12 @@ const { Fournisseur } = require("../models/fournisseur");
 var { Package } = require("../models/package");
 
 // get all clients belonging to connected provider
-router.get("/all/:fid", (req, res) => {
+router.get("/all", (req, res) => {
   // adapting request id to aggregate options
-  var fid = ObjectId(req.params.fid);
+  var fid = null;
+  if (req.query.fid) {
+    fid = ObjectId(req.query.fid);
+  }
   var limit = parseInt(req.query.limit) || 10;
   var page = parseInt(req.query.page) || 1;
   var skip = limit * page - limit;
@@ -20,7 +23,7 @@ router.get("/all/:fid", (req, res) => {
   if (req.query.sort == "asc") n = 1;
   sort[sortBy] = n;
 
-  Client.aggregate([
+  var data = [
     {
       $project: {
         _id: 1,
@@ -46,9 +49,6 @@ router.get("/all/:fid", (req, res) => {
       },
     },
     {
-      $match: { fournisseurId: fid },
-    },
-    {
       $skip: skip,
     },
     {
@@ -57,7 +57,14 @@ router.get("/all/:fid", (req, res) => {
     {
       $sort: sort,
     },
-  ]).exec((err, docs) => {
+  ];
+  if (fid) {
+    data.push({
+      $match: { fournisseurId: fid },
+    });
+  }
+
+  Client.aggregate(data).exec((err, docs) => {
     if (!err) {
       if (req.query.search && req.query.search.length > 2) {
         res.send(
@@ -119,20 +126,20 @@ router.get("/tel/:tel", (req, res) => {
 });
 
 //get with all packages
-router.get("/packages/:id", (req, res) => {
-  if (!ObjectId.isValid(req.params.id))
-    return res.status(400).send(`no record with given id: ${req.params.id}`);
-  Client.findById(req.params.id)
-    .populate("packages")
-    .then((dbPackage) => {
-      res.json(dbPackage);
-    })
-    .catch(function (err) {
-      // If an error occurred, send it to the client
-      console.log(err);
-      res.status(400).send(err.message);
-    });
-});
+// router.get("/packages/:id", (req, res) => {
+//   if (!ObjectId.isValid(req.params.id))
+//     return res.status(400).send(`no record with given id: ${req.params.id}`);
+//   Client.findById(req.params.id)
+//     .populate("packages")
+//     .then((dbPackage) => {
+//       res.json(dbPackage);
+//     })
+//     .catch(function (err) {
+//       // If an error occurred, send it to the client
+//       console.log(err);
+//       res.status(400).send(err.message);
+//     });
+// });
 
 // save client and its foreign keys
 router.post("/", (req, res) => {
@@ -191,13 +198,10 @@ router.put("/:id", (req, res) => {
     { new: true },
     (err, doc) => {
       if (!err) {
-        res.status(200);
-        res.json({
-          message: "client mis à jour",
-        });
+        res.status(200).send(doc);
       } else {
-        console.log("Erreur dans la modification du client: " + err);
-        res.status(400).send(err.message);
+        console.log("Erreur lors de mis à jour du client: " + err);
+        res.status(400).send("Erreur lors de mis à jour du client: " + err);
       }
     }
   );
@@ -232,10 +236,22 @@ router.delete("/:id", (req, res) => {
   });
 });
 
-// count clients
+// count clients by provider
 router.get("/count/all/:fid", (req, res) => {
   var fid = req.params.fid;
-  Client.count({ fournisseurId: "6225db0081105d73941b5108" }, (err, count) => {
+  Client.count({ fournisseurId: fid }, (err, count) => {
+    if (!err) {
+      res.send({ count: count });
+    } else {
+      console.log(err);
+      res.status(400).send(err.message);
+    }
+  });
+});
+
+// count all clients
+router.get("/count/all", (req, res) => {
+  Client.count((err, count) => {
     if (!err) {
       res.send({ count: count });
     } else {

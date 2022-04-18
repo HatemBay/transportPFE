@@ -54,6 +54,10 @@ var UserSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Filiere",
     },
+    vehiculeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vehicule",
+    },
   },
   {
     timestamps: true,

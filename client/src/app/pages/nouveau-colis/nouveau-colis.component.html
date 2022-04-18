@@ -18,27 +18,35 @@
                 <div class="form-group">
                   <label class="form-label">Téléphone (*)</label>
                   <input formControlName="tel" id="tel" class="form-control" type="number" autocomplete="off">
-                  <div
-                    *ngIf="packageForm.controls['tel'].invalid"
-                    class="alert alert-danger mt-2"
-                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
-                    <div *ngIf="packageForm.controls['tel'].errors?.['required']">
-                      <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Tel est requise.
-                    </div>
-                    <div *ngIf="packageForm.controls['tel'].errors?.['minlength']">
-                      <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Tel doit avoir au moins 8
-                      caractères.
-                    </div>
-                  </div>
+                  <ng-container
+                    *ngIf="packageForm.controls['tel'].invalid && (packageForm.controls['tel'].dirty || packageForm.controls['tel'].touched)">
+                    <ng-container *ngIf="packageForm.controls['tel'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Téléphone est requis.
+                      </small>
+                    </ng-container>
+                    <ng-container
+                      *ngIf="packageForm.controls['tel'].errors?.['min'] || packageForm.controls['tel'].errors?.['max']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Téléphone est invalide.
+                      </small>
+                    </ng-container>
+                  </ng-container>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Nom &amp; Prénom (*)</label>
                   <input formControlName="nom" id="nom" class="form-control">
-                  <div *ngIf="submit && packageForm.controls['nom'].errors?.['required']"
-                    class="alert alert-danger mt-2"
-                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
-                    <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Nom est requise.
-                  </div>
+                  <ng-container
+                    *ngIf="packageForm.controls['nom'].invalid && (packageForm.controls['nom'].dirty || packageForm.controls['nom'].touched)">
+                    <ng-container *ngIf="packageForm.controls['nom'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Nom est requis.
+                      </small>
+                    </ng-container>
+                  </ng-container>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Ville (*)</label>
@@ -55,11 +63,15 @@
                     <option data-value="20" value="Sousse">Sousse</option>
                     <option data-value="23" value="Tunis">Tunis</option>
                   </select>
-                  <div *ngIf="submit && packageForm.controls['ville'].errors?.['required']"
-                    class="alert alert-danger mt-2"
-                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
-                    <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Ville est requise.
-                  </div>
+                  <ng-container
+                    *ngIf="packageForm.controls['ville'].invalid && (packageForm.controls['ville'].dirty || packageForm.controls['ville'].touched)">
+                    <ng-container *ngIf="packageForm.controls['ville'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Ville est requis.
+                      </small>
+                    </ng-container>
+                  </ng-container>
                 </div>
                 <div class="form-group" id="delegation">
                   <label class="form-label">Délegation (*)</label>
@@ -70,22 +82,29 @@
                     <option data-value="3" value="Ben Arous">Ben Arous</option>
                     <option data-value="4" value="Bizerte">Bizerte</option>
                   </select>
-                  <div *ngIf="submit && packageForm.controls['delegation'].errors?.['required']"
-                    class="alert alert-danger mt-2"
-                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
-                    <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Delegation est requise.
-                  </div>
+                  <ng-container
+                    *ngIf="packageForm.controls['delegation'].invalid && (packageForm.controls['delegation'].dirty || packageForm.controls['delegation'].touched)">
+                    <ng-container *ngIf="packageForm.controls['delegation'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Delegation est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Adresse (*)</label>
                   <input formControlName="adresse" [value]="clientData.adresse" name="adresse_cl" id="adresse_cl"
                     type="text" class="form-control">
-                  <div *ngIf="submit" class="alert alert-danger mt-2"
-                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
-                    <div *ngIf="packageForm.controls['adresse'].errors?.['required']">
-                      <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Adresse est requise.
-                    </div>
-                  </div>
+                  <ng-container
+                    *ngIf="packageForm.controls['adresse'].invalid && (packageForm.controls['adresse'].dirty || packageForm.controls['adresse'].touched)">
+                    <ng-container *ngIf="packageForm.controls['adresse'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Adresse est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Code postale</label>
@@ -105,32 +124,47 @@
                   <label class="form-label">Contre remboursement <sup>TND</sup> (*)</label>
                   <input formControlName="c_remboursement" [value]="packageData.c_remboursement" name="cod"
                     type="number" class="form-control" step="any">
-                  <div *ngIf="submit" class="alert alert-danger mt-2"
-                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
-                    <div *ngIf="packageForm.controls['c_remboursement'].errors?.['required']">
-                      <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> COD est requise.
-                    </div>
-                  </div>
+                  <ng-container
+                    *ngIf="packageForm.controls['c_remboursement'].invalid && (packageForm.controls['c_remboursement'].dirty || packageForm.controls['c_remboursement'].touched)">
+                    <ng-container *ngIf="packageForm.controls['c_remboursement'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        COD est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label">Service</label>
+                  <label class="form-label">Service (*)</label>
                   <select formControlName="service" [value]="packageData.service || null" name="service"
                     class="form-control">
                     <option value="livraison" selected>Livraison</option>
                     <option value="collection">Collecte</option>
                     <option value="echange">Echange</option>
                   </select>
+                  <ng-container
+                    *ngIf="packageForm.controls['service'].invalid && (packageForm.controls['service'].dirty || packageForm.controls['service'].touched)">
+                    <ng-container *ngIf="packageForm.controls['service'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Service est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Libelle de marchandise (*)</label>
                   <input formControlName="libelle" [value]="packageData.libelle" name="libelle" class="form-control">
-                  <div *ngIf="submit" class="alert alert-danger mt-2"
-                    style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important;">
-                    <div *ngIf="packageForm.controls['libelle'].errors?.['required']">
-                      <i class='fas fa-exclamation-triangle' style='color:#721c24'></i> Libellé est requise.
-                    </div>
-                  </div>
+                  <ng-container
+                    *ngIf="packageForm.controls['libelle'].invalid && (packageForm.controls['libelle'].dirty || packageForm.controls['libelle'].touched)">
+                    <ng-container *ngIf="packageForm.controls['libelle'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Libellé est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Volume</label>

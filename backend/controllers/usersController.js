@@ -74,26 +74,27 @@ router.get("/", (req, res) => {
         if (req.query.search && req.query.search.length > 2) {
           res.send(
             users.filter(
-              item.codePostale?.toString().includes(req.query.search) ||
+              (item) =>
+                item.codePostale?.toString().includes(req.query.search) ||
                 item.tel?.toString().includes(req.query.search) ||
                 item.createdAtSearch.toString().includes(req.query.search) ||
                 item.nom
                   .toLowerCase()
                   .includes(req.query.search.toLowerCase()) ||
+                item.nomf
+                  ?.toLowerCase()
+                  .includes(req.query.search.toLowerCase()) ||
                 item.role
                   .toLowerCase()
                   .includes(req.query.search.toLowerCase()) ||
                 item.ville
-                  .toLowerCase()
+                  ?.toLowerCase()
                   .includes(req.query.search.toLowerCase()) ||
                 item.delegation
-                  .toLowerCase()
+                  ?.toLowerCase()
                   .includes(req.query.search.toLowerCase()) ||
                 item.adresse
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.delegation
-                  .toLowerCase()
+                  ?.toLowerCase()
                   .includes(req.query.search.toLowerCase()) ||
                 item.password
                   ?.toLowerCase()
@@ -194,13 +195,12 @@ router.put("/:id", (req, res) => {
     { new: true },
     (err, doc) => {
       if (!err) {
-        res.status(200);
-        res.json({
-          message: "Utilisateur mis à jour",
-        });
+        res.status(200).send(doc);
       } else {
         console.log("Erreur lors de mis à jour de l'utilisateur: " + err);
-        res.status(400).send(err.message);
+        res
+          .status(400)
+          .send("Erreur lors de mis à jour de l'utilisateur: " + err);
       }
     }
   );

@@ -25,11 +25,13 @@ export interface IClient {
 export class ClientService {
   userId: any;
   baseUri: string = "http://localhost:3000/api/clients";
+
   headers = new HttpHeaders({
     Authorization: `Bearer ${localStorage.getItem("mean-token")!}`,
   }).set("Content-Type", "application/json");
   constructor(private http: HttpClient, private auth: AuthenticationService) {
     this.userId = this.auth.getUserDetails()._id;
+    // console.log(localStorage.getItem("mean-token")!);
   }
 
   // Create client
@@ -40,8 +42,8 @@ export class ClientService {
       .pipe(catchError(this.errorMgmt));
   }
   // Get all clients
-  getClients(limit?: any, page?: any, sortBy?: any, sort?: any, search?:any) {
-    const url = `${this.baseUri}/all/${this.userId}`;
+  getClients(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
+    const url = `${this.baseUri}/all`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);
