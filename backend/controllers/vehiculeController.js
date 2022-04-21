@@ -228,8 +228,6 @@ router.put("/:id", (req, res) => {
       if (!err) {
         //pulling vehicule id from old driver
         if (req.query.chauffeurId) {
-          console.log(oldDriver);
-          console.log(req.query.chauffeurId);
           User.findByIdAndUpdate(
             oldDriver,
             { $unset: { vehiculeId: doc._id } },
@@ -241,11 +239,9 @@ router.put("/:id", (req, res) => {
                 req.query.chauffeurId,
                 { vehiculeId: doc._id },
                 { new: true, useFindAndModify: false }
-              ).exec(
-                (doc3) => {
-                  res.send(doc3);
-                },
-                (err3) => {
+              ).exec((err3) => {
+                if (!err3) res.status(200).send(doc);
+                else {
                   console.log(
                     "Erreur lors du mis à jour du chauffeur: " + err3
                   );
@@ -253,7 +249,7 @@ router.put("/:id", (req, res) => {
                     .status(400)
                     .send("Erreur lors du mis à jour du chauffeur: " + err3);
                 }
-              );
+              });
             },
             (err2) => {
               console.log("Erreur lors du mis à jour du chauffeur: " + err2);

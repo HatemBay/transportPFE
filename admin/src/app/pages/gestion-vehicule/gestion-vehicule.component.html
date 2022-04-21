@@ -73,7 +73,7 @@
 
               <ngx-datatable-column [sortable]="false" [width]="120" name="Assurance" prop="assurance">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                  {{row.assurance}}
+                  {{row.assurance | titlecase}}
                 </ng-template>
               </ngx-datatable-column>
 
@@ -176,6 +176,12 @@
                 <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
                 <small class="text-danger">
                   Série est requise.
+                </small>
+              </ng-container>
+              <ng-container *ngIf="vehiculeForm.controls['serie'].errors?.['pattern']">
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  Veuillez fournir une bonne série.
                 </small>
               </ng-container>
             </ng-container>

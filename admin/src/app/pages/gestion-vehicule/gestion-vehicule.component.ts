@@ -60,6 +60,7 @@ export class GestionVehiculeComponent implements OnInit {
   filePath: string;
   fileName: string;
   changed: boolean = false;
+  regExSerie: any;
 
   constructor(
     private fb: FormBuilder,
@@ -76,6 +77,7 @@ export class GestionVehiculeComponent implements OnInit {
     this.routePath = this.route.snapshot.routeConfig.path;
 
     this.vehiculeId = this.route.snapshot.queryParamMap.get("Id");
+    this.regExSerie = /^[0-9]{1,3} *[A-Z]{2} *[0-9]{1,4}$/;
   }
 
   ngOnInit(): void {
@@ -89,7 +91,13 @@ export class GestionVehiculeComponent implements OnInit {
       this.vehiculeForm = this.fb.group({
         img: [null],
         chauffeurId: ["", Validators.required],
-        serie: ["", Validators.required],
+        serie: [
+          "",
+          [
+            Validators.required,
+            Validators.pattern("^[0-9]{1,3} *[A-Z]{2} *[0-9]{1,4}"),
+          ],
+        ],
         modele: ["", Validators.required],
         assurance: ["", Validators.required],
         dateCirculation: ["", Validators.required],

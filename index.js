@@ -13,6 +13,8 @@ var fournisseurController = require("./backend/controllers/fournisseurController
 var clientController = require("./backend/controllers/clientController");
 var filiereController = require("./backend/controllers/filiereController");
 var vehiculeController = require("./backend/controllers/vehiculeController");
+var villeController = require("./backend/controllers/villeController");
+var delegationController = require("./backend/controllers/delegationController");
 var {
   register,
   loginUser,
@@ -64,12 +66,14 @@ app.use("/api/users", auth, usersController);
 app.use("/api/fournisseurs", auth, fournisseurController);
 app.use("/api/clients", auth, clientController);
 app.use("/api/filieres", auth, filiereController);
-app.use("/api/vehicules", vehiculeController);
+app.use("/api/vehicules", auth, vehiculeController);
+app.use("/api/villes", auth, villeController);
+app.use("/api/delegations", auth, delegationController);
 app.use("/api/register", auth, register);
 app.use("/api/login-user", loginUser);
 app.use("/api/login-provider", loginProvider);
 app.use("/api/user/verify/:id/:token", auth, verify);
-app.use("/api/excel-upload",auth ,upload);
+app.use("/api/excel-upload", auth, upload);
 
 // app.use("/api/count", packageController);
 

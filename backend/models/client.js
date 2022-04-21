@@ -9,14 +9,6 @@ var ClientSchema = new Schema(
       type: String,
       required: true,
     },
-    ville: {
-      type: String,
-      required: true,
-    },
-    delegation: {
-      type: String,
-      required: true,
-    },
     adresse: {
       type: String,
       required: true,

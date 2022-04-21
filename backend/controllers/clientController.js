@@ -4,8 +4,8 @@ var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
 
 var { Client } = require("../models/client");
+const { Delegation } = require("../models/delegation");
 const { Fournisseur } = require("../models/fournisseur");
-var { Package } = require("../models/package");
 
 // get all clients belonging to connected provider
 router.get("/all", (req, res) => {
@@ -25,17 +25,38 @@ router.get("/all", (req, res) => {
 
   var data = [
     {
+      $lookup: {
+        from: "delegations",
+        localField: "delegationId",
+        foreignField: "_id",
+        as: "delegations",
+      },
+    },
+    { $unwind: "$delegations" },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "$delegations.villeId",
+        foreignField: "_id",
+        as: "villes",
+      },
+    },
+    { $unwind: "$villes" },
+    {
       $project: {
         _id: 1,
         nom: 1,
-        ville: 1,
-        delegation: 1,
         adresse: 1,
         codePostale: 1,
         tel: 1,
         tel2: 1,
         createdAt: 1,
         fournisseurId: 1,
+        delegationId: "$delegations._id",
+        delegation: "$delegations.nom",
+        villeId: "$villes._id",
+        ville: "$villes.nom",
+        villeEtat: "$villes.etat",
         updatedAt: {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
         },
@@ -147,12 +168,11 @@ router.post("/", (req, res) => {
   const client = new Client();
 
   (client.nom = req.body.nom),
-    (client.ville = req.body.ville),
-    (client.delegation = req.body.delegation),
     (client.adresse = req.body.adresse),
     (client.codePostale = req.body.codePostale),
     (client.tel = req.body.tel),
     (client.tel2 = req.body.tel2),
+    (client.delegation = req.body.delegationId),
     (client.fournisseurId = req.body.fournisseurId);
   return client.save(client).then(
     (doc) => {
@@ -162,10 +182,20 @@ router.post("/", (req, res) => {
         { new: true, useFindAndModify: false }
       ).then(
         () => {
-          res.send(doc);
+          return Delegation.findByIdAndUpdate(
+            client.delegation,
+            { $push: { clients: doc._id } },
+            { new: true, useFindAndModify: false }
+          ).then(
+            () => res.send(doc),
+            (err) => {
+              console.log("Erreur lors du mis à jour de la délegation: " + err);
+              res.status(400).send(err.message);
+            }
+          );
         },
         (err) => {
-          console.log("Erreur lors de l'enregistrement du colis: " + err);
+          console.log("Erreur lors du mis à jour du fournisseur: " + err);
           res.status(400).send(err.message);
         }
       );
@@ -182,23 +212,68 @@ router.put("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
 
+  var oldDelegation = null;
+  Client.findById(req.params.id, (err, doc) => {
+    if (!err) {
+      oldDelegation = doc.delegation;
+    } else {
+      console.log("Erreur " + err);
+    }
+  });
+
   Client.findByIdAndUpdate(
     req.params.id,
     {
       $set: {
         nom: req.body.nom,
-        ville: req.body.ville,
-        delegation: req.body.delegation,
         adresse: req.body.adresse,
         codePostale: req.body.codePostale,
         tel: req.body.tel,
         tel2: req.body.tel2,
+        delegation: req.body.delegationId,
       },
     },
     { new: true },
     (err, doc) => {
       if (!err) {
-        res.status(200).send(doc);
+        if (oldDelegation != req.body.delegationId) {
+          Delegation.findByIdAndUpdate(
+            oldDelegation,
+            {
+              $pull: { clients: doc._id },
+            },
+            { new: true, useFindAndModify: false }
+          ).then(
+            (doc2) => {
+              Delegation.findByIdAndUpdate(
+                req.body.delegationId,
+                {
+                  $push: { clients: doc._id },
+                },
+                { new: true, useFindAndModify: false }
+              ).exec((err3) => {
+                if (!err3) {
+                  res.send(doc);
+                } else {
+                  console.log(
+                    "Erreur lors de la mise à jour de la délégation: " + err3
+                  );
+                  res.status(400).send(err3.message);
+                }
+              });
+            },
+            (err2) => {
+              console.log(
+                "Erreur lors de mis à jour de la délégation: " + err2
+              );
+              res
+                .status(400)
+                .send("Erreur lors du mis à jour de la délégation: " + err2);
+            }
+          );
+        } else {
+          res.status(400).send(doc);
+        }
       } else {
         console.log("Erreur lors de mis à jour du client: " + err);
         res.status(400).send("Erreur lors de mis à jour du client: " + err);

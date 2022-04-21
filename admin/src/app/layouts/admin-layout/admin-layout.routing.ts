@@ -9,12 +9,12 @@ import { CarnetAdresseComponent } from "src/app/pages/carnet-adresse/carnet-adre
 import { GestionColisComponent } from "src/app/pages/gestion-colis/gestion-colis.component";
 import { FinanceComponent } from "src/app/pages/finance/finance.component";
 import { RoleGuard } from "src/app/services/role.guard";
-import { GestionFiliereComponent } from 'src/app/pages/gestion-filiere/gestion-filiere.component';
-import { GestionPersonelComponent } from 'src/app/pages/gestion-personel/gestion-personel.component';
+import { GestionFiliereComponent } from "src/app/pages/gestion-filiere/gestion-filiere.component";
+import { GestionPersonelComponent } from "src/app/pages/gestion-personel/gestion-personel.component";
 import { GestionClientComponent } from "src/app/pages/gestion-client/gestion-client.component";
 import { GestionVehiculeComponent } from "src/app/pages/gestion-vehicule/gestion-vehicule.component";
-
-
+import { GestionDelegationComponent } from "src/app/pages/gestion-delegation/gestion-delegation.component";
+import { GestionVilleComponent } from "src/app/pages/gestion-ville/gestion-ville.component";
 
 export const AdminLayoutRoutes: Routes = [
   { path: "dashboard", component: DashboardComponent },
@@ -33,14 +33,16 @@ export const AdminLayoutRoutes: Routes = [
   { path: "modifier-client", component: GestionClientComponent },
   { path: "gestion-vehicule", component: GestionVehiculeComponent },
   { path: "modifier-vehicule", component: GestionVehiculeComponent },
+  { path: "gestion-ville", component: GestionVilleComponent },
+  { path: "gestion-delegation", component: GestionDelegationComponent },
 
   {
     path: "gestion-colis",
     component: GestionColisComponent,
     canActivate: [RoleGuard],
     data: {
-      expectedRoles: ['admin']
-    }
+      expectedRoles: ["admin"],
+    },
   },
   { path: "finance", component: FinanceComponent },
   { path: "finance-f-h", component: FinanceComponent },
