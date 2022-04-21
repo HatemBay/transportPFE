@@ -64,12 +64,12 @@ app.use("/api/users", auth, usersController);
 app.use("/api/fournisseurs", auth, fournisseurController);
 app.use("/api/clients", auth, clientController);
 app.use("/api/filieres", auth, filiereController);
-app.use("/api/vehicules", auth, vehiculeController);
+app.use("/api/vehicules", vehiculeController);
 app.use("/api/register", auth, register);
 app.use("/api/login-user", loginUser);
 app.use("/api/login-provider", loginProvider);
 app.use("/api/user/verify/:id/:token", auth, verify);
-app.use("/api/excel-upload", auth, upload);
+app.use("/api/excel-upload",auth ,upload);
 
 // app.use("/api/count", packageController);
 

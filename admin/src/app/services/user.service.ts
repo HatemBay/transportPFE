@@ -27,7 +27,7 @@ export class UserService {
   }
 
   // Get all users
-  getUsers(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
+  getUsers(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any): Observable<any>  {
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);
@@ -44,6 +44,12 @@ export class UserService {
     return this.http.get(url, { headers: this.headers, params: queryParams });
   }
 
+  // Get users by role
+  getUsersByRole(): Observable<any>  {
+    const url = `${this.baseUri}/role/chauffeur`;
+    return this.http.get(url, { headers: this.headers });
+  }
+
   // Get user
   getUser(id: any): Observable<any> {
     const url = `${this.baseUri}/${id}`;
@@ -57,7 +63,7 @@ export class UserService {
   }
 
   // Update user
-  updateUser(id: any, data: any): Observable<any> {
+  updateUser(id: any, data: any, cid?: any): Observable<any> {
     let url = `${this.baseUri}/${id}`;
     return this.http
       .put(url, data, { headers: this.headers })

@@ -12,6 +12,7 @@ import { RoleGuard } from "src/app/services/role.guard";
 import { GestionFiliereComponent } from 'src/app/pages/gestion-filiere/gestion-filiere.component';
 import { GestionPersonelComponent } from 'src/app/pages/gestion-personel/gestion-personel.component';
 import { GestionClientComponent } from "src/app/pages/gestion-client/gestion-client.component";
+import { GestionVehiculeComponent } from "src/app/pages/gestion-vehicule/gestion-vehicule.component";
 
 
 
@@ -30,6 +31,8 @@ export const AdminLayoutRoutes: Routes = [
   { path: "modifier-personel", component: GestionPersonelComponent },
   { path: "gestion-client", component: GestionClientComponent },
   { path: "modifier-client", component: GestionClientComponent },
+  { path: "gestion-vehicule", component: GestionVehiculeComponent },
+  { path: "modifier-vehicule", component: GestionVehiculeComponent },
 
   {
     path: "gestion-colis",

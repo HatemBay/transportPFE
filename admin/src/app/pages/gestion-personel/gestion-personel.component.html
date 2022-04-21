@@ -165,12 +165,6 @@
                 </small>
               </ng-container>
             </ng-container>
-            <ng-container *ngIf="error != 'none'">
-              <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
-              <small class="text-danger">
-                Nom filière existe déjà.
-              </small>
-            </ng-container>
           </div>
           <div class="form-group">
             <label>Téléphone (*)</label>
@@ -183,23 +177,30 @@
                   Téléphone est requis.
                 </small>
               </ng-container>
-              <ng-container *ngIf="userForm.controls['tel'].errors?.['min'] || userForm.controls['tel'].errors?.['max']">
+              <ng-container
+                *ngIf="userForm.controls['tel'].errors?.['min'] || userForm.controls['tel'].errors?.['max']">
                 <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
                 <small class="text-danger">
                   Téléphone est invalide.
                 </small>
               </ng-container>
-              <ng-container *ngIf="error != 'none'">
-                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
-                <small class="text-danger">
-                  Téléphone existe déjà.
-                </small>
-              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="error != 'none' && error.indexOf('tel_1') !== -1">
+              <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+              <small class="text-danger">
+                Téléphone existe déjà.
+              </small>
             </ng-container>
           </div>
           <div class="form-group">
             <label>Email</label>
             <input formControlName="email" type="text" required="" class="form-control">
+            <ng-container *ngIf="error != 'none' && error.indexOf('email_1') !== -1">
+              <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+              <small class="text-danger">
+                Email existe déjà.
+              </small>
+            </ng-container>
           </div>
         </div>
         <div class="modal-footer">

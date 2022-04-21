@@ -4,7 +4,6 @@ var xlsxtojson = require("xlsx-to-json-lc");
 var { Client } = require("../models/client");
 var { Package } = require("../models/package");
 var { Fournisseur } = require("../models/fournisseur");
-var assert = require("assert");
 
 var router = express.Router();
 
@@ -142,6 +141,26 @@ router.post("/:fid", (req, res) => {
       }
     }
   });
+});
+
+router.post("/image/upload", (req, res) => {
+  const file = req["files"].CG;
+  const file2 = JSON.parse(req.body.form);
+  console.log(file);
+  console.log(file2);
+
+  var sampleFile;
+  var exceltojson;
+  sampleFile = file;
+
+  // sampleFile.mv("uploads/" + file.name, function (err) {
+  //   if (err) {
+  //     console.log("eror saving");
+  //   } else {
+  //     console.log("saved");
+  //     console.log(file.name.split(".")[file.name.split(".").length - 1]);
+  //   }
+  // });
 });
 
 module.exports = router;

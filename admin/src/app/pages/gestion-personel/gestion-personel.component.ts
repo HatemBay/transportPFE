@@ -9,6 +9,7 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { NgbModal, NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { AuthenticationService } from "src/app/services/authentication.service";
 import { FiliereService } from "src/app/services/filiere.service";
 import { UserService } from "src/app/services/user.service";
 
@@ -55,7 +56,8 @@ export class GestionPersonelComponent implements OnInit {
     public modalService: NgbModal,
     public activeModal: NgbActiveModal,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private auth: AuthenticationService
   ) {
     this.routePath = this.route.snapshot.routeConfig.path;
 
@@ -77,7 +79,14 @@ export class GestionPersonelComponent implements OnInit {
         filiereId: ["", Validators.required],
         role: ["", Validators.required],
         nom: ["", Validators.required],
-        tel: ["", [Validators.required, Validators.min(10000000), Validators.max(99999999)]],
+        tel: [
+          "",
+          [
+            Validators.required,
+            Validators.min(10000000),
+            Validators.max(99999999),
+          ],
+        ],
         email: "",
       });
 
@@ -85,12 +94,19 @@ export class GestionPersonelComponent implements OnInit {
 
       this.getDataJson();
       this.getFilieres();
-      // console.log(this.error != "none");
-    } else {
+      // adding super admin control protection => && this.userId != this.auth.getUserDetails()._id
+    } else if (this.routePath == 'modifier-personel') {
       this.userModifyForm = this.fb.group({
         role: ["", Validators.required],
         nom: ["", Validators.required],
-        tel: ["", [Validators.required, Validators.min(10000000), Validators.max(99999999)]],
+        tel: [
+          "",
+          [
+            Validators.required,
+            Validators.min(10000000),
+            Validators.max(99999999),
+          ],
+        ],
         password: ["", Validators.required],
         email: "",
       });
@@ -206,6 +222,9 @@ export class GestionPersonelComponent implements OnInit {
       },
       (err) => {
         this.error = err.message;
+        console.log(typeof this.error);
+
+        console.log(this.error);
       }
     );
   }

@@ -12,7 +12,7 @@ var VehiculeSchema = new Schema(
       type: String,
       required: true,
     },
-    assurence: {
+    assurance: {
       type: String,
       required: true,
     },

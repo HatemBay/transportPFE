@@ -16,7 +16,8 @@
             <i class="fas fa-download"></i> Télécharger l'exemple
           </a>
         </div>
-        <form method="POST" class="row" enctype="multipart/form-data">
+        <!-- if error add method="POST" -->
+        <form class="row" enctype="multipart/form-data">
           <div class="col-md-5 offset-md-2 mt-4 form-group">
             <input class="form-control" type="file" (change)="onFileSelected($event)" accept=".xls" />
             {{fileName || "No file uploaded yet."}}
@@ -25,7 +26,6 @@
           <div class="col-md-3 mt-4 ml-5">
             <button name="submit" type="submit" (click)="upload()" class="btn btn-info px-5">Appliquer</button>
           </div>
-
         </form>
       </div>
       <div class="card">

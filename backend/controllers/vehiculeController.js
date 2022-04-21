@@ -1,6 +1,8 @@
+const { log } = require("console");
 const express = require("express");
 const { User } = require("../models/users");
 const { Vehicule } = require("../models/vehicule");
+var fs = require("fs");
 
 var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
@@ -29,10 +31,14 @@ router.get("/", (req, res) => {
         _id: 1,
         serie: 1,
         modele: 1,
-        assurence: 1,
-        dateCirculation: 1,
+        assurance: 1,
+        dateCirculation: {
+          $dateToString: { format: "%d-%m-%Y", date: "$dateCirculation" },
+        },
         imageCarteGrise: 1,
-        dateVisite: 1,
+        dateVisite: {
+          $dateToString: { format: "%d-%m-%Y", date: "$dateVisite" },
+        },
         kilometrage: 1,
         chauffeurId: "$users._id",
         nomc: "$users.nom",
@@ -75,7 +81,7 @@ router.get("/", (req, res) => {
                 item.modele
                   ?.toLowerCase()
                   .includes(req.query.search.toLowerCase()) ||
-                item.assurence
+                item.assurance
                   ?.toLowerCase()
                   .includes(req.query.search.toLowerCase()) ||
                 item.kilometrage
@@ -104,16 +110,41 @@ router.get("/:id", (req, res) => {
 
 // create vehicle
 router.post("/", (req, res) => {
+  const file = req["files"].CG;
+  const data = JSON.parse(req.body.form);
+  console.log(file);
+  console.log(data);
+
+  // console.log(file);
+
   const vehicule = new Vehicule();
 
-  vehicule.serie = req.body.serie;
-  vehicule.modele = req.body.modele;
-  vehicule.assurence = req.body.assurence;
-  vehicule.dateCirculation = req.body.dateCirculation;
-  vehicule.imageCarteGrise = req.body.imageCarteGrise;
-  vehicule.dateVisite = req.body.dateVisite;
-  vehicule.kilometrage = req.body.kilometrage;
-  vehicule.chauffeurId = req.body.chauffeurId;
+  vehicule.serie = data.serie.replace(/ /g, "");
+  vehicule.modele = data.modele;
+  vehicule.assurance = data.assurance;
+  vehicule.dateCirculation = data.dateCirculation;
+  // vehicule.imageCarteGrise = data.imageCarteGrise;
+  vehicule.dateVisite = data.dateVisite;
+  vehicule.kilometrage = data.kilometrage;
+  vehicule.chauffeurId = data.chauffeurId;
+
+  // console.log(req);
+  var sampleFile;
+  sampleFile = file;
+
+  var imgPath = "uploads/" + file.name;
+
+  sampleFile.mv(imgPath, function (err) {
+    if (err) {
+      console.log("Error saving image" + err);
+      return res.status(500).send("Error saving image" + err);
+    }
+    // console.log(vehicule.imageCarteGrise);
+  });
+
+  var extension = file.name.split(".")[file.name.split(".").length - 1];
+  vehicule.imageCarteGrise.data = fs.readFileSync("uploads/" + file.name);
+  vehicule.imageCarteGrise.contentType = "image/" + extension;
 
   return vehicule.save().then(
     (doc) => {
@@ -138,19 +169,102 @@ router.post("/", (req, res) => {
   );
 });
 
+// update vehicle
 router.put("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
 
+  const data = JSON.parse(req.body.form);
+  console.log(data);
+
+  const fieldsToUpdate = {
+    serie: data.serie.replace(/ /g, ""),
+    modele: data.modele,
+    assurance: data.assurance,
+    dateCirculation: data.dateCirculation,
+    dateVisite: data.dateVisite,
+    kilometrage: data.kilometrage,
+    chauffeurId: data.chauffeurId,
+  };
+
+  if (req["files"]) {
+    const file = req["files"].CG;
+    console.log(file);
+    // console.log(req);
+    var sampleFile;
+    sampleFile = file;
+
+    var imgPath = "uploads/" + file.name;
+
+    sampleFile.mv(imgPath, function (err) {
+      if (err) {
+        console.log("Error saving image" + err);
+        return res.status(500).send("Error saving image" + err);
+      }
+      // console.log(vehicule.imageCarteGrise);
+    });
+    var imageCarteGrise = {};
+    var extension = file.name.split(".")[file.name.split(".").length - 1];
+    imageCarteGrise.data = fs.readFileSync("uploads/" + file.name);
+    imageCarteGrise.contentType = "image/" + extension;
+    fieldsToUpdate.imageCarteGrise = imageCarteGrise;
+  }
+  // getting old driver id to pull vehicule id from
+  var oldDriver = null;
+  Vehicule.findById(req.params.id, (err, doc) => {
+    if (!err) {
+      oldDriver = doc.chauffeurId;
+    } else {
+      console.log("Erreur " + err);
+    }
+  });
   Vehicule.findByIdAndUpdate(
     req.params.id,
     {
-      $set: req.body,
+      $set: fieldsToUpdate,
     },
     { new: true },
     (err, doc) => {
       if (!err) {
-        res.status(200).send(doc);
+        //pulling vehicule id from old driver
+        if (req.query.chauffeurId) {
+          console.log(oldDriver);
+          console.log(req.query.chauffeurId);
+          User.findByIdAndUpdate(
+            oldDriver,
+            { $unset: { vehiculeId: doc._id } },
+            { new: true, useFindAndModify: false }
+          ).then(
+            (doc2) => {
+              //pushing vehicule id to new driver
+              User.findByIdAndUpdate(
+                req.query.chauffeurId,
+                { vehiculeId: doc._id },
+                { new: true, useFindAndModify: false }
+              ).exec(
+                (doc3) => {
+                  res.send(doc3);
+                },
+                (err3) => {
+                  console.log(
+                    "Erreur lors du mis à jour du chauffeur: " + err3
+                  );
+                  res
+                    .status(400)
+                    .send("Erreur lors du mis à jour du chauffeur: " + err3);
+                }
+              );
+            },
+            (err2) => {
+              console.log("Erreur lors du mis à jour du chauffeur: " + err2);
+              res
+                .status(400)
+                .send("Erreur lors du mis à jour du chauffeur: " + err2);
+            }
+          );
+        } else {
+          res.status(200).send(doc);
+        }
       } else {
         console.log("Erreur lors de mis à jour de la véhicule: " + err);
         res
@@ -168,12 +282,12 @@ router.delete("/:id", (req, res) => {
     if (!err) {
       User.findByIdAndUpdate(
         doc.chauffeurId,
-        { $pull: { vehiculeId: doc._id } },
+        { $unset: { vehiculeId: doc._id } },
         (err2) => {
           if (!err2) {
             res.status(200);
             res.json({
-              message: "filière supprimée avec succès",
+              message: "Véhicule supprimée avec succès",
             });
           } else {
             console.log("Erreur lors de mis à jour du chauffeur: " + err2);
@@ -181,7 +295,7 @@ router.delete("/:id", (req, res) => {
         }
       );
     } else {
-      console.log("Erreur dans la suppression de la filière: " + err);
+      console.log("Erreur dans la suppression de la véhicule: " + err);
       res.status(400).send(err.message);
     }
   });

@@ -117,6 +117,18 @@ router.get("/", (req, res) => {
     });
 });
 
+// get chauffeurs by role
+// can get modified
+router.get("/role/chauffeur", (req, res) => {
+  User.find({ vehiculeId: { $eq: null}, role: 'chauffeur' }, (err, doc) => {
+    if (!err) res.send(doc);
+    else {
+      console.log("Erreur lors de la récupération de l'utilisateur: " + err);
+      res.status(400).send(err.message);
+    }
+  });
+});
+
 // get user
 router.get("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))

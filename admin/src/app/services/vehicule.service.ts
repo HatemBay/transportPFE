@@ -16,18 +16,28 @@ export class VehiculeService {
   headers = new HttpHeaders({
     Authorization: `Bearer ${localStorage.getItem("mean-token")!}`,
   }).set("Content-Type", "application/json");
+  headers2 = new HttpHeaders({
+    Authorization: `Bearer ${localStorage.getItem("mean-token")!}`,
+  });
   constructor(private http: HttpClient) {}
 
   // Create branch
   createVehicule(data: any): Observable<any> {
     const url = `${this.baseUri}`;
+    // for some reason setting content-type blocks FormData from being sent
     return this.http
-      .post(url, data, { headers: this.headers })
+      .post(url, data, { headers: this.headers2 })
       .pipe(catchError(this.errorMgmt));
   }
 
   // Get all branches
-  getVehicules(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
+  getVehicules(
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any
+  ): Observable<any> {
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);
@@ -57,10 +67,14 @@ export class VehiculeService {
   }
 
   // Update branch
-  updateVehicule(id: any, data: any): Observable<any> {
+  updateVehicule(id: any, data: any, chauffeurId?: any): Observable<any> {
     let url = `${this.baseUri}/${id}`;
+    var queryParams = new HttpParams();
+    if (chauffeurId) {
+      queryParams = queryParams.append("chauffeurId", chauffeurId);
+    }
     return this.http
-      .put(url, data, { headers: this.headers })
+      .put(url, data, { headers: this.headers2, params: queryParams })
       .pipe(catchError(this.errorMgmt));
   }
 
