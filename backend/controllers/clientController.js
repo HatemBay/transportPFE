@@ -36,7 +36,7 @@ router.get("/all", (req, res) => {
     {
       $lookup: {
         from: "villes",
-        localField: "$delegations.villeId",
+        localField: "delegations.villeId",
         foreignField: "_id",
         as: "villes",
       },
@@ -119,10 +119,72 @@ router.get("/all", (req, res) => {
 router.get("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
-  Client.findById(req.params.id, (err, doc) => {
+  // adapting request id to aggregate options
+  var fid = null;
+  if (req.query.fid) {
+    fid = ObjectId(req.query.fid);
+  }
+
+  var data = [
+    {
+      $lookup: {
+        from: "delegations",
+        localField: "delegationId",
+        foreignField: "_id",
+        as: "delegations",
+      },
+    },
+    { $unwind: "$delegations" },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegations.villeId",
+        foreignField: "_id",
+        as: "villes",
+      },
+    },
+    { $unwind: "$villes" },
+    {
+      $project: {
+        _id: 1,
+        nom: 1,
+        adresse: 1,
+        codePostale: 1,
+        tel: 1,
+        tel2: 1,
+        createdAt: 1,
+        fournisseurId: 1,
+        delegationId: "$delegations._id",
+        delegation: "$delegations.nom",
+        villeId: "$villes._id",
+        ville: "$villes.nom",
+        villeEtat: "$villes.etat",
+        updatedAt: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
+        },
+      },
+    },
+    {
+      $addFields: {
+        createdAtSearch: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
+        },
+      },
+    },
+    {
+      $match: { _id: ObjectId(req.params.id) },
+    },
+  ];
+  if (fid) {
+    data.push({
+      $match: { fournisseurId: fid },
+    });
+  }
+
+  Client.aggregate(data).exec((err, doc) => {
     if (!err) res.send(doc);
     else {
-      console.log("Erreur lors de la récupération des clients: " + err);
+      console.log("Erreur lors de la récupération du client: " + err);
       res.status(400).send(err.message);
     }
   });
@@ -172,8 +234,8 @@ router.post("/", (req, res) => {
     (client.codePostale = req.body.codePostale),
     (client.tel = req.body.tel),
     (client.tel2 = req.body.tel2),
-    (client.delegation = req.body.delegationId),
     (client.fournisseurId = req.body.fournisseurId);
+  client.delegationId = req.body.delegationId;
   return client.save(client).then(
     (doc) => {
       return Fournisseur.findByIdAndUpdate(
@@ -230,7 +292,7 @@ router.put("/:id", (req, res) => {
         codePostale: req.body.codePostale,
         tel: req.body.tel,
         tel2: req.body.tel2,
-        delegation: req.body.delegationId,
+        delegationId: req.body.delegationId,
       },
     },
     { new: true },

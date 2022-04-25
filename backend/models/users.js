@@ -22,9 +22,6 @@ var UserSchema = new Schema(
       enum: ["admin", "financier", "commercial", "chef bureau", "chauffeur"],
       required: true,
     },
-    ville: {
-      type: String,
-    },
     delegation: {
       type: String,
     },
@@ -100,7 +97,6 @@ UserSchema.methods.generateJWT = function () {
       email: user.email,
       nom: user.nom,
       role: user.role,
-      ville: user.ville,
       delegation: user.delegation,
       adresse: user.adresse,
       codePostale: user.codePostale,
@@ -127,7 +123,6 @@ const validate = (user) => {
       "chauffeur",
       "client"
     ),
-    ville: Joi.string().required(),
     delegation: Joi.string().required(),
     adresse: Joi.string().required(),
     codePostale: Joi.number().required(),

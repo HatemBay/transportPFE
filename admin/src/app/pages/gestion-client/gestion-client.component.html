@@ -177,7 +177,7 @@
           </div> -->
           <div class="form-group">
             <label class="form-label">Ville (*)</label>
-            <select formControlName="ville"  class="form-control">
+            <select formControlName="ville" class="form-control">
               <option hidden="" value="">-- Choisir --</option>
               <option value="sousse">Sousse </option>
               <option value="monastir">Monastir </option>
@@ -292,12 +292,10 @@
                 </div> -->
                 <div class="form-group">
                   <label class="form-label">Ville (*)</label>
-                  <select formControlName="ville" class="form-control">
+                  <select formControlName="ville" class="form-control" (change)="getDelegations($event.target.value)">
                     <option hidden="" value="">-- Choisir --</option>
-                    <option value="sousse">Sousse </option>
-                    <option value="Monastir">Monastir </option>
-                    <!-- <option *ngFor="let ville of villes" [value]="filiere._id">
-                      {{ ville.nom | titlecase }} </option> -->
+                    <option *ngFor="let ville of villes" [value]="ville._id">
+                      {{ ville.nom | titlecase }} </option>
                   </select>
                   <ng-container
                     *ngIf="clientModifyForm.controls['ville'].invalid && (clientModifyForm.controls['ville'].dirty || clientModifyForm.controls['ville'].touched)">
@@ -313,10 +311,8 @@
                   <label class="form-label">Delegation (*)</label>
                   <select formControlName="delegation" class="form-control">
                     <option hidden="" value="">-- Choisir --</option>
-                    <option value="sousse">Sousse </option>
-                    <option value="Ben Arous">Ben Arous </option>
-                    <!-- <option *ngFor="let delegation of delegations" [value]="filiere._id">
-                      {{ delegation.nom | titlecase }} </option> -->
+                    <option *ngFor="let delegation of delegations" [value]="delegation._id">
+                      {{ delegation.nom | titlecase }} </option>
                   </select>
                   <ng-container
                     *ngIf="clientModifyForm.controls['delegation'].invalid && (clientModifyForm.controls['delegation'].dirty || clientModifyForm.controls['delegation'].touched)">

@@ -6,6 +6,7 @@ var ObjectId = require("mongoose").Types.ObjectId;
 
 var { User, validate } = require("../models/users");
 var { Filiere } = require("../models/filiere");
+const { Delegation } = require("../models/delegation");
 
 // get all users with pagination and their branches
 router.get("/", (req, res) => {
@@ -120,7 +121,7 @@ router.get("/", (req, res) => {
 // get chauffeurs by role
 // can get modified
 router.get("/role/chauffeur", (req, res) => {
-  User.find({ vehiculeId: { $eq: null}, role: 'chauffeur' }, (err, doc) => {
+  User.find({ vehiculeId: { $eq: null }, role: "chauffeur" }, (err, doc) => {
     if (!err) res.send(doc);
     else {
       console.log("Erreur lors de la récupération de l'utilisateur: " + err);
@@ -156,8 +157,7 @@ router.post("/", (req, res) => {
   (user.email = req.body.email),
     (user.nom = req.body.nom),
     (user.role = req.body.role),
-    (user.ville = req.body.ville),
-    (user.delegation = req.body.delegation),
+    (user.delegationId = req.body.delegationId),
     (user.adresse = req.body.adresse),
     (user.codePostale = req.body.codePostale),
     (user.tel = req.body.tel),
@@ -166,16 +166,30 @@ router.post("/", (req, res) => {
     (user.filiereId = req.body.filiereId);
   return user.save(user).then(
     (doc) => {
-      return Filiere.findByIdAndUpdate(
+      Filiere.findByIdAndUpdate(
         user.filiereId,
         { $push: { users: doc._id } },
         { new: true, useFindAndModify: false }
       ).then(
         () => {
-          res.status(200).send(doc);
+          Delegation.findByIdAndUpdate(
+            user.filiereId,
+            { $push: { users: doc._id } },
+            { new: true, useFindAndModify: false }
+          ).then(
+            () => {
+              res.status(200).send(doc);
+            },
+            (err2) => {
+              console.log(
+                "Erreur lors du mis à jour de la délegation: " + err2
+              );
+              res.status(400).send(err2.message);
+            }
+          );
         },
         (err) => {
-          console.log("Erreur lors de l'enregistrement de la filiere: " + err);
+          console.log("Erreur lors du mis à jour de la filiere: " + err);
           res.status(400).send(err.message);
         }
       );
@@ -192,6 +206,15 @@ router.put("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
 
+    var oldDelegation = null;
+    User.findById(req.params.id, (err, doc) => {
+      if (!err) {
+        oldDelegation = doc.delegationId;
+      } else {
+        console.log("Erreur " + err);
+      }
+    });
+
   const user = new User();
   var encrypted = user.setPassword(req.body.password, res);
   if (!encrypted) return;
@@ -207,7 +230,44 @@ router.put("/:id", (req, res) => {
     { new: true },
     (err, doc) => {
       if (!err) {
-        res.status(200).send(doc);
+        if (oldDelegation != req.body.delegationId) {
+          Delegation.findByIdAndUpdate(
+            oldDelegation,
+            {
+              $pull: { users: doc._id },
+            },
+            { new: true, useFindAndModify: false }
+          ).then(
+            (doc2) => {
+              Delegation.findByIdAndUpdate(
+                req.body.delegationId,
+                {
+                  $push: { users: doc._id },
+                },
+                { new: true, useFindAndModify: false }
+              ).exec((err3) => {
+                if (!err3) {
+                  res.send(doc);
+                } else {
+                  console.log(
+                    "Erreur lors de la mise à jour de la délégation: " + err3
+                  );
+                  res.status(400).send(err3.message);
+                }
+              });
+            },
+            (err2) => {
+              console.log(
+                "Erreur lors de mis à jour de la délégation: " + err2
+              );
+              res
+                .status(400)
+                .send("Erreur lors du mis à jour de la délégation: " + err2);
+            }
+          );
+        } else {
+          res.status(400).send(doc);
+        }
       } else {
         console.log("Erreur lors de mis à jour de l'utilisateur: " + err);
         res
@@ -229,10 +289,23 @@ router.delete("/:id", (req, res) => {
         { $pull: { users: doc._id } },
         (err2) => {
           if (!err2) {
-            res.status(200);
-            res.json({
-              message: "user deleted successfully",
-            });
+            Delegation.findByIdAndUpdate(
+              doc.delegationId,
+              { $pull: { users: doc._id } },
+              (err3) => {
+                if (!err3) {
+                  res.status(200);
+                  res.json({
+                    message: "Utilisateur supprimé",
+                  });
+                } else {
+                  console.log(
+                    "Erreur lors du mis à jour de la délegation: " + err3
+                  );
+                  res.status(400).send(err3.message);
+                }
+              }
+            );
           } else {
             console.log(err2);
             res.status(400).send(err2.message);

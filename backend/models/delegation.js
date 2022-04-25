@@ -8,7 +8,7 @@ var DelegationSchema = new Schema(
       required: true,
       unique: true,
     },
-    ville: {
+    villeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Ville",
     },

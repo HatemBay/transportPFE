@@ -84,6 +84,15 @@ router.get("/", (req, res) => {
     });
 });
 
+// get delegations by ville id
+router.get("/:villeId", (req, res) => {
+  Delegation.find({ villeId: req.params.villeId }, (err, delegations) => {
+    if (!err) return res.send(delegations);
+    console.log("Erreur lors de la récupération des delegations: " + err);
+    return res.status(400).send(err);
+  });
+});
+
 // add delegation
 router.post("/", (req, res) => {
   // console.log(req.body);

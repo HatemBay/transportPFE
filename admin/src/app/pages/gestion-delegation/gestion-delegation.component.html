@@ -1,1 +1,146 @@
-<p>gestion-delegation works!</p>
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+  </div>
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <!-- Table -->
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card-header">
+          <div *ngIf="success" class="alert alert-success ml-4 mr-4">
+            <span class="closebtn" onclick="this.parentElement.style.display='none'; success = false;">&times;</span>
+            Delegation supprimée avec succes
+          </div>
+          <div class="row mb-4">
+            <div class="col-8">Gestion Delegations: </div>
+            <div class="col-4 text-right">
+              <button [formGroup]="delegationForm" (click)="addModal()" data-target=""
+                class="m-0 float-right btn btn-success btn-sm">
+                Ajouter <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-6 pr-4">
+              <div class="row">
+                <div class="col-2">
+                  <label for="per-page">
+                    Afficher
+                  </label>
+                </div>
+                <div class="col-2">
+                  <select class="form-control" id="per-page" (change)="onLimitChange($event.target.value)">
+                    <option *ngFor="let option of pageLimitOptions" [value]="option.value"
+                      [selected]="option.value == currentPageLimit">
+                      {{ option.value }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label for="per-page">
+                    éléments
+                  </label>
+                </div>
+              </div>
+
+            </div>
+            <div class="col-6 float-right" style="padding-left: 300px !important;">
+              <input #search class="form-control" type="text" placeholder="Rechercher" (keyup)="updateFilter($event)"
+                autocomplete="false" />
+            </div>
+          </div>
+        </div>
+        <div>
+          <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
+            [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
+            (sort)="onSort($event)">
+            <ngx-datatable-column *ngFor="let column of columns;
+        let i = index;" name="{{column.name}}" prop="{{column.prop}}">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row[column.prop] | titlecase }}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
+                <span>
+                  <button [routerLink]="" (click)="delete(row)" class="btn btn-sm btn-danger rounded-circle">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-footer>
+              <ng-template ngx-datatable-footer-template let-rowCount="count" let-pageSize="pageSize"
+                let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
+                <div class="pl-2">
+                  Elements: {{ count }} | Taille: {{ pageSize }} | Page:
+                  {{ curPage }}
+                </div>
+                <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'"
+                  [pagerRightArrowIcon]="'datatable-icon-right'" [pagerPreviousIcon]="'datatable-icon-prev'"
+                  [pagerNextIcon]="'datatable-icon-skip'" [page]="curPage" [size]="pageSize" [count]="count"
+                  [hidden]="!((count / pageSize) > 1)" (change)="onFooterPage($event)">
+                </datatable-pager>
+              </ng-template>
+            </ngx-datatable-footer>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #editModal let-modal>
+  <form class="modal-content" [formGroup]="delegationForm" (ngSubmit)="closeModal(modal)">
+    <div class="modal-header bg-success">
+      <h4 class="modal-title">Ajouter Delegation</h4>
+      <button type="button" class="close" aria-label="Close" (click)="dismissModal(modal)"><i
+          class="fas fa-times text-white"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Ville</label>
+        <select formControlName="villeId" class="form-control">
+          <option hidden="" value="">-- Choisir --</option>
+          <option *ngFor="let ville of villes" [value]="ville._id">
+            {{ ville.nom | titlecase }}
+          </option>
+        </select>
+        <ng-container
+          *ngIf="delegationForm.controls['villeId'].invalid && (delegationForm.controls['villeId'].dirty || delegationForm.controls['villeId'].touched)">
+          <ng-container *ngIf="delegationForm.controls['villeId'].errors?.['required']">
+            <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+            <small class="text-danger">
+              Ville est requise.
+            </small>
+          </ng-container>
+        </ng-container>
+      </div>
+      <div class="form-group">
+        <label>Nom Delegation</label>
+        <input formControlName="nom" type="text" required="" class="form-control">
+        <ng-container
+          *ngIf="delegationForm.controls['nom'].invalid && (delegationForm.controls['nom'].dirty || delegationForm.controls['nom'].touched)">
+          <ng-container *ngIf="delegationForm.controls['nom'].errors?.['required']">
+            <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+            <small class="text-danger">
+              Nom delegation est requis.
+            </small>
+          </ng-container>
+        </ng-container>
+        <ng-container *ngIf="error != 'none'">
+          <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+          <small class="text-danger">
+            Nom delegation existe déjà.
+          </small>
+        </ng-container>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-outline-dark" [disabled]="delegationForm.invalid">Ajouter</button>
+    </div>
+  </form>
+</ng-template>

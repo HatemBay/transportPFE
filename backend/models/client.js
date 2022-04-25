@@ -39,6 +39,10 @@ var ClientSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Fournisseur",
     },
+    delegationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Delegation",
+    },
   },
   {
     timestamps: true,

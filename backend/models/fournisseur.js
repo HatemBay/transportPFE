@@ -16,14 +16,6 @@ var FournisseurSchema = new Schema(
       type: String,
       required: true,
     },
-    ville: {
-      type: String,
-      required: true,
-    },
-    delegation: {
-      type: String,
-      required: true,
-    },
     adresse: {
       type: String,
       required: true,
@@ -45,14 +37,18 @@ var FournisseurSchema = new Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "Package",
-      }
+      },
     ],
     clients: [
       {
         type: Schema.Types.ObjectId,
         ref: "Client",
-      }
-    ]
+      },
+    ],
+    delegationId: {
+      type: Schema.Types.ObjectId,
+      ref: "Delegation",
+    },
   },
   {
     timestamps: true,

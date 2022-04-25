@@ -4,6 +4,8 @@ import { Router, NavigationExtras, ActivatedRoute } from "@angular/router";
 import { NgbModal, NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { ClientService } from "src/app/services/client.service";
+import { DelegationService } from "src/app/services/delegation.service";
+import { VilleService } from "src/app/services/ville.service";
 
 @Component({
   selector: "app-gestion-client",
@@ -38,9 +40,14 @@ export class GestionClientComponent implements OnInit {
   clientModifyForm: any;
   clientId: any;
   error: string;
+  villeId: any;
+  villes: Object;
+  delegations: Object;
 
   constructor(
     private clientService: ClientService,
+    private villeService: VilleService,
+    private delegationService: DelegationService,
     public modalService: NgbModal,
     public activeModal: NgbActiveModal,
     private route: ActivatedRoute,
@@ -63,7 +70,14 @@ export class GestionClientComponent implements OnInit {
 
       this.clientForm = this.fb.group({
         nom: ["", Validators.required],
-        tel: ["", [Validators.required, Validators.min(10000000), Validators.max(99999999)]],
+        tel: [
+          "",
+          [
+            Validators.required,
+            Validators.min(10000000),
+            Validators.max(99999999),
+          ],
+        ],
         email: "",
         ville: ["", Validators.required],
         delegation: ["", Validators.required],
@@ -77,7 +91,14 @@ export class GestionClientComponent implements OnInit {
     } else {
       this.clientModifyForm = this.fb.group({
         nom: ["", Validators.required],
-        tel: ["", [Validators.required, Validators.min(10000000), Validators.max(99999999)]],
+        tel: [
+          "",
+          [
+            Validators.required,
+            Validators.min(10000000),
+            Validators.max(99999999),
+          ],
+        ],
         email: "",
         ville: ["", Validators.required],
         delegation: ["", Validators.required],
@@ -86,17 +107,29 @@ export class GestionClientComponent implements OnInit {
       this.clientService.getClient(this.clientId).subscribe((data) => {
         console.log("data");
         console.log(data);
-
         this.clientModifyForm.patchValue({
-          nom: data.nom,
-          tel: data.tel,
-          email: data.email,
-          ville: data.ville,
-          delegation: data.delegation,
-          adresse: data.adresse,
+          nom: data[0].nom,
+          tel: data[0].tel,
+          email: data[0].email,
+          ville: data[0].villeId,
+          delegation: data[0].delegationId,
+          adresse: data[0].adresse,
         });
+        this.getDelegations(data[0].villeId);
       });
+
+      this.getVilles();
     }
+  }
+  getDelegations(villeId: any) {
+    this.delegationService.getDelegationsByVille(villeId).subscribe((data) => {
+      this.delegations = data;
+    });
+  }
+  getVilles() {
+    this.villeService.getVilles().subscribe((data) => {
+      this.villes = data;
+    });
   }
 
   get f() {
