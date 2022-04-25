@@ -53,7 +53,7 @@
           </div>
         </div>
         <div>
-          <ngx-datatable #table class="bootstrap text-center" [rows]="rows" [columns]="columns" [columnMode]="'force'"
+          <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
             [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
             (sort)="onSort($event)">
             <ngx-datatable-column class="text-center" *ngFor="let column of columns;

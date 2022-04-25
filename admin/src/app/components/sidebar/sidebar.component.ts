@@ -70,7 +70,9 @@ export const ROUTES: RouteInfo[] = [
 })
 export class SidebarComponent implements OnInit {
   public menuItems: any[];
-  public isCollapsed = true;
+  public isCBCollapsed = false;
+  public isGCollapsed = false;
+  public isCollapsed = false;
   role: any;
 
   constructor(private router: Router, private auth: AuthenticationService) {
@@ -83,4 +85,5 @@ export class SidebarComponent implements OnInit {
       this.isCollapsed = true;
     });
   }
+
 }

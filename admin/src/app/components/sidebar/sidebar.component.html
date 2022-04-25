@@ -99,11 +99,12 @@
           </ng-container>
         </li>
         <li class="nav-item">
-          <a routerLinkActive="false" class="nav-link">
+          <a class="nav-link" role="button" (click)="collapseG.toggle()" [attr.aria-expanded]="!isGCollapsed"
+            aria-controls="collapseGestion">
             <i class="ni ni-settings-gear-65 text-info"></i>
             Gestion
           </a>
-          <ul class="navbar-nav ml-5 mr-4 bg-secondary">
+          <ul #collapseG="ngbCollapse" [(ngbCollapse)]="isGCollapsed" class="navbar-nav ml-4 mr-4 bg-secondary">
             <li class="nav-item">
               <a class="nav-link" [routerLink]="['/gestion-filiere']">Filiere</a>
             </li>
@@ -121,6 +122,33 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" [routerLink]="['/gestion-delegation']">Délégation</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" role="button" (click)="collapsCB.toggle()" [attr.aria-expanded]="!isCBCollapsed"
+            aria-controls="collapseChefBur">
+            <i class="ni ni-settings-gear-65 text-info"></i>
+            Chef de bureau
+          </a>
+          <ul #collapsCB="ngbCollapse" [(ngbCollapse)]="isCBCollapsed" class="navbar-nav ml-4 mr-4 bg-secondary">
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="['/pickup']">Pickup</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="['/ramassage']">Ramassage</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="['/collecte']">Collecté</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="['/feuille-de-route']">Feuille de route</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="['/debrief']">Debrief</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="['/feuille-de-retour']">Feuille de retour</a>
             </li>
           </ul>
         </li>
