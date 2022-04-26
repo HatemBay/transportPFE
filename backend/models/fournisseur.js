@@ -45,6 +45,12 @@ var FournisseurSchema = new Schema(
         ref: "Client",
       },
     ],
+    pickups: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Pickup",
+      },
+    ],
     delegationId: {
       type: Schema.Types.ObjectId,
       ref: "Delegation",

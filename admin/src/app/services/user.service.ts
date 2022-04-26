@@ -27,7 +27,13 @@ export class UserService {
   }
 
   // Get all users
-  getUsers(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any): Observable<any>  {
+  getUsers(
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any
+  ): Observable<any> {
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);
@@ -45,8 +51,15 @@ export class UserService {
   }
 
   // Get users by role
-  getUsersByRole(): Observable<any>  {
+  // temporarily: get drivers with no vehicules
+  getUsersByRole(): Observable<any> {
     const url = `${this.baseUri}/role/chauffeur`;
+    return this.http.get(url, { headers: this.headers });
+  }
+
+  // Get all drivers
+  getChauffeurs(): Observable<any> {
+    const url = `${this.baseUri}/role/chauffeur/all`;
     return this.http.get(url, { headers: this.headers });
   }
 

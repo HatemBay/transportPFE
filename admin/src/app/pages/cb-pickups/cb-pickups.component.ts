@@ -1,15 +1,259 @@
-import { Component, OnInit } from '@angular/core';
+import { DatePipe } from "@angular/common";
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from "@angular/core";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { NgbModal, NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
+import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { PickupService } from "src/app/services/pickup.service";
+import { UserService } from "src/app/services/user.service";
 
 @Component({
-  selector: 'app-cb-pickups',
-  templateUrl: './cb-pickups.component.html',
-  styleUrls: ['./cb-pickups.component.scss']
+  selector: "app-cb-pickups",
+  templateUrl: "./cb-pickups.component.html",
+  styleUrls: ["./cb-pickups.component.scss"],
 })
 export class CbPickupsComponent implements OnInit {
+  @ViewChild("editModal") editModal: TemplateRef<any>;
+  @ViewChild(DatatableComponent) search: DatatableComponent;
+  @ViewChild(DatatableComponent) table: DatatableComponent;
+  @ViewChild(alert) alert: any;
+  @ViewChild("myEl") el: ElementRef;
 
-  constructor() { }
+  myDate = new Date();
+  today: string;
+  startDate: string;
+  dateForm: FormGroup;
+  success: boolean = false;
 
-  ngOnInit(): void {
+  public currentPageLimit: number = 10;
+  public currentPage: number = 1;
+
+  public readonly pageLimitOptions = [
+    { value: 5 },
+    { value: 10 },
+    { value: 25 },
+    { value: 50 },
+    { value: 100 },
+  ];
+
+  temp: any = [];
+  rows: any = [];
+  selected: any = [];
+  public columns: Array<object>;
+  count: any;
+  pickupForm: FormGroup;
+  error: any = "none";
+  chauffeurs: any;
+  init: boolean = false;
+  isAllocated: string = "false";
+  routePath: any;
+  constructor(
+    private fb: FormBuilder,
+    private pickupService: PickupService,
+    private userService: UserService,
+    public modalService: NgbModal,
+    public activeModal: NgbActiveModal,
+    private route: ActivatedRoute,
+    private datePipe: DatePipe
+  ) {
+    this.routePath = this.route.snapshot.routeConfig.path;
   }
 
+  ngOnInit(): void {
+    this.columns = [
+      { prop: "packages", name: "Nbre de colis" },
+      { prop: "createdAtSearch", name: "Date" },
+    ];
+    this.pickupForm = this.fb.group({
+      driverId: ["", Validators.required],
+    });
+
+    this.countPickups();
+    this.getChauffeurs();
+
+    if (this.routePath == "pickup") {
+      this.getDataJson(this.isAllocated);
+    } else {
+      this.isAllocated = "true";
+      this.setDates();
+
+      this.dateForm = this.fb.group({
+        today: this.today,
+        startDate: this.startDate,
+      });
+
+      this.dateForm.valueChanges.subscribe((data) =>
+        this.onDateFormValueChange(data)
+      );
+      this.getDataJson(this.isAllocated);
+    }
+  }
+
+  get f() {
+    return this.pickupForm.controls;
+  }
+
+  // get data from backend
+  getDataJson(
+    isAllocated?: any,
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any,
+    startDate?: any,
+    endDate?: any
+  ) {
+    if (this.init === false) {
+      startDate = null;
+      endDate = null;
+    }
+    this.pickupService
+      .getPickups(
+        isAllocated,
+        limit,
+        page,
+        sortBy,
+        sort,
+        search,
+        startDate,
+        endDate
+      )
+      .subscribe((data) => {
+        this.rows = this.temp = data;
+      });
+  }
+
+  // initiate our dates
+  public setDates() {
+    this.today = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
+    const thisDate = this.myDate.getDate();
+    // this.myDate.setDate(this.myDate.getMonth() - 2);
+    this.myDate.setMonth(this.myDate.getMonth() - 1);
+    this.myDate.setDate(thisDate);
+
+    this.startDate = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
+  }
+
+  // save changes in credentials
+  private onDateFormValueChange(data: any): void {
+    this.today = data.today;
+    this.startDate = data.startDate;
+  }
+
+  // get drivers
+  getChauffeurs() {
+    this.userService.getChauffeurs().subscribe((data) => {
+      this.chauffeurs = data;
+    });
+  }
+
+  // count branches
+  countPickups() {
+    this.pickupService.countPickups().subscribe((data) => {
+      this.count = data.count;
+    });
+  }
+
+  updateFilter(event) {
+    var startDate = null;
+    var endDate = null;
+    if (this.init === true) {
+      startDate = this.startDate;
+      endDate = this.today;
+    }
+    var val = null;
+    if (event.target.value.length > 2) val = event.target.value.toLowerCase();
+    this.getDataJson(
+      this.isAllocated,
+      this.currentPageLimit,
+      1,
+      null,
+      null,
+      val,
+      startDate,
+      endDate
+    );
+  }
+
+  // When number of displayed elements changes
+  public onLimitChange(limit: any): void {
+    this.changePageLimit(limit);
+    this.table.limit = this.currentPageLimit;
+    this.getDataJson(limit, this.currentPage);
+    // this.table.recalculate();
+    setTimeout(() => {
+      if (this.table.bodyComponent.temp.length <= 0) {
+        // TODO[Dmitry Teplov] find a better way.
+        // TODO[Dmitry Teplov] test with server-side paging.
+        this.table.offset = Math.floor(
+          (this.table.rowCount - 1) / this.table.limit
+        );
+        // this.table.offset = 0;
+      }
+    });
+  }
+
+  private changePageLimit(limit: any): void {
+    this.currentPageLimit = parseInt(limit, 10);
+  }
+
+  // Data sorting
+  onSort(event) {
+    this.getDataJson(
+      this.currentPageLimit,
+      event.page,
+      event.sorts[0].prop,
+      event.newValue
+    );
+  }
+
+  // When page changes
+  onFooterPage(event) {
+    var startDate = null;
+    var endDate = null;
+    if (this.init === true) {
+      startDate = this.startDate;
+      endDate = this.today;
+    }
+    this.changePage(event.page);
+    this.getDataJson(
+      this.currentPageLimit,
+      event.page,
+      null,
+      null,
+      null,
+      null,
+      startDate,
+      endDate
+    );
+  }
+
+  changePage(page: any) {
+    this.currentPage = parseInt(page, 10);
+  }
+
+  // allocate driver to pickup
+  allocateDriver(row) {
+    console.log(row._id);
+
+    this.pickupService
+      .updatePickup(row._id, this.pickupForm.value)
+      .subscribe((data) => {
+        this.getDataJson();
+        this.success = true;
+      });
+  }
+
+  update() {
+    //dates are set when the view is initiated so when table search is implemented it will use those values regardless of initiating date periods search
+    //so we need to use a variable that checks if the time periods search has been initiated at least once
+    this.init = true;
+  }
 }

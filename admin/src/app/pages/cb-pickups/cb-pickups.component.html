@@ -1,1 +1,267 @@
-<p>cb-pickups works!</p>
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <!-- ************************ START: PATH = PICKUP-HISTORIQUE (1) ************************ -->
+    <ng-container *ngIf="routePath == 'pickup-historique'">
+      <div class="header-body">
+        <!-- Search dates -->
+        <div class="row">
+          <div class="col-lg-12 col-xl-12">
+            <div class="card mb-4 text-center">
+              <form class="form-inline card-body col-xl-12 offset-2" [formGroup]="dateForm" (ngSubmit)="update()">
+                <div class="mb-2 mr-2 mb-sm-0 position-relative form-group">
+                  <label for="exampleEmail22" class="mr-sm-2">DU</label>
+                  <input formControlName="startDate" [value]="startDate | date:'yyyy-MM-dd'" name="dateD" type="date"
+                    class="form-control">
+                </div>
+                <div class="mb-2 mr-sm-2 mb-sm-0 position-relative form-group">
+                  <label for="examplePassword22" class="ml-5 mr-2">À</label>
+                  <input formControlName="today" [value]="today | date:'yyyy-MM-dd'" name="dateF" type="date"
+                    class="form-control">
+                </div>
+                <button name="search" type="submit" class="btn btn-primary px-5 ml-5">Chercher</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- Search dates -->
+      </div>
+    </ng-container>
+    <!-- ************************ END: PATH = PICKUP-HISTORIQUE (1) ************************ -->
+  </div>
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <!-- ************************ START: PATH = PICKUP ************************ -->
+  <ng-container *ngIf="routePath =='pickup'">
+    <div class="row">
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-header">
+            <div *ngIf="success" class="alert alert-success ml-4 mr-4">
+              <span class="closebtn" onclick="this.parentElement.style.display='none'; success = false;">&times;</span>
+              Pickup attribué avec succes
+            </div>
+            <div class="row mb-4">
+              <div class="col-8">Pickup: </div>
+              <div class="col-4 text-right">
+                <button [routerLink]="['/pickup-historique']" class="m-0 float-right btn btn-success btn-sm">
+                  Historique
+                </button>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 pr-4">
+                <div class="row">
+                  <div class="col-2">
+                    <label for="per-page">
+                      Afficher
+                    </label>
+                  </div>
+                  <div class="col-2">
+                    <select class="form-control" id="per-page" (change)="onLimitChange($event.target.value)">
+                      <option *ngFor="let option of pageLimitOptions" [value]="option.value"
+                        [selected]="option.value == currentPageLimit">
+                        {{ option.value }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label for="per-page">
+                      éléments
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+              <div class="col-6 float-right" style="padding-left: 300px !important;">
+                <input #search class="form-control" type="text" placeholder="Rechercher" (keyup)="updateFilter($event)"
+                  autocomplete="false" />
+              </div>
+            </div>
+          </div>
+          <div>
+            <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
+              [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
+              (sort)="onSort($event)">
+
+              <ngx-datatable-column name="Fournisseur" prop="nomf">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.nomf}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Adresse de pickup" prop="villef">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.villef}}, {{row.delegationf}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column *ngFor="let column of columns;
+        let i = index;" name="{{column.name}}" prop="{{column.prop}}">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  {{row[column.prop] + '' | titlecase }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column [sortable]="false" [width]="360" name="Actions" prop="{data: modifData, nom: nom}">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
+                  <form [formGroup]="pickupForm" (ngSubmit)="allocateDriver(row)">
+                    <div class="row">
+                      <select formControlName="driverId" style="width: 60%; float: left;"
+                        class="form-control mr-4 ml-2">
+                        <option value="" hidden="">-- Choisir chauffeur--</option>
+                        <option *ngFor="let chauffeur of chauffeurs" [value]="chauffeur._id">
+                          {{ chauffeur.nom | titlecase }} </option>
+                      </select>
+                      <button [disabled]="pickupForm.invalid" type="submit" name="pickup_print" class="btn btn-success">
+                        <i class="fa fa-check"></i>
+                      </button>
+                    </div>
+                  </form>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-footer>
+                <ng-template ngx-datatable-footer-template let-rowCount="count" let-pageSize="pageSize"
+                  let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
+                  <div class="pl-2">
+                    Elements: {{ count }} | Taille: {{ pageSize }} | Page:
+                    {{ curPage }}
+                  </div>
+                  <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'"
+                    [pagerRightArrowIcon]="'datatable-icon-right'" [pagerPreviousIcon]="'datatable-icon-prev'"
+                    [pagerNextIcon]="'datatable-icon-skip'" [page]="curPage" [size]="pageSize" [count]="count"
+                    [hidden]="!((count / pageSize) > 1)" (change)="onFooterPage($event)">
+                  </datatable-pager>
+                </ng-template>
+              </ngx-datatable-footer>
+            </ngx-datatable>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <!-- ************************ END: PATH = PICKUP ************************ -->
+  <!-- ************************ START: PATH = PICKUP-HISTORIQUE (2) ************************ -->
+  <ng-container *ngIf="routePath =='pickup-historique'">
+    <div class="row">
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-header">
+            <div class="row mb-4">
+              <div class="col-8">Historique: </div>
+              <div class="col-4 text-right">
+                <button [routerLink]="['/pickup-historique']" class="m-0 float-right btn btn-success btn-sm">
+                  Historique
+                </button>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 pr-4">
+                <div class="row">
+                  <div class="col-2">
+                    <label for="per-page">
+                      Afficher
+                    </label>
+                  </div>
+                  <div class="col-2">
+                    <select class="form-control" id="per-page" (change)="onLimitChange($event.target.value)">
+                      <option *ngFor="let option of pageLimitOptions" [value]="option.value"
+                        [selected]="option.value == currentPageLimit">
+                        {{ option.value }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label for="per-page">
+                      éléments
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+              <div class="col-6 float-right" style="padding-left: 300px !important;">
+                <input #search class="form-control" type="text" placeholder="Rechercher" (keyup)="updateFilter($event)"
+                  autocomplete="false" />
+              </div>
+            </div>
+          </div>
+          <div>
+            <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
+              [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
+              (sort)="onSort($event)">
+
+              <ngx-datatable-column name="N°" prop="pickupNb">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.pickupNb}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Date" prop="createdAtSearch">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.createdAtSearch}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Nbre de colis" prop="packages">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.packages}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Chauffeur" prop="nomd">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.nomd}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Vehicule" prop="nomv">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <ng-container *ngIf="row.nomv">
+                    {{row.nomv}}
+                  </ng-container>
+                  <ng-container *ngIf="!row.nomv">
+                    -
+                  </ng-container>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
+                  <a [routerLink]="['/']" class="btn btn-sm btn-primary rounded-circle">
+                    <i class="fa fa-eye"></i>
+                  </a>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-footer>
+                <ng-template ngx-datatable-footer-template let-rowCount="count" let-pageSize="pageSize"
+                  let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
+                  <div class="pl-2">
+                    Elements: {{ count }} | Taille: {{ pageSize }} | Page:
+                    {{ curPage }}
+                  </div>
+                  <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'"
+                    [pagerRightArrowIcon]="'datatable-icon-right'" [pagerPreviousIcon]="'datatable-icon-prev'"
+                    [pagerNextIcon]="'datatable-icon-skip'" [page]="curPage" [size]="pageSize" [count]="count"
+                    [hidden]="!((count / pageSize) > 1)" (change)="onFooterPage($event)">
+                  </datatable-pager>
+                </ng-template>
+              </ngx-datatable-footer>
+            </ngx-datatable>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <!-- ************************ END: PATH = PICKUP-HISTORIQUE (2) ************************ -->
+</div>

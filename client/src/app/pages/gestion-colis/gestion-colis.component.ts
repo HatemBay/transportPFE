@@ -150,7 +150,7 @@ export class GestionColisComponent implements OnInit {
   }
 
   // count packages depending on package state
-  private countPackages() {
+  private countPackages(startDate?:any, endDate?:any) {
     var state = null;
 
     for (const element of this.etat) {
@@ -158,7 +158,7 @@ export class GestionColisComponent implements OnInit {
         state = element.value;
       }
     }
-    this.packageService.countAllPackages(state).subscribe((res) => {
+    this.packageService.countAllPackages(state, startDate, endDate).subscribe((res) => {
       this.count = res.count;
     });
   }
@@ -251,6 +251,13 @@ export class GestionColisComponent implements OnInit {
 
   // change data based on page selected
   onFooterPage(event) {
+    var state = null;
+
+    for (const element of this.etat) {
+      if (element.active) {
+        state = element.value;
+      }
+    }
     this.changePage(event.page);
     console.log(event.page);
 
@@ -260,7 +267,7 @@ export class GestionColisComponent implements OnInit {
       null,
       null,
       null,
-      null,
+      state,
       this.startDate,
       this.today
     );
@@ -371,15 +378,26 @@ export class GestionColisComponent implements OnInit {
     //dates are set when the view is initiated so when table search is implemented it will use those values regardless of initiating date periods search
     //so we need to use a variable that checks if the time periods search has been initiated at least once
     this.init = true;
+
+    var state = null;
+
+    for (const element of this.etat) {
+      if (element.active) {
+        state = element.value;
+      }
+    }
     this.getDataJson(
       null,
       null,
       null,
       null,
       null,
-      null,
+      state,
       this.startDate,
       this.today
     );
+
+    this.countPackages(this.startDate, this.today)
+
   }
 }

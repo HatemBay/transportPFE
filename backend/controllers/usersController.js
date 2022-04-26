@@ -1,5 +1,4 @@
 const express = require("express");
-var crypto = require("crypto");
 
 var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
@@ -67,9 +66,6 @@ router.get("/", (req, res) => {
     },
   ];
   User.aggregate(data)
-    .sort(sort)
-    .skip(skip)
-    .limit(limit)
     .exec((err, users) => {
       if (!err) {
         if (req.query.search && req.query.search.length > 2) {
@@ -118,10 +114,22 @@ router.get("/", (req, res) => {
     });
 });
 
-// get chauffeurs by role
+// get chauffeurs with no vehicules
 // can get modified
 router.get("/role/chauffeur", (req, res) => {
   User.find({ vehiculeId: { $eq: null }, role: "chauffeur" }, (err, doc) => {
+    if (!err) res.send(doc);
+    else {
+      console.log("Erreur lors de la récupération de l'utilisateur: " + err);
+      res.status(400).send(err.message);
+    }
+  });
+});
+
+// get chauffeurs
+// can get modified
+router.get("/role/chauffeur/all", (req, res) => {
+  User.find({ role: "chauffeur" }, (err, doc) => {
     if (!err) res.send(doc);
     else {
       console.log("Erreur lors de la récupération de l'utilisateur: " + err);
@@ -206,14 +214,14 @@ router.put("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
 
-    var oldDelegation = null;
-    User.findById(req.params.id, (err, doc) => {
-      if (!err) {
-        oldDelegation = doc.delegationId;
-      } else {
-        console.log("Erreur " + err);
-      }
-    });
+  var oldDelegation = null;
+  User.findById(req.params.id, (err, doc) => {
+    if (!err) {
+      oldDelegation = doc.delegationId;
+    } else {
+      console.log("Erreur " + err);
+    }
+  });
 
   const user = new User();
   var encrypted = user.setPassword(req.body.password, res);

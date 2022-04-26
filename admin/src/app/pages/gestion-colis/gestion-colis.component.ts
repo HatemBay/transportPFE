@@ -111,33 +111,24 @@ export class GestionColisComponent implements OnInit {
     startDate?: any,
     endDate?: any
   ) {
-    if (this.init === true) {
-      this.packageService
-        .getFullPackages(limit, page, sortBy, sort, search, startDate, endDate)
-        .subscribe((data) => {
-          this.rows = this.temp = data;
-          for (const item of this.rows) {
-            item.c_remboursement = parseFloat(
-              item.c_remboursement.toString()
-            ).toFixed(3);
-            console.log(item.c_remboursement);
-          }
-        });
-    } else {
-      this.packageService
-        .getFullPackages(limit, page, sortBy, sort, search)
-        .subscribe((data) => {
-          this.rows = this.temp = data;
-          for (const item of this.rows) {
-            item.c_remboursement = parseFloat(
-              item.c_remboursement.toString()
-            ).toFixed(3);
-            console.log(item.c_remboursement);
-          }
-        });
+    if (this.init === false) {
+      startDate = null;
+      endDate = null;
     }
+    this.packageService
+      .getFullPackages(limit, page, sortBy, sort, search, startDate, endDate)
+      .subscribe((data) => {
+        this.rows = this.temp = data;
+        for (const item of this.rows) {
+          item.c_remboursement = parseFloat(
+            item.c_remboursement.toString()
+          ).toFixed(3);
+          // console.log(item.c_remboursement);
+        }
+      });
   }
 
+  // initiate our dates
   public setDates() {
     this.today = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
     const thisDate = this.myDate.getDate();
@@ -154,39 +145,40 @@ export class GestionColisComponent implements OnInit {
     this.startDate = data.startDate;
   }
 
-  private countPackages() {
-    this.packageService.countAllPackagesAdmin().subscribe((res) => {
+  private countPackages(startDate?:any, endDate?:any) {
+    this.packageService.countAllPackagesAdmin(null, startDate, endDate).subscribe((res) => {
       this.count = res.count;
     });
   }
 
   updateFilter(event) {
-    if (event.target.value.length > 2) {
-      const val = event.target.value.toLowerCase();
-      this.getDataJson(
-        this.currentPageLimit,
-        1,
-        null,
-        null,
-        val,
-        this.startDate,
-        this.today
-      );
-    } else {
-      this.getDataJson(
-        this.currentPageLimit,
-        1,
-        null,
-        null,
-        null,
-        this.startDate,
-        this.today
-      );
+    var startDate = null;
+    var endDate = null;
+    if (this.init === true) {
+      startDate = this.startDate;
+      endDate = this.today;
     }
+    var val = null;
+    if (event.target.value.length > 2) val = event.target.value.toLowerCase();
+    this.getDataJson(
+      this.currentPageLimit,
+      1,
+      null,
+      null,
+      val,
+      startDate,
+      endDate
+    );
   }
 
   // When number of displayed elements changes
   public onLimitChange(limit: any): void {
+    var startDate = null;
+    var endDate = null;
+    if (this.init === true) {
+      startDate = this.startDate;
+      endDate = this.today;
+    }
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
     this.getDataJson(
@@ -195,8 +187,8 @@ export class GestionColisComponent implements OnInit {
       null,
       null,
       null,
-      this.startDate,
-      this.today
+      startDate,
+      endDate
     );
     // this.table.recalculate();
     setTimeout(() => {
@@ -224,19 +216,31 @@ export class GestionColisComponent implements OnInit {
 
   // Data sorting
   onSort(event) {
+    var startDate = null;
+    var endDate = null;
+    if (this.init === true) {
+      startDate = this.startDate;
+      endDate = this.today;
+    }
     this.getDataJson(
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
       event.newValue,
       null,
-      this.startDate,
-      this.today
+      startDate,
+      endDate
     );
   }
 
   // When page changes
   onFooterPage(event) {
+    var startDate = null;
+    var endDate = null;
+    if (this.init === true) {
+      startDate = this.startDate;
+      endDate = this.today;
+    }
     this.changePage(event.page);
     this.getDataJson(
       this.currentPageLimit,
@@ -244,8 +248,8 @@ export class GestionColisComponent implements OnInit {
       null,
       null,
       null,
-      this.startDate,
-      this.today
+      startDate,
+      endDate
     );
   }
 
@@ -295,8 +299,6 @@ export class GestionColisComponent implements OnInit {
 
     this.router.navigate(["/modifier-colis"], navigationExtras);
   }
-
-
 
   searchValue(data) {}
   copyToClipboard() {
@@ -446,5 +448,7 @@ export class GestionColisComponent implements OnInit {
     //dates are set when the view is initiated so when table search is implemented it will use those values regardless of initiating date periods search
     //so we need to use a variable that checks if the time periods search has been initiated at least once
     this.init = true;
+    this.getDataJson(null, null, null, null, null, this.startDate, this.today);
+    this.countPackages(this.startDate, this.today)
   }
 }

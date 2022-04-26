@@ -36,7 +36,7 @@ var PackageSchema = new Schema(
     },
     etat: {
       type: String,
-      enum: ["nouveau", "collecté", "pret", "en cours", "reporté", "livré", "annulé", "payé" ],
+      enum: ["nouveau", "pret", "collecté", "en cours", "reporté", "livré", "annulé", "payé" ],
       reqiured: true,
       default: "nouveau",
     },

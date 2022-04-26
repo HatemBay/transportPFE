@@ -566,6 +566,7 @@ router.get("/all-info-period/admin", (req, res) => {
               item.tel2c?.toString().includes(req.query.search) ||
               item.telf.toString().includes(req.query.search) ||
               item.c_remboursement.toString().includes(req.query.search) ||
+              item.etat?.toString().includes(req.query.search) ||
               item.createdAtSearch.toString().includes(req.query.search) ||
               item.nomc
                 .toLowerCase()
