@@ -151,7 +151,7 @@
         <div class="modal-body">
           <div class="form-group">
             <label class="form-label">Chauffeur (*)</label>
-            <select formControlName="chauffeurId" class="form-control" name="ville_cl" id="ville_cl">
+            <select formControlName="chauffeurId" class="form-control">
               <option hidden="" value="">-- Choisir --</option>
               <option *ngFor="let chauffeur of chauffeurs" [value]="chauffeur._id">
                 {{ chauffeur.nom | titlecase }} </option>
