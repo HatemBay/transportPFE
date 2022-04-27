@@ -152,11 +152,6 @@
           <div class="card-header">
             <div class="row mb-4">
               <div class="col-8">Historique: </div>
-              <div class="col-4 text-right">
-                <button [routerLink]="['/pickup-historique']" class="m-0 float-right btn btn-success btn-sm">
-                  Historique
-                </button>
-              </div>
             </div>
             <div class="row">
               <div class="col-6 pr-4">
@@ -209,10 +204,10 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="Nbre de colis" prop="packages">
+              <ngx-datatable-column name="Nbre de colis" prop="nbPackages">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{row.packages}}
+                    {{row.nbPackages}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
@@ -238,7 +233,7 @@
 
               <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
-                  <a [routerLink]="['/']" class="btn btn-sm btn-primary rounded-circle">
+                  <a [routerLink]="" (click)="toFacture(row)" class="btn btn-sm btn-primary rounded-circle">
                     <i class="fa fa-eye"></i>
                   </a>
                 </ng-template>

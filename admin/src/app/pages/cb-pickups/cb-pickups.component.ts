@@ -7,7 +7,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { NgbModal, NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { PickupService } from "src/app/services/pickup.service";
@@ -60,6 +60,7 @@ export class CbPickupsComponent implements OnInit {
     public modalService: NgbModal,
     public activeModal: NgbActiveModal,
     private route: ActivatedRoute,
+    private router: Router,
     private datePipe: DatePipe
   ) {
     this.routePath = this.route.snapshot.routeConfig.path;
@@ -67,7 +68,7 @@ export class CbPickupsComponent implements OnInit {
 
   ngOnInit(): void {
     this.columns = [
-      { prop: "packages", name: "Nbre de colis" },
+      { prop: "nbPackages", name: "Nbre de colis" },
       { prop: "createdAtSearch", name: "Date" },
     ];
     this.pickupForm = this.fb.group({
@@ -155,8 +156,8 @@ export class CbPickupsComponent implements OnInit {
   }
 
   // count branches
-  countPickups() {
-    this.pickupService.countPickups().subscribe((data) => {
+  countPickups(startDate?, endDate?) {
+    this.pickupService.countPickups(startDate, endDate).subscribe((data) => {
       this.count = data.count;
     });
   }
@@ -241,8 +242,7 @@ export class CbPickupsComponent implements OnInit {
 
   // allocate driver to pickup
   allocateDriver(row) {
-    console.log(row._id);
-
+    // console.log(row._id);
     this.pickupService
       .updatePickup(row._id, this.pickupForm.value)
       .subscribe((data) => {
@@ -251,9 +251,54 @@ export class CbPickupsComponent implements OnInit {
       });
   }
 
+  // redirects to printable facture for pickup
+  toFacture(row) {
+    var ids = [];
+      console.log(row.packages);
+      for (var el of row.packages) {
+
+      ids.push(el);
+    }
+
+    // Create our query parameters object
+    const queryParams: any = {};
+    queryParams.packages = JSON.stringify(ids);
+    queryParams.id = row._id;
+    var navigationExtras: NavigationExtras = {
+      queryParams,
+    };
+    console.log(navigationExtras.queryParams);
+
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(["/imprimer-pickup"], navigationExtras)
+    );
+
+    const WindowPrt = window.open(
+      url,
+      "_blank",
+      "left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0"
+    );
+    WindowPrt.setTimeout(function () {
+      WindowPrt.focus();
+      WindowPrt.print();
+      // WindowPrt.close();
+    }, 2000);
+  }
+
   update() {
     //dates are set when the view is initiated so when table search is implemented it will use those values regardless of initiating date periods search
     //so we need to use a variable that checks if the time periods search has been initiated at least once
     this.init = true;
+    this.getDataJson(
+      this.isAllocated,
+      null,
+      null,
+      null,
+      null,
+      null,
+      this.startDate,
+      this.today
+    );
+    this.countPickups(this.startDate, this.today);
   }
 }

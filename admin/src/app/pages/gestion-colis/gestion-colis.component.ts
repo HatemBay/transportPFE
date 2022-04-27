@@ -151,6 +151,7 @@ export class GestionColisComponent implements OnInit {
     });
   }
 
+  // filter data
   updateFilter(event) {
     var startDate = null;
     var endDate = null;
@@ -286,18 +287,6 @@ export class GestionColisComponent implements OnInit {
         // setTimeout(() => this.success = false, 3000)
       });
     }
-  }
-
-  view(data) {
-    console.log(data.clientId);
-    var navigationExtras: NavigationExtras = {
-      queryParams: {
-        packageId: data._id,
-      },
-    };
-    console.log(navigationExtras.queryParams);
-
-    this.router.navigate(["/modifier-colis"], navigationExtras);
   }
 
   searchValue(data) {}
@@ -444,6 +433,7 @@ export class GestionColisComponent implements OnInit {
     };
     this.router.navigate(["/recherche"], navigationExtras);
   }
+
   update() {
     //dates are set when the view is initiated so when table search is implemented it will use those values regardless of initiating date periods search
     //so we need to use a variable that checks if the time periods search has been initiated at least once
