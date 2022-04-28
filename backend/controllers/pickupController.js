@@ -10,6 +10,31 @@ const { User } = require("../models/users");
 
 // get pickups
 router.get("/", (req, res) => {
+  const startDate = req.query.startDate || null;
+  const endDate = req.query.endDate || null;
+
+  var startYear = null;
+  var startMonth = null;
+  var startDay = null;
+
+  var endYear = null;
+  var endMonth = null;
+  var endDay = null;
+
+  if (startDate && endDate) {
+    const dateS = new Date(req.query.startDate);
+    const dateE = new Date(req.query.endDate);
+
+    startYear = dateS.getFullYear();
+    startMonth = dateS.getMonth();
+    startDay = dateS.getDate();
+
+    endYear = dateE.getFullYear();
+    endMonth = dateE.getMonth();
+    endDay = dateE.getDate();
+
+    console.log(startDay);
+  }
   var limit = parseInt(req.query.limit) || 10;
   var page = parseInt(req.query.page) || 1;
   var skip = limit * page - limit;
@@ -71,13 +96,15 @@ router.get("/", (req, res) => {
         isAllocated: "$isAllocated",
         fournisseurId: "$fournisseurs._id",
         nomf: "$fournisseurs.nom",
-        villef: "$fournisseurs.ville",
+        telf: "$fournisseurs.tel",
+        tel2f: "$fournisseurs.tel2",
         delegationf: "$delegations.nom",
         villef: "$villes.nom",
         driverId: 1,
         nomd: "$drivers.nom",
         nomv: "$vehicules.serie",
-        packages: { $size: "$packages" },
+        packages: "$packages",
+        nbPackages: { $size: "$packages" },
         createdAt: 1,
         updatedAt: 1,
       },
@@ -106,6 +133,16 @@ router.get("/", (req, res) => {
     data.push({
       $match: {
         isAllocated: isAllocated,
+      },
+    });
+  }
+  if (startDate && endDate) {
+    data.push({
+      $match: {
+        createdAt: {
+          $gte: new Date(startYear, startMonth, startDay, 0, 0, 0, 0),
+          $lte: new Date(endYear, endMonth, endDay, 23, 59, 59, 999),
+        },
       },
     });
   }
@@ -183,22 +220,20 @@ router.get("/:id", (req, res) => {
         isAllocated: "$isAllocated",
         fournisseurId: "$fournisseurs._id",
         nomf: "$fournisseurs.nom",
-        villef: "$fournisseurs.ville",
+        telf: "$fournisseurs.tel",
+        tel2f: "$fournisseurs.tel2",
         delegationf: "$delegations.nom",
         villef: "$villes.nom",
         nomd: "$drivers.nom",
-        packages: { $size: "$packages" },
+        packages: "$packages",
+        nbPackages: { $size: "$packages" },
         createdAt: 1,
         updatedAt: 1,
-      },
-    },
-    {
-      $addFields: {
         createdAtSearch: {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
         },
       },
-    },
+    }
   ];
   Pickup.aggregate(data).exec((err, pickup) => {
     if (!err) res.send(pickup);

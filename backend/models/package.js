@@ -36,7 +36,17 @@ var PackageSchema = new Schema(
     },
     etat: {
       type: String,
-      enum: ["nouveau", "pret", "collecté", "en cours", "reporté", "livré", "annulé", "payé" ],
+      enum: [
+        "nouveau",
+        "pret",
+        "ramassé par livreur",
+        "collecté",
+        "en cours",
+        "reporté",
+        "livré",
+        "annulé",
+        "payé",
+      ],
       reqiured: true,
       default: "nouveau",
     },
@@ -50,6 +60,10 @@ var PackageSchema = new Schema(
     clientId: {
       type: Schema.Types.ObjectId,
       ref: "Client",
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   {
@@ -70,9 +84,6 @@ PackageSchema.methods.generateCAB = () => {
   // });
 };
 
-
 const Package = mongoose.model("Package", PackageSchema);
-
-
 
 module.exports = { Package };

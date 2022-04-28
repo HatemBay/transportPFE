@@ -25,6 +25,8 @@ import { GestionVehiculeComponent } from '../../pages/gestion-vehicule/gestion-v
 import { GestionVilleComponent } from '../../pages/gestion-ville/gestion-ville.component';
 import { GestionDelegationComponent } from '../../pages/gestion-delegation/gestion-delegation.component';
 import { CbPickupsComponent } from '../../pages/cb-pickups/cb-pickups.component';
+import { CbRamassageComponent } from '../../pages/cb-ramassage/cb-ramassage.component';
+import { CbCollecteComponent } from '../../pages/cb-collecte/cb-collecte.component';
 
 
 // import { NgxPrintModule } from 'ngx-print';
@@ -59,6 +61,8 @@ import { CbPickupsComponent } from '../../pages/cb-pickups/cb-pickups.component'
     GestionVilleComponent,
     GestionDelegationComponent,
     CbPickupsComponent,
+    CbRamassageComponent,
+    CbCollecteComponent,
   ],
   providers: [NgbActiveModal],
 })

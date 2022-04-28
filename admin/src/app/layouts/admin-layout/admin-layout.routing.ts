@@ -16,6 +16,8 @@ import { GestionVehiculeComponent } from "src/app/pages/gestion-vehicule/gestion
 import { GestionDelegationComponent } from "src/app/pages/gestion-delegation/gestion-delegation.component";
 import { GestionVilleComponent } from "src/app/pages/gestion-ville/gestion-ville.component";
 import { CbPickupsComponent } from "src/app/pages/cb-pickups/cb-pickups.component";
+import { CbRamassageComponent } from "src/app/pages/cb-ramassage/cb-ramassage.component";
+import { CbCollecteComponent } from "src/app/pages/cb-collecte/cb-collecte.component";
 
 export const AdminLayoutRoutes: Routes = [
   { path: "dashboard", component: DashboardComponent },
@@ -38,6 +40,8 @@ export const AdminLayoutRoutes: Routes = [
   { path: "gestion-delegation", component: GestionDelegationComponent },
   { path: "pickup", component: CbPickupsComponent },
   { path: "pickup-historique", component: CbPickupsComponent },
+  { path: "ramassage", component: CbRamassageComponent },
+  { path: "collecte", component: CbCollecteComponent },
 
   {
     path: "gestion-colis",

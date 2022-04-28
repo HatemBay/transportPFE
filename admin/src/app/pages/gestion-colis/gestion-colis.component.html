@@ -114,7 +114,7 @@
             <ngx-datatable-column name="Etat">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  {{row.etat}}
+                  {{row.etat}} <ng-container *ngIf="row.etat == 'collecté'"> - {{row.filiere}} </ng-container>
                 </span>
               </ng-template>
             </ngx-datatable-column>

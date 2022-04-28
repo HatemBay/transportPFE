@@ -59,7 +59,8 @@ export class PackageService {
     sort?: any,
     search?: any,
     startDate?: any,
-    endDate?: any
+    endDate?: any,
+    reference?: any
   ) {
     const url = `${this.baseUri}/all-info-period/admin`;
     var queryParams = new HttpParams();
@@ -79,6 +80,13 @@ export class PackageService {
     }
     if (endDate) {
       queryParams = queryParams.append("endDate", endDate);
+    }
+    if (reference) {
+      if (reference.length === 0)
+        queryParams = queryParams.append("reference", "");
+      reference.forEach((element) => {
+        queryParams = queryParams.append("reference", element);
+      });
     }
     return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
   }
@@ -141,7 +149,7 @@ export class PackageService {
 
   // Get package by provider
   getPackage(id: any): Observable<any> {
-    const url = `${this.baseUri}/${id}`;
+    const url = `${this.baseUri}/all-info-admin/${id}`;
     return this.http.get(url, { headers: this.headers }).pipe(
       // map((res: Response) => {
       map((res: any) => {
@@ -159,6 +167,14 @@ export class PackageService {
       .pipe(catchError(this.errorMgmt));
   }
 
+  // Update package
+  updatePackageByCAB(CAB: any, data: any): Observable<any> {
+    let url = `${this.baseUri}/cab/${CAB}`;
+    return this.http
+      .put(url, data, { headers: this.headers })
+      .pipe(catchError(this.errorMgmt));
+  }
+
   // Delete package
   deletePackage(id: any): Observable<any> {
     let url = `${this.baseUri}/${id}`;
@@ -171,7 +187,7 @@ export class PackageService {
   countAllPackagesAdmin(
     etat?: any,
     startDate?: any,
-    endDate?: any,
+    endDate?: any
   ): Observable<any> {
     let url = `${this.baseUri}/count/all-period`;
     var queryParams = new HttpParams();
@@ -195,23 +211,23 @@ export class PackageService {
       );
   }
 
-    // Count packages
-    countAllPackagesAdminDaily(date?: any): Observable<any> {
-      let url = `${this.baseUri}/count/all-daily`;
-      var queryParams = new HttpParams();
-      if (date) {
-        queryParams = queryParams.append("date", date || "");
-      }
-
-      return this.http
-        .get(url, { headers: this.headers, params: queryParams })
-        .pipe(
-          map((res: any) => {
-            return res || {};
-          }),
-          catchError(this.errorMgmt)
-        );
+  // Count packages
+  countAllPackagesAdminDaily(date?: any): Observable<any> {
+    let url = `${this.baseUri}/count/all-daily`;
+    var queryParams = new HttpParams();
+    if (date) {
+      queryParams = queryParams.append("date", date || "");
     }
+
+    return this.http
+      .get(url, { headers: this.headers, params: queryParams })
+      .pipe(
+        map((res: any) => {
+          return res || {};
+        }),
+        catchError(this.errorMgmt)
+      );
+  }
 
   // Count packages for a client
   // not working

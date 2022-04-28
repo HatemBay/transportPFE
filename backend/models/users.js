@@ -55,6 +55,12 @@ var UserSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vehicule",
     },
+    packages: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Package",
+      }
+    ],
   },
   {
     timestamps: true,

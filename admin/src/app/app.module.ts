@@ -16,6 +16,7 @@ import { LoginComponent } from "./pages/login/login.component";
 import { DatePipe } from "@angular/common";
 import { NgxDatatableModule } from "@swimlane/ngx-datatable";
 import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
+import { NgxBarcodeModule } from "ngx-barcode";
 
 @NgModule({
   imports: [
@@ -28,6 +29,7 @@ import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
     RouterModule,
     AppRoutingModule,
     NgxDatatableModule,
+    NgxBarcodeModule,
   ],
   declarations: [
     AppComponent,

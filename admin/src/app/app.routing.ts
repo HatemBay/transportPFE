@@ -33,8 +33,7 @@ const routes: Routes = [
     path: "login",
     component: LoginComponent,
   },
-  { path: "imprimer-colis-gestion", canActivate: [AuthGuard], component: ImprimerComponent },
-  { path: "imprimer-colis", canActivate: [AuthGuard], component: ImprimerComponent },
+  { path: "imprimer-pickup", canActivate: [AuthGuard], component: ImprimerComponent },
   {
     path: "**",
     redirectTo: "dashboard",

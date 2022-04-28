@@ -1,9 +1,6 @@
-import { DatePipe } from "@angular/common";
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
-import { ClientService } from "src/app/services/client.service";
 import { PackageService } from "src/app/services/package.service";
 
 @Component({
@@ -32,8 +29,7 @@ export class CbRamassageComponent implements OnInit {
 
   temp: any = [];
   rows: any = [];
-  slice: any = [];
-  selected: any = [];
+  references: Array<number> = [];
   public columns: Array<object>;
   count: any;
   init: boolean = false;
@@ -42,9 +38,6 @@ export class CbRamassageComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private packageService: PackageService,
-    private clientService: ClientService,
-    private datePipe: DatePipe,
-    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -58,7 +51,8 @@ export class CbRamassageComponent implements OnInit {
     this.referenceForm = this.fb.group({
       reference: ["", Validators.required],
     });
-    this.getDataJson();
+
+    this.getDataJson(null, null, null, null, null, this.references);
   }
 
   get f() {
@@ -66,11 +60,20 @@ export class CbRamassageComponent implements OnInit {
   }
 
   // get data from backend
-  getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any, reference?: any) {
+  getDataJson(
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any,
+    reference?: any
+  ) {
     this.packageService
       .getFullPackages(limit, page, sortBy, sort, search, null, null, reference)
       .subscribe((data) => {
+        const len = this.rows.length;
         this.rows = this.temp = data;
+        if (this.rows.length === len) this.references.splice(-1);
         for (const item of this.rows) {
           item.c_remboursement = parseFloat(
             item.c_remboursement.toString()
@@ -119,9 +122,25 @@ export class CbRamassageComponent implements OnInit {
   }
 
   public submitRef(event) {
+    // if enter is pressed
     if (event.keyCode === 13) {
-      alert('you just pressed the enter key');
-      // rest of your code
+      // alert('you just pressed the enter key');
+      if (this.references.indexOf(this.f.reference.value) !== -1) {
+        alert(this.f.reference.value + ": colis existe déjà !!!");
+        return this.f.reference.setValue("");
+      }
+      this.references.push(this.f.reference.value);
+      this.getDataJson(null, null, null, null, null, this.references);
+      this.f.reference.setValue("");
     }
+  }
+
+  public changeState() {
+    this.references.forEach(element => {
+      this.packageService.updatePackageByCAB(element, {etat: "ramassé par livreur"}).subscribe(() => {
+        this.references = [];
+        this.getDataJson(null, null, null, null, null, this.references);
+      });
+    });
   }
 }

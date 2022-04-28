@@ -22,6 +22,8 @@ var { Client } = require("../models/client");
 var { Fournisseur } = require("../models/fournisseur");
 const { default: mongoose } = require("mongoose");
 const { parse } = require("path");
+const { json } = require("body-parser");
+const { User } = require("../models/users");
 
 // Read all
 router.get("/", (req, res) => {
@@ -40,11 +42,7 @@ router.get("/:id", (req, res) => {
     return res.status(400).send(`no record with given id: ${req.params.id}`);
   Package.findById(req.params.id, (err, doc) => {
     if (!err) res.send(doc);
-    else
-      console.log(
-        "Erreur lors de la récupération des colis: " +
-          JSON.stringify(err, undefined, 2)
-      );
+    else console.log("Erreur lors de la récupération des colis: " + err);
   });
 });
 
@@ -497,6 +495,24 @@ router.get("/all-info-period/admin", (req, res) => {
         as: "fournisseurs",
       },
     },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "users",
+      },
+    },
+    { $unwind: { path: "$users", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "filieres",
+        localField: "users.filiereId",
+        foreignField: "_id",
+        as: "filieres",
+      },
+    },
+    { $unwind: { path: "$filieres", preserveNullAndEmptyArrays: true } },
     { $unwind: "$fournisseurs" },
     {
       $project: {
@@ -520,6 +536,9 @@ router.get("/all-info-period/admin", (req, res) => {
         fournisseurId: "$fournisseurs._id",
         nomf: "$fournisseurs.nom",
         telf: "$fournisseurs.tel",
+        userId: "$users._id",
+        nomu: "$users.nom",
+        filiere: "$filieres.nom",
         createdAt: 1,
         updatedAt: {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
@@ -543,6 +562,24 @@ router.get("/all-info-period/admin", (req, res) => {
       $sort: sort,
     },
   ];
+
+  if (req.query.reference != null) {
+    if (Array.isArray(req.query.reference)) {
+      const references = req.query.reference;
+      const referencesNumber = references.map((ref) => parseInt(ref));
+      data.push({
+        $match: {
+          CAB: { $in: referencesNumber },
+        },
+      });
+    } else {
+      data.push({
+        $match: {
+          CAB: parseInt(req.query.reference),
+        },
+      });
+    }
+  }
 
   if (startDate && endDate) {
     data.push({
@@ -648,6 +685,89 @@ router.get("/all-info/:id/:fid", (req, res) => {
     },
     {
       $match: { fournisseurId: fid, _id: id },
+    },
+  ]).exec((err, doc) => {
+    if (!err) res.send(doc);
+    else console.log("Erreur lors de la récupération du colis: " + err);
+  });
+});
+
+// Read one with all client and provider data
+router.get("/all-info-admin/:id", (req, res) => {
+  // adapting request id to aggregate options
+  var id = mongoose.Types.ObjectId(req.params.id);
+
+  Package.aggregate([
+    {
+      $lookup: {
+        from: "clients",
+        localField: "clientId",
+        foreignField: "_id",
+        as: "clients",
+      },
+    },
+    { $unwind: "$clients" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "users",
+      },
+    },
+    { $unwind: { path: "$users", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "filieres",
+        localField: "users.filiereId",
+        foreignField: "_id",
+        as: "filieres",
+      },
+    },
+    { $unwind: { path: "$filieres", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "fournisseurs",
+        localField: "fournisseurId",
+        foreignField: "_id",
+        as: "fournisseurs",
+      },
+    },
+    { $unwind: "$fournisseurs" },
+    {
+      $project: {
+        _id: 1,
+        CAB: 1,
+        service: 1,
+        libelle: 1,
+        c_remboursement: 1,
+        volume: 1,
+        poids: 1,
+        pieces: 1,
+        etat: 1,
+        clientId: "$clients._id",
+        nomc: "$clients.nom",
+        villec: "$clients.ville",
+        delegationc: "$clients.delegation",
+        adressec: "$clients.adresse",
+        codePostalec: "$clients.codePostale",
+        telc: "$clients.tel",
+        tel2c: "$clients.tel2",
+        fournisseurId: "$fournisseurs._id",
+        nomf: "$fournisseurs.nom",
+        villef: "$fournisseurs.ville",
+        delegationf: "$fournisseurs.delegation",
+        telf: "$fournisseurs.tel",
+        adressef: "$fournisseurs.adresse",
+        userId: "$users._id",
+        nomu: "$users.nom",
+        filiere: "$filieres.nom",
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    },
+    {
+      $match: { _id: id },
     },
   ]).exec((err, doc) => {
     if (!err) res.send(doc);
@@ -807,7 +927,6 @@ router.post("/", (req, res) => {
         { new: true, useFindAndModify: false }
       ).then(
         () => {
-          console.log(package.fournisseurId);
           return Fournisseur.findByIdAndUpdate(
             package.fournisseurId,
             { $push: { packages: doc._id } },
@@ -836,8 +955,10 @@ router.post("/", (req, res) => {
 
 // update package
 router.put("/:id", (req, res) => {
-  if (!ObjectId.isValid(req.params.id))
+  if (!ObjectId.isValid(req.params.id)) {
+    console.log(`no record with given id: ${req.params.id}`);
     return res.status(400).send(`no record with given id: ${req.params.id}`);
+  }
 
   Package.findByIdAndUpdate(
     req.params.id,
@@ -847,10 +968,61 @@ router.put("/:id", (req, res) => {
     { new: true },
     (err, doc) => {
       if (!err) {
-        res.status(200).send(doc);
+        if (req.body.userId) {
+          User.findByIdAndUpdate(
+            doc.userId,
+            { $push: { packages: doc._id } },
+            { new: true, useFindAndModify: false }
+          ).then(() => {
+            return res.status(200).send(doc);
+          });
+        }
+        return res.status(200).send(doc);
       } else {
         console.log("Erreur lors de mis à jour du colis: " + err);
-        res.status(400).send("Erreur lors de mis à jour du colis: " + err);
+        return res
+          .status(400)
+          .send("Erreur lors de mis à jour du colis: " + err);
+      }
+    }
+  );
+});
+
+// update package
+router.put("/cab/:CAB", (req, res) => {
+  if (req.params.CAB.length != 10) {
+    console.log(`Code barre n'existe pas: ${req.params.CAB}`);
+    return res.status(400).send(`Code barre n'existe pas: ${req.params.CAB}`);
+  }
+  Package.findOneAndUpdate(
+    { CAB: req.params.CAB },
+    {
+      $set: req.body,
+    },
+    { new: true },
+    (err, doc) => {
+      if (!err) {
+        if (req.body.userId) {
+          User.findByIdAndUpdate(
+            doc.userId,
+            { $push: { packages: doc._id } },
+            { new: true, useFindAndModify: false },
+            (err, doc) => {
+              if (!err) {
+                return res.status(200).send(doc);
+              }
+              console.log("Erreur lors de mis à jour du colis: " + err);
+              return res
+                .status(400)
+                .send("Erreur lors de mis à jour du colis: " + err);
+            }
+          );
+        } else return res.status(200).send(doc);
+      } else {
+        console.log("Erreur lors de mis à jour du colis: " + err);
+        return res
+          .status(400)
+          .send("Erreur lors de mis à jour du colis: " + err);
       }
     }
   );
@@ -873,10 +1045,23 @@ router.delete("/:id", (req, res) => {
               { $pull: { packages: doc._id } },
               (err3) => {
                 if (!err3) {
-                  res.status(200);
-                  res.json({
-                    message: "package deleted successfully",
-                  });
+                  User.findByIdAndUpdate(
+                    doc.userId,
+                    { $pull: { packages: doc._id } },
+                    (err4) => {
+                      if (!err4) {
+                        res.status(200);
+                        res.json({
+                          message: "Colis supprimé",
+                        });
+                      } else {
+                        console.log(
+                          "Erreur lors de l'enregistrement du colis: " + err4
+                        );
+                        return res.status(400).send(err4.message);
+                      }
+                    }
+                  );
                 } else {
                   console.log(err3);
                   res.status(400).send(err3.message);

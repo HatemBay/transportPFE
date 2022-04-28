@@ -44,7 +44,6 @@ export class PickupService {
     endDate?: any
   ) {
     const url = `${this.baseUri}`;
-
     var queryParams = new HttpParams();
     if (isAllocated) {
       queryParams = queryParams.append("isAllocated", isAllocated);

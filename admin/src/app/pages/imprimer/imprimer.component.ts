@@ -44,7 +44,7 @@ export class ImprimerComponent implements OnInit {
 
   getPackageData(element: any) {
     this.packageService.getPackage(element).subscribe((data) => {
-      this.packages.push(data);
+      this.packages.push(data[0]);
     });
   }
 
