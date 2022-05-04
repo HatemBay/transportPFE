@@ -17,6 +17,7 @@ import {
 } from "@angular/forms";
 import { startWith } from "rxjs";
 import { AuthenticationService } from "src/app/services/authentication.service";
+import { HistoriqueService } from "src/app/services/historique.service";
 
 @Component({
   selector: "app-recherche",
@@ -40,11 +41,34 @@ export class RechercheComponent implements OnInit {
   checkIds: boolean = false;
   package: any = [];
   submit: boolean = false;
+  historic: any = [
+    { state: "nouveau", viewState: "Colis créé le " },
+    { state: "pret", viewState: "Colis modifié le " },
+    { state: "collecté", viewState: "Collecté" },
+    { state: "ramassé par livreur", viewState: "Rammasé par livreur le " },
+    { state: "en cours", viewState: "En cours" },
+    { state: "reporté", viewState: "Reporté" },
+    { state: "livré", viewState: "Livré le " },
+    { state: "annulé", viewState: "Annulé le " },
+    { state: "payé", viewState: "Payé le " },
+  ];
+  historic2: any = [
+    { nouveau: "Colis créé le " },
+    { pret: "Colis modifié le " },
+    { collecté: "Collecté" },
+    { "ramassé par livreur": "Rammasé par livreur le " },
+    { "en cours": "En cours" },
+    { reporté: "Reporté" },
+    { livré: "Livré le " },
+    { annulé: "Annulé le " },
+    { payé: "Payé le " },
+  ];
 
   constructor(
     private fb: FormBuilder,
     public client: ClientService,
     private pack: PackageService,
+    private historiqueService: HistoriqueService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -94,6 +118,25 @@ export class RechercheComponent implements OnInit {
       .subscribe((data) => {
         this.packageData = data;
       });
+  }
+
+  public getIndex(historic, historique) {
+    var index = historic.findIndex((p) => p.state == historique?.action);
+    return index;
+  }
+
+  public deleteState(historique) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cet état de l'historique?")) {
+      this.historiqueService.deleteHistorique(historique._id).subscribe(() => {
+        this.getActors(
+          this.packageCAB,
+          this.packageTel,
+          this.packageNom,
+          this.packageAdresse,
+          this.packageDelegation
+        );
+      });
+    }
   }
   //************************ GENERAL ************************
   //************************ PATH = RECHERCHE ************************

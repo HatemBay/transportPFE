@@ -16,6 +16,7 @@ var vehiculeController = require("./backend/controllers/vehiculeController");
 var villeController = require("./backend/controllers/villeController");
 var delegationController = require("./backend/controllers/delegationController");
 var pickupController = require("./backend/controllers/pickupController");
+var historiqueController = require("./backend/controllers/historiqueController");
 var {
   register,
   loginUser,
@@ -71,6 +72,7 @@ app.use("/api/vehicules", auth, vehiculeController);
 app.use("/api/villes", auth, villeController);
 app.use("/api/delegations", auth, delegationController);
 app.use("/api/pickups", auth, pickupController);
+app.use("/api/historiques", auth, historiqueController);
 app.use("/api/register", auth, register);
 app.use("/api/login-user", loginUser);
 app.use("/api/login-provider", loginProvider);

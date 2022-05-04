@@ -14,7 +14,7 @@ var FiliereSchema = new Schema(
     },
     users: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User",
       },
     ],

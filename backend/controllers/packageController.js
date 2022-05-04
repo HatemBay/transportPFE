@@ -18,12 +18,11 @@ var upload = multer({
 var importExcelData2MongoDB = require("../utils/excel");
 
 const { Package } = require("../models/package");
-var { Client } = require("../models/client");
-var { Fournisseur } = require("../models/fournisseur");
-const { default: mongoose } = require("mongoose");
-const { parse } = require("path");
-const { json } = require("body-parser");
+const { Historique } = require("../models/historique");
 const { User } = require("../models/users");
+const { Client } = require("../models/client");
+const { Fournisseur } = require("../models/fournisseur");
+const { default: mongoose } = require("mongoose");
 
 // Read all
 router.get("/", (req, res) => {
@@ -803,6 +802,44 @@ router.get("/all-info-search/admin", (req, res) => {
     },
     { $unwind: "$fournisseurs" },
     {
+      $lookup: {
+        from: "villes",
+        localField: "fournisseurs.villeId",
+        foreignField: "_id",
+        as: "villes",
+      },
+    },
+    { $unwind: "$villes" },
+    {
+      $lookup: {
+        from: "delegations",
+        localField: "fournisseurs.delegationId",
+        foreignField: "_id",
+        as: "delegations",
+      },
+    },
+    { $unwind: "$delegations" },
+    {
+      $lookup: {
+        from: "historiques",
+        localField: "historique",
+        foreignField: "_id",
+        pipeline: [
+          {
+            $addFields: {
+              dateFormatted: {
+                $dateToString: {
+                  format: "%d-%m-%Y à %H:%M",
+                  date: "$date",
+                },
+              },
+            },
+          },
+        ],
+        as: "historiques",
+      },
+    },
+    {
       $project: {
         _id: 1,
         CAB: 1,
@@ -824,9 +861,10 @@ router.get("/all-info-search/admin", (req, res) => {
         fournisseurId: "$fournisseurs._id",
         nomf: "$fournisseurs.nom",
         telf: "$fournisseurs.tel",
-        villef: "$fournisseurs.ville",
-        delegationf: "$fournisseurs.delegation",
+        villef: "$villes.nom",
+        delegationf: "$delegations.nom",
         adressef: "$fournisseurs.adresse",
+        historique: "$historiques",
         createdAt: 1,
         updatedAt: 1,
       },
@@ -919,7 +957,7 @@ router.post("/", (req, res) => {
     (package.fournisseurId = req.body.fournisseurId),
     (package.clientId = req.body.clientId);
   return package
-    .save(package)
+    .save()
     .then((doc) => {
       return Client.findByIdAndUpdate(
         package.clientId,
@@ -933,16 +971,45 @@ router.post("/", (req, res) => {
             { new: true, useFindAndModify: false }
           ).then(
             () => {
-              res.send(doc);
+              const historique = new Historique();
+              historique.packageId = doc._id;
+              return historique.save().then(
+                (historique) => {
+                  Package.findByIdAndUpdate(
+                    doc._id,
+                    {
+                      $push: { historique: historique._id },
+                    },
+                    { new: true, useFindAndModify: false }
+                  ).then(
+                    () => {
+                      res.send(doc);
+                    },
+                    (err) => {
+                      console.log(
+                        "Erreur lors de la création du colis (historique): " +
+                          err
+                      );
+                      res.status(400).send(err.message);
+                    }
+                  );
+                },
+                (err) => {
+                  console.log(
+                    "Erreur lors de la création de l'historique: " + err
+                  );
+                  res.status(400).send(err.message);
+                }
+              );
             },
             (err) => {
-              console.log("Erreur lors de l'enregistrement du colis: " + err);
+              console.log("Erreur lors du mis à jour du fournisseur: " + err);
               res.status(400).send(err.message);
             }
           );
         },
         (err) => {
-          console.log("Erreur lors du mis a jour du fournisseur: " + err);
+          console.log("Erreur lors du mis a jour du client: " + err);
           res.status(400).send(err.message);
         }
       );
@@ -965,25 +1032,57 @@ router.put("/:id", (req, res) => {
     {
       $set: req.body,
     },
-    { new: true },
-    (err, doc) => {
-      if (!err) {
-        if (req.body.userId) {
-          User.findByIdAndUpdate(
-            doc.userId,
-            { $push: { packages: doc._id } },
+    { new: true }
+  ).then(
+    (doc) => {
+      const historique = new Historique();
+      historique.action = doc.etat;
+      historique.packageId = doc._id;
+      return historique.save().then(
+        (historique) => {
+          Package.findByIdAndUpdate(
+            doc._id,
+            {
+              $push: { historique: historique._id },
+            },
             { new: true, useFindAndModify: false }
-          ).then(() => {
-            return res.status(200).send(doc);
-          });
+          ).then(
+            () => {
+              if (req.body.userId) {
+                User.findByIdAndUpdate(
+                  doc.userId,
+                  { $push: { packages: doc._id } },
+                  { new: true, useFindAndModify: false }
+                ).then(
+                  () => {
+                    return res.send(doc);
+                  },
+                  (err) => {
+                    console.log(
+                      `Erreur lors de la mis à jour de l'utilisateur: ${err}`
+                    );
+                    return res.status(400).send(err.message);
+                  }
+                );
+              } else return res.send(doc);
+            },
+            (err) => {
+              console.log(
+                "Erreur lors de la mis à jour du colis (historique): " + err
+              );
+              res.status(400).send(err.message);
+            }
+          );
+        },
+        (err) => {
+          console.log("Erreur lors de la création de l'historique: " + err);
+          res.status(400).send(err.message);
         }
-        return res.status(200).send(doc);
-      } else {
-        console.log("Erreur lors de mis à jour du colis: " + err);
-        return res
-          .status(400)
-          .send("Erreur lors de mis à jour du colis: " + err);
-      }
+      );
+    },
+    (err) => {
+      console.log("Erreur lors de la mise à jour du colis: " + err);
+      res.status(400).send(err.message);
     }
   );
 });
@@ -994,36 +1093,63 @@ router.put("/cab/:CAB", (req, res) => {
     console.log(`Code barre n'existe pas: ${req.params.CAB}`);
     return res.status(400).send(`Code barre n'existe pas: ${req.params.CAB}`);
   }
+
   Package.findOneAndUpdate(
     { CAB: req.params.CAB },
     {
       $set: req.body,
     },
-    { new: true },
-    (err, doc) => {
-      if (!err) {
-        if (req.body.userId) {
-          User.findByIdAndUpdate(
-            doc.userId,
-            { $push: { packages: doc._id } },
-            { new: true, useFindAndModify: false },
-            (err, doc) => {
-              if (!err) {
-                return res.status(200).send(doc);
-              }
-              console.log("Erreur lors de mis à jour du colis: " + err);
-              return res
-                .status(400)
-                .send("Erreur lors de mis à jour du colis: " + err);
+    { new: true }
+  ).then(
+    (doc) => {
+      const historique = new Historique();
+      historique.action = doc.etat;
+      historique.packageId = doc._id;
+      return historique.save().then(
+        (historique) => {
+          Package.findByIdAndUpdate(
+            doc._id,
+            {
+              $push: { historique: historique._id },
+            },
+            { new: true, useFindAndModify: false }
+          ).then(
+            () => {
+              if (req.body.userId) {
+                User.findByIdAndUpdate(
+                  doc.userId,
+                  { $push: { packages: doc._id } },
+                  { new: true, useFindAndModify: false }
+                ).then(
+                  () => {
+                    return res.send(doc);
+                  },
+                  (err) => {
+                    console.log(
+                      `Erreur lors de la mis à jour de l'utilisateur: ${err}`
+                    );
+                    return res.status(400).send(err.message);
+                  }
+                );
+              } else return res.send(doc);
+            },
+            (err) => {
+              console.log(
+                "Erreur lors de la mis à jour du colis (historique): " + err
+              );
+              res.status(400).send(err.message);
             }
           );
-        } else return res.status(200).send(doc);
-      } else {
-        console.log("Erreur lors de mis à jour du colis: " + err);
-        return res
-          .status(400)
-          .send("Erreur lors de mis à jour du colis: " + err);
-      }
+        },
+        (err) => {
+          console.log("Erreur lors de la création de l'historique: " + err);
+          res.status(400).send(err.message);
+        }
+      );
+    },
+    (err) => {
+      console.log("Erreur lors de la mise à jour du colis: " + err);
+      res.status(400).send(err.message);
     }
   );
 });

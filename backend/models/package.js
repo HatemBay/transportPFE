@@ -65,6 +65,12 @@ var PackageSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    historique: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Historique",
+      },
+    ],
   },
   {
     timestamps: true,
