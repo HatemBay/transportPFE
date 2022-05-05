@@ -73,6 +73,7 @@ export class ColisJourComponent implements OnInit {
     this.getDataJson();
     // this.findAll();
   }
+
   setDates() {
     this.date = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
   }

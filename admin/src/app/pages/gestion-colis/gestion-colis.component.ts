@@ -439,6 +439,9 @@ export class GestionColisComponent implements OnInit {
     //dates are set when the view is initiated so when table search is implemented it will use those values regardless of initiating date periods search
     //so we need to use a variable that checks if the time periods search has been initiated at least once
     this.init = true;
+    console.log(this.startDate);
+    console.log(this.today);
+
     this.getDataJson(null, null, null, null, null, this.startDate, this.today);
     this.countPackages(this.startDate, this.today)
   }

@@ -30,7 +30,7 @@ export class ImprimerComponent implements OnInit {
     this.getDataJson(this.pickupId);
 
     packageIds.forEach((element) => {
-      this.getPackageData(element);
+      this.getPackageData(element._id);
     });
   }
 

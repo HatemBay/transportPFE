@@ -187,7 +187,7 @@ export class CbPickupsComponent implements OnInit {
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit, this.currentPage);
+    this.getDataJson(this.isAllocated, limit, this.currentPage);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -208,6 +208,7 @@ export class CbPickupsComponent implements OnInit {
   // Data sorting
   onSort(event) {
     this.getDataJson(
+      this.isAllocated,
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
@@ -225,9 +226,9 @@ export class CbPickupsComponent implements OnInit {
     }
     this.changePage(event.page);
     this.getDataJson(
+      this.isAllocated,
       this.currentPageLimit,
       event.page,
-      null,
       null,
       null,
       null,
@@ -246,7 +247,7 @@ export class CbPickupsComponent implements OnInit {
     this.pickupService
       .updatePickup(row._id, this.pickupForm.value)
       .subscribe((data) => {
-        this.getDataJson();
+        this.getDataJson(this.isAllocated);
         this.success = true;
       });
   }
@@ -254,9 +255,8 @@ export class CbPickupsComponent implements OnInit {
   // redirects to printable facture for pickup
   toFacture(row) {
     var ids = [];
-      console.log(row.packages);
-      for (var el of row.packages) {
-
+    console.log(row.packages);
+    for (var el of row.packages) {
       ids.push(el);
     }
 
