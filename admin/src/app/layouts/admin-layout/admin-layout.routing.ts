@@ -18,6 +18,8 @@ import { GestionVilleComponent } from "src/app/pages/gestion-ville/gestion-ville
 import { CbPickupsComponent } from "src/app/pages/cb-pickups/cb-pickups.component";
 import { CbRamassageComponent } from "src/app/pages/cb-ramassage/cb-ramassage.component";
 import { CbCollecteComponent } from "src/app/pages/cb-collecte/cb-collecte.component";
+import { CbFeuilleRouteComponent } from "src/app/pages/cb-feuille-route/cb-feuille-route.component";
+import { CbFeuilleRetourComponent } from "src/app/pages/cb-feuille-retour/cb-feuille-retour.component";
 
 export const AdminLayoutRoutes: Routes = [
   { path: "dashboard", component: DashboardComponent },
@@ -42,6 +44,8 @@ export const AdminLayoutRoutes: Routes = [
   { path: "pickup-historique", component: CbPickupsComponent },
   { path: "ramassage", component: CbRamassageComponent },
   { path: "collecte", component: CbCollecteComponent },
+  { path: "feuille-de-route", component: CbFeuilleRouteComponent },
+  { path: "feuille-de-retour", component: CbFeuilleRetourComponent },
 
   {
     path: "gestion-colis",

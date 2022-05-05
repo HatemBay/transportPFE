@@ -27,6 +27,9 @@ import { GestionDelegationComponent } from '../../pages/gestion-delegation/gesti
 import { CbPickupsComponent } from '../../pages/cb-pickups/cb-pickups.component';
 import { CbRamassageComponent } from '../../pages/cb-ramassage/cb-ramassage.component';
 import { CbCollecteComponent } from '../../pages/cb-collecte/cb-collecte.component';
+import { CbFeuilleRouteComponent } from '../../pages/cb-feuille-route/cb-feuille-route.component';
+import { CbFeuilleRetourComponent } from '../../pages/cb-feuille-retour/cb-feuille-retour.component';
+import { NgxBarcodeModule } from "ngx-barcode";
 
 
 // import { NgxPrintModule } from 'ngx-print';
@@ -43,6 +46,7 @@ import { CbCollecteComponent } from '../../pages/cb-collecte/cb-collecte.compone
     ClipboardModule,
     ReactiveFormsModule,
     NgxDatatableModule,
+    NgxBarcodeModule,
     CsvModule,
   ],
   declarations: [
@@ -63,6 +67,8 @@ import { CbCollecteComponent } from '../../pages/cb-collecte/cb-collecte.compone
     CbPickupsComponent,
     CbRamassageComponent,
     CbCollecteComponent,
+    CbFeuilleRouteComponent,
+    CbFeuilleRetourComponent,
   ],
   providers: [NgbActiveModal],
 })

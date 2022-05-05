@@ -51,6 +51,12 @@ export class PackageService {
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }
 
+  // get package with cab
+  getPackageByCAB(cab: any) {
+    const url = `${this.baseUri}/cab/${cab}`;
+    return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
+  }
+
   // Get all packages with all foreign info
   getFullPackages(
     limit?: any,
@@ -147,9 +153,21 @@ export class PackageService {
     return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
   }
 
-  // Get package by provider
+  // Get package by id
   getPackage(id: any): Observable<any> {
     const url = `${this.baseUri}/all-info-admin/${id}`;
+    return this.http.get(url, { headers: this.headers }).pipe(
+      // map((res: Response) => {
+      map((res: any) => {
+        return res || {};
+      }),
+      catchError(this.errorMgmt)
+    );
+  }
+
+  // Get package by cab
+  getFullPackageByCAB(cab: any): Observable<any> {
+    const url = `${this.baseUri}/all-info-admin-cab/${cab}`;
     return this.http.get(url, { headers: this.headers }).pipe(
       // map((res: Response) => {
       map((res: any) => {

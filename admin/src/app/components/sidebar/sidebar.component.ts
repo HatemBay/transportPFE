@@ -5,9 +5,11 @@ import { AuthenticationService } from "src/app/services/authentication.service";
 declare interface RouteInfo {
   path: string;
   title: string;
-  icon: string;
+  icon?: string;
   class: string;
   roles: Array<string>;
+  parent?: string;
+  collapsable?: boolean;
 }
 export const ROUTES: RouteInfo[] = [
   {
@@ -16,14 +18,26 @@ export const ROUTES: RouteInfo[] = [
     icon: "ni-tv-2 text-primary",
     class: "",
     roles: [],
+    parent: "",
+    collapsable: false,
   },
-  { path: "/icons", title: "Icons", icon: "ni-planet text-blue", class: "", roles: [] },
+  {
+    path: "/icons",
+    title: "Icons",
+    icon: "ni-planet text-blue",
+    class: "",
+    roles: [],
+    parent: "",
+    collapsable: false,
+  },
   {
     path: "/colis-jour",
     title: "Colis de jour",
     icon: "ni-pin-3 text-orange",
     class: "",
     roles: [],
+    parent: "",
+    collapsable: false,
   },
   {
     path: "/user-profile",
@@ -31,6 +45,8 @@ export const ROUTES: RouteInfo[] = [
     icon: "ni-single-02 text-yellow",
     class: "",
     roles: [],
+    parent: "",
+    collapsable: false,
   },
   {
     path: "/gestion-colis",
@@ -38,6 +54,8 @@ export const ROUTES: RouteInfo[] = [
     icon: "ni-circle-08 text-pink",
     class: "",
     roles: [],
+    parent: "",
+    collapsable: false,
   },
   {
     path: "/recherche-av",
@@ -45,6 +63,8 @@ export const ROUTES: RouteInfo[] = [
     icon: "ni-bullet-list-67 text-red",
     class: "",
     roles: [],
+    parent: "",
+    collapsable: false,
   },
   {
     path: "/carnet-adresses",
@@ -52,6 +72,8 @@ export const ROUTES: RouteInfo[] = [
     icon: "ni-key-25 text-info",
     class: "",
     roles: [],
+    parent: "",
+    collapsable: false,
   },
   {
     path: "/finance",
@@ -59,8 +81,111 @@ export const ROUTES: RouteInfo[] = [
     icon: "ni-circle-08 text-pink",
     class: "",
     roles: ["admin", "fourn"],
-  }
-
+    parent: "",
+    collapsable: false,
+  },
+  {
+    path: "",
+    title: "Gestion",
+    icon: "ni-settings-gear-65 text-info",
+    class: "",
+    roles: [],
+    parent: "",
+    collapsable: true,
+  },
+  {
+    path: "",
+    title: "Chef de bureau",
+    icon: "ni-settings-gear-65 text-info",
+    class: "",
+    roles: [],
+    parent: "",
+    collapsable: true,
+  },
+  {
+    path: "/gestion-filiere",
+    title: "Filière",
+    class: "",
+    roles: [],
+    parent: "Gestion",
+  },
+  {
+    path: "/gestion-personel",
+    title: "Personel",
+    class: "",
+    roles: [],
+    parent: "Gestion",
+  },
+  {
+    path: "/gestion-client",
+    title: "Client",
+    class: "",
+    roles: [],
+    parent: "Gestion",
+  },
+  {
+    path: "/gestion-vehicule",
+    title: "Véhicule",
+    class: "",
+    roles: [],
+    parent: "Gestion",
+  },
+  {
+    path: "/gestion-ville",
+    title: "Ville",
+    class: "",
+    roles: [],
+    parent: "Gestion",
+  },
+  {
+    path: "/gestion-delegation",
+    title: "Délégation",
+    class: "",
+    roles: [],
+    parent: "Gestion",
+  },
+  {
+    path: "/pickup",
+    title: "Pickup",
+    class: "",
+    roles: [],
+    parent: "Chef de bureau",
+  },
+  {
+    path: "/ramassage",
+    title: "Ramassage",
+    class: "",
+    roles: [],
+    parent: "Chef de bureau",
+  },
+  {
+    path: "/collecte",
+    title: "Collecté",
+    class: "",
+    roles: [],
+    parent: "Chef de bureau",
+  },
+  {
+    path: "/feuille-de-route",
+    title: "Feuille de route",
+    class: "",
+    roles: [],
+    parent: "Chef de bureau",
+  },
+  {
+    path: "/debrief",
+    title: "Debrief",
+    class: "",
+    roles: [],
+    parent: "Chef de bureau",
+  },
+  {
+    path: "/feuille-de-retour",
+    title: "Feuille de retour",
+    class: "",
+    roles: [],
+    parent: "Chef de bureau",
+  },
 ];
 
 @Component({
@@ -85,5 +210,4 @@ export class SidebarComponent implements OnInit {
       this.isCollapsed = true;
     });
   }
-
 }

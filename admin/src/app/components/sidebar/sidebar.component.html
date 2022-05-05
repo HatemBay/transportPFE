@@ -92,65 +92,39 @@
       <ul class="navbar-nav">
         <li *ngFor="let menuItem of menuItems" class="{{menuItem.class}} nav-item">
           <ng-container *ngIf="!menuItem.roles.includes(role)">
-            <a routerLinkActive="active" [routerLink]="[menuItem.path]" class="nav-link">
-              <i class="ni {{menuItem.icon}}"></i>
-              {{menuItem.title}}
-            </a>
+            <ng-container *ngIf="!menuItem.parent || menuItem.parent === ''">
+              <ng-container *ngIf="!menuItem.collapsable; else collapsable">
+                <a routerLinkActive="active" [routerLink]="[menuItem.path]" class="nav-link">
+                  <i class="ni {{menuItem.icon}}"></i>
+                  {{menuItem.title}}
+                </a>
+              </ng-container>
+              <!-- to be improved -->
+              <ng-template #collapsable>
+                <ng-container *ngIf="menuItem.title === 'Gestion'">
+                  <a class="nav-link" role="button" (click)="collapseG.toggle()" [attr.aria-expanded]="!isGCollapsed"
+                    aria-controls="collapseGestion">
+                    <i class="ni {{menuItem.icon}}"></i>
+                    {{menuItem.title}}
+                  </a>
+                </ng-container>
+                <ng-container *ngIf="menuItem.title === 'Chef de bureau'">
+                  <a class="nav-link" role="button" (click)="collapsCB.toggle()" [attr.aria-expanded]="!isCBCollapsed"
+                    aria-controls="collapseChefBur">
+                    <i class="ni {{menuItem.icon}}"></i>
+                    {{menuItem.title}}
+                  </a>
+                </ng-container>
+              </ng-template>
+            </ng-container>
+            <ul #collapseG="ngbCollapse" [(ngbCollapse)]="isGCollapsed" class="navbar-nav ml-4 mr-4 bg-secondary">
+              <li *ngFor="let menuItem2 of menuItems" class="nav-item">
+                <ng-container *ngIf="menuItem2.parent === menuItem.title">
+                  <a class="nav-link" [routerLink]="[menuItem2.path]">{{menuItem2.title}}</a>
+                </ng-container>
+              </li>
+            </ul>
           </ng-container>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" role="button" (click)="collapseG.toggle()" [attr.aria-expanded]="!isGCollapsed"
-            aria-controls="collapseGestion">
-            <i class="ni ni-settings-gear-65 text-info"></i>
-            Gestion
-          </a>
-          <ul #collapseG="ngbCollapse" [(ngbCollapse)]="isGCollapsed" class="navbar-nav ml-4 mr-4 bg-secondary">
-            <li class="nav-item">
-              <a class="nav-link" [routerLink]="['/gestion-filiere']">Filiere</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" [routerLink]="['/gestion-personel']">Personel</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" [routerLink]="['/gestion-client']">Client</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" [routerLink]="['/gestion-vehicule']">Véhicule</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" [routerLink]="['/gestion-ville']">Ville</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" [routerLink]="['/gestion-delegation']">Délégation</a>
-            </li>
-          </ul>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" role="button" (click)="collapsCB.toggle()" [attr.aria-expanded]="!isCBCollapsed"
-            aria-controls="collapseChefBur">
-            <i class="ni ni-settings-gear-65 text-info"></i>
-            Chef de bureau
-          </a>
-          <ul #collapsCB="ngbCollapse" [(ngbCollapse)]="isCBCollapsed" class="navbar-nav ml-4 mr-4 bg-secondary">
-            <li class="nav-item">
-              <a class="nav-link" [routerLink]="['/pickup']">Pickup</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" [routerLink]="['/ramassage']">Ramassage</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" [routerLink]="['/collecte']">Collecté</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" [routerLink]="['/feuille-de-route']">Feuille de route</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" [routerLink]="['/debrief']">Debrief</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" [routerLink]="['/feuille-de-retour']">Feuille de retour</a>
-            </li>
-          </ul>
         </li>
       </ul>
       <!-- Divider -->

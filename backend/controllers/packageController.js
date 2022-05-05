@@ -45,6 +45,16 @@ router.get("/:id", (req, res) => {
   });
 });
 
+//read one by CAB
+router.get("/cab/:cab", (req, res) => {
+  if (req.params.cab.length !== 10 || isNaN(req.params.cab))
+    return res.status(400).send(`Format CAB invalide: ${req.params.cab}`);
+  Package.findOne({ CAB: req.params.cab }, (err, doc) => {
+    if (!err) res.send(doc);
+    else console.log("Erreur lors de la récupération des colis: " + err);
+  });
+});
+
 // Read all with all client and provider data (provider restricted)
 router.get("/all-info/:fid", (req, res) => {
   const startDate = req.query.startDate || null;
@@ -767,6 +777,87 @@ router.get("/all-info-admin/:id", (req, res) => {
     },
     {
       $match: { _id: id },
+    },
+  ]).exec((err, doc) => {
+    if (!err) res.send(doc);
+    else console.log("Erreur lors de la récupération du colis: " + err);
+  });
+});
+
+// Read one with all client and provider data (cab)
+router.get("/all-info-admin-cab/:cab", (req, res) => {
+  Package.aggregate([
+    {
+      $lookup: {
+        from: "clients",
+        localField: "clientId",
+        foreignField: "_id",
+        as: "clients",
+      },
+    },
+    { $unwind: "$clients" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "users",
+      },
+    },
+    { $unwind: { path: "$users", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "filieres",
+        localField: "users.filiereId",
+        foreignField: "_id",
+        as: "filieres",
+      },
+    },
+    { $unwind: { path: "$filieres", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "fournisseurs",
+        localField: "fournisseurId",
+        foreignField: "_id",
+        as: "fournisseurs",
+      },
+    },
+    { $unwind: "$fournisseurs" },
+    {
+      $project: {
+        _id: 1,
+        CAB: 1,
+        service: 1,
+        libelle: 1,
+        c_remboursement: 1,
+        volume: 1,
+        poids: 1,
+        pieces: 1,
+        etat: 1,
+        remarque: 1,
+        clientId: "$clients._id",
+        nomc: "$clients.nom",
+        villec: "$clients.ville",
+        delegationc: "$clients.delegation",
+        adressec: "$clients.adresse",
+        codePostalec: "$clients.codePostale",
+        telc: "$clients.tel",
+        tel2c: "$clients.tel2",
+        fournisseurId: "$fournisseurs._id",
+        nomf: "$fournisseurs.nom",
+        villef: "$fournisseurs.ville",
+        delegationf: "$fournisseurs.delegation",
+        telf: "$fournisseurs.tel",
+        adressef: "$fournisseurs.adresse",
+        userId: "$users._id",
+        nomu: "$users.nom",
+        filiere: "$filieres.nom",
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    },
+    {
+      $match: { CAB: parseInt(req.params.cab) },
     },
   ]).exec((err, doc) => {
     if (!err) res.send(doc);

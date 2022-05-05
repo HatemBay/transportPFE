@@ -101,6 +101,7 @@ export class GestionColisComponent implements OnInit {
     this.getDataJson();
   }
 
+
   // get data from backend
   getDataJson(
     limit?: any,

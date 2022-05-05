@@ -1,0 +1,149 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <div class="header-body">
+      <div class="row">
+        <div class="col-lg-12 mb-4">
+          <div class="card mb-4 text-center">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+              style="border-bottom: 1px solid #eee;">
+              <h5 class="m-0 font-weight-bold text-primary">Feuille de route (Elle donne l'état 'En cours')</h5>
+              <a href="feuille_de_route_h" class="m-0 float-right btn btn-primary btn-sm">
+                Historique
+              </a>
+            </div>
+            <div class="card-body form-inline d-flex justify-content-center">
+              <form [formGroup]="chauffeursForm" class="input-group col-lg-4">
+                <select formControlName="chauffeurs" id="chauffeur" class="form-control" name="chauffeur">
+                  <option value="" hidden="">-- Choisir chauffeur--</option>
+                  <option *ngFor="let chauffeur of chauffeurs" [value]="chauffeur._id">{{chauffeur.nom}} </option>
+                </select>
+              </form>
+              <div class="input-group col-lg-2">
+                <button [routerLink]="" [disabled]="chauffeursForm.invalid" class="btn btn-sm btn-primary btn-block"
+                  (click)="show()"><i class="fa fa-check"></i>
+                  Valider</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--7">
+
+  <!-- Table -->
+  <div class="row" [ngClass]="[display]">
+    <div class="col">
+      <div class="card shadow">
+        <div class="card mb-4" id="show">
+          <div class="card-body">
+            <form [formGroup]="referenceForm" class="row" action="feuille_de_route_imprimer">
+              <div class="col-sm-3 offset-1">
+                <div class="form-group text-right">
+                  <label class="form-label">Réference,<br> <b><u>un</u></b> sur chaque ligne :</label>
+                </div>
+              </div>
+              <div class="col-sm-2">
+                <div class="form-group">
+                  <input type="hidden" name="date" id="date_show" value="2022-05-04">
+                  <input type="hidden" name="chauffeur" id="chauffeur_show" value="11">
+                  <input type="hidden" name="vehicule" id="vehicule_show">
+                  <input type="hidden" name="user" value="XTw=">
+                  <textarea formControlName="references" name="code_barre" id="ingredients_list" class="form-control"
+                    rows="17"></textarea>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <button [disabled]="referenceForm.invalid" (click)="printRoadmap()" name=""
+                    class="btn btn-primary btn-sm px-5">Imprimer la feuille de route</button>
+                  <div *ngIf="error" class="alert alert-danger mt-4">
+                    <span class="closebtn"
+                      onclick="this.parentElement.style.display='none'; error = false;">&times;</span>
+                    <ng-container *ngFor="let item of index">
+                      Erreur dans la ligne {{item+1}}
+                      <br>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="hidden" hidden class="dt-print-view">
+  <div class="my-3 my-md-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <div class="" style="border: 1px solid #eee">
+            <div class="card-body pt-0">
+              <!-- <a href="feuille_de_route" class="btn btn-primary ne_pas_imprimer"
+                style="right: 0; position: absolute;">Retour</a> -->
+              <div class="row">
+                <div class="col-md-6">
+                  <img src="../assets/img/logo2-01.png" style=" height: 180px; float: left; margin-right: 25px;">
+                  <h5>Colis Express</h5>
+                  <h5>MF : 1737963/W</h5>
+                  <h5>TEL : 26 539 959</h5>
+                  <h5>ADRESSE : El jem</h5>
+                </div>
+                <div class="col-md-4 m-auto text-right" style="font-size: 17px">
+                  <span style="font-size: 20px; color: black; font-weight: bold;">
+                    BON DE SORTIE N° 13 </span>
+                  <ng-container *ngIf="chauffeur.length > 0">
+                    <br>Chauffeur : {{chauffeur[0].nom}} <br>Marticule : 111TN1111 <br>Nombre de colis : 2 <br>Date :
+                    05/05/2022
+                  </ng-container>
+                </div>
+              </div>
+              <div class="col-md-12 mt-5">
+                <table class="table-bordered" style="width: 100%">
+                  <tbody>
+                    <tr>
+                      <th style="padding: 5px; width: 15%;" class="text-center">Code à barre</th>
+                      <th style="padding: 5px; width: 10%;">Expéditeur</th>
+                      <th style="padding: 5px; width: 10%;">Destinataire</th>
+                      <th style="padding: 5px; width: 25%;">Adresse</th>
+                      <th style="padding: 5px; width: 10%; text-align: center;">Tél</th>
+                    </tr>
+                    <ng-container *ngFor="let package of packages">
+                      <tr>
+                        <td rowspan="2" style=" width: 15%; padding: 5px" class="text-center">
+                          <ngx-barcode [bc-value]="package.CAB" [bc-display-value]="true" [bc-height]="50"
+                            [bc-background]="'#ffffff'"></ngx-barcode>
+                        </td>
+                        <td style="font-size: 12px">{{package.nomf}} <br>{{package.telf}} </td>
+                        <td style="font-size: 17px;">{{package.nomc}}</td>
+                        <td style="font-size: 17px;">{{package.adressec}}, {{package.villec}}, {{package.delegationc}}
+                        </td>
+                        <td style="font-size: 17px;">{{package.telc}}</td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 15px;" colspan="3"><span
+                            style="font-weight: 700">{{package.libelle}}</span><br>Remarque: {{package.remarque}}
+                        </td>
+                        <td style="text-align: center; font-weight: bolder; font-size: 30px;">
+                          {{package.c_remboursement}}.000</td>
+                      </tr>
+                    </ng-container>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12 mt-4" style="text-align: center;">
+          <h5>Signature et cachet</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+.default {
+  display: none;
+}
+
+.block {
+  display: block !important;
+}
+
+@media print {
+  .ne_pas_imprimer {
+    display: none !important;
+  }
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
