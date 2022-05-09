@@ -20,6 +20,7 @@ import { CbRamassageComponent } from "src/app/pages/cb-ramassage/cb-ramassage.co
 import { CbCollecteComponent } from "src/app/pages/cb-collecte/cb-collecte.component";
 import { CbFeuilleRouteComponent } from "src/app/pages/cb-feuille-route/cb-feuille-route.component";
 import { CbFeuilleRetourComponent } from "src/app/pages/cb-feuille-retour/cb-feuille-retour.component";
+import { CbDebriefComponent } from "src/app/pages/cb-debrief/cb-debrief.component";
 
 export const AdminLayoutRoutes: Routes = [
   { path: "dashboard", component: DashboardComponent },
@@ -46,6 +47,7 @@ export const AdminLayoutRoutes: Routes = [
   { path: "collecte", component: CbCollecteComponent },
   { path: "feuille-de-route", component: CbFeuilleRouteComponent },
   { path: "feuille-de-retour", component: CbFeuilleRetourComponent },
+  { path: "debrief", component: CbDebriefComponent },
 
   {
     path: "gestion-colis",

@@ -65,53 +65,47 @@ router.get("/", (req, res) => {
       $sort: sort,
     },
   ];
-  User.aggregate(data)
-    .exec((err, users) => {
-      if (!err) {
-        if (req.query.search && req.query.search.length > 2) {
-          res.send(
-            users.filter(
-              (item) =>
-                item.codePostale?.toString().includes(req.query.search) ||
-                item.tel?.toString().includes(req.query.search) ||
-                item.createdAtSearch.toString().includes(req.query.search) ||
-                item.nom
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.nomf
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.role
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.ville
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.delegation
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.adresse
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.password
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.nomf
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.adressef
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase())
-            )
-          );
-        } else res.send(users);
-      } else {
-        console.log("Erreur lors de la récupération des utilisateurs: " + err);
-        res
-          .status(400)
-          .send("Erreur lors de la récupération des utilisateurs: " + err);
-      }
-    });
+  User.aggregate(data).exec((err, users) => {
+    if (!err) {
+      if (req.query.search && req.query.search.length > 2) {
+        res.send(
+          users.filter(
+            (item) =>
+              item.codePostale?.toString().includes(req.query.search) ||
+              item.tel?.toString().includes(req.query.search) ||
+              item.createdAtSearch.toString().includes(req.query.search) ||
+              item.nom.toLowerCase().includes(req.query.search.toLowerCase()) ||
+              item.nomf
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.role
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.ville
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.delegation
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.adresse
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.nomf
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.adressef
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase())
+          )
+        );
+      } else res.send(users);
+    } else {
+      console.log("Erreur lors de la récupération des utilisateurs: " + err);
+      res
+        .status(400)
+        .send("Erreur lors de la récupération des utilisateurs: " + err);
+    }
+  });
 });
 
 // get chauffeurs with no vehicules
@@ -159,9 +153,6 @@ router.post("/", (req, res) => {
   var encrypted = user.setPassword(req.body.password, res);
   if (!encrypted) return;
 
-  if (req.body.role != "admin") {
-    user.password = req.body.password;
-  }
   (user.email = req.body.email),
     (user.nom = req.body.nom),
     (user.role = req.body.role),

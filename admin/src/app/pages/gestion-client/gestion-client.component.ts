@@ -3,8 +3,8 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { Router, NavigationExtras, ActivatedRoute } from "@angular/router";
 import { NgbModal, NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
-import { ClientService } from "src/app/services/client.service";
 import { DelegationService } from "src/app/services/delegation.service";
+import { FournisseurService } from "src/app/services/fournisseur.service";
 import { VilleService } from "src/app/services/ville.service";
 
 @Component({
@@ -17,6 +17,8 @@ export class GestionClientComponent implements OnInit {
   @ViewChild(DatatableComponent) search: DatatableComponent;
   @ViewChild(DatatableComponent) table: DatatableComponent;
   @ViewChild(alert) alert: any;
+
+  DEFAULT_PASSWORD = "123456";
 
   success: boolean = false;
   temp: any = [];
@@ -45,7 +47,7 @@ export class GestionClientComponent implements OnInit {
   delegations: Object;
 
   constructor(
-    private clientService: ClientService,
+    private fournisseurService: FournisseurService,
     private villeService: VilleService,
     private delegationService: DelegationService,
     public modalService: NgbModal,
@@ -60,11 +62,15 @@ export class GestionClientComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.getVilles();
+
     if (this.routePath == "gestion-client") {
       this.columns = [
-        { prop: "nom", name: "Nom & Prénom" },
+        { prop: "nom", name: "Raison sociale" },
+        { prop: "tel", name: "Téléphone" },
+        { prop: "email", name: "Email" },
         { prop: "ville", name: "Ville" },
-        { prop: "delegation", name: "Délégation" },
+        { prop: "delegation", name: "Délegation" },
         { prop: "adresse", name: "Adresse" },
       ];
 
@@ -79,10 +85,13 @@ export class GestionClientComponent implements OnInit {
           ],
         ],
         email: "",
-        ville: ["", Validators.required],
-        delegation: ["", Validators.required],
+        villeId: ["", Validators.required],
+        delegationId: ["", Validators.required],
         adresse: ["", Validators.required],
       });
+
+      //detect changes in form controls
+      this.onChanges();
 
       this.countClients();
 
@@ -100,27 +109,40 @@ export class GestionClientComponent implements OnInit {
           ],
         ],
         email: "",
-        ville: ["", Validators.required],
-        delegation: ["", Validators.required],
+        villeId: ["", Validators.required],
+        delegationId: ["", Validators.required],
         adresse: ["", Validators.required],
       });
-      this.clientService.getClient(this.clientId).subscribe((data) => {
-        console.log("data");
-        console.log(data);
-        this.clientModifyForm.patchValue({
-          nom: data[0].nom,
-          tel: data[0].tel,
-          email: data[0].email,
-          ville: data[0].villeId,
-          delegation: data[0].delegationId,
-          adresse: data[0].adresse,
+      this.fournisseurService
+        .getFournisseur(this.clientId)
+        .subscribe((data) => {
+          console.log("data");
+          console.log(data);
+          this.clientModifyForm.patchValue({
+            nom: data[0].nom,
+            tel: data[0].tel,
+            email: data[0].email,
+            villeId: data[0].villeId,
+            delegationId: data[0].delegationId,
+            adresse: data[0].adresse,
+          });
         });
-        this.getDelegations(data[0].villeId);
-      });
-
-      this.getVilles();
+      //detect changes in form controls
+      this.onChangesModify();
     }
   }
+
+  onChanges(): void {
+    this.clientForm.get("villeId").valueChanges.subscribe((val) => {
+      this.getDelegations(val);
+    });
+  }
+  onChangesModify(): void {
+    this.clientModifyForm.get("villeId").valueChanges.subscribe((val) => {
+      this.getDelegations(val);
+    });
+  }
+
   getDelegations(villeId: any) {
     this.delegationService.getDelegationsByVille(villeId).subscribe((data) => {
       this.delegations = data;
@@ -142,8 +164,8 @@ export class GestionClientComponent implements OnInit {
 
   // get our data from backend
   getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
-    this.clientService
-      .getClients(limit, page, sortBy, sort, search)
+    this.fournisseurService
+      .getFournisseurs(limit, page, sortBy, sort, search)
       .subscribe((data) => {
         this.rows = this.temp = data;
       });
@@ -181,7 +203,7 @@ export class GestionClientComponent implements OnInit {
   }
 
   private countClients() {
-    this.clientService.countAllClients().subscribe((res) => {
+    this.fournisseurService.countAllFournisseurs().subscribe((res) => {
       this.count = res.count;
       console.log(this.count);
     });
@@ -219,13 +241,15 @@ export class GestionClientComponent implements OnInit {
 
   closeModal(modal) {
     this.clientForm.value.nom = this.clientForm.value.nom.toLowerCase();
+    this.clientForm.password = this.DEFAULT_PASSWORD;
 
     console.log(this.clientForm.value);
 
-    this.clientService.createClient(this.clientForm.value).subscribe(
+    this.fournisseurService.createFournisseur(this.clientForm.value).subscribe(
       (res) => {
         this.error = "none";
         this.clientForm.reset();
+        this.delegations = "";
         this.getDataJson();
         modal.close("Cross click");
       },
@@ -237,6 +261,7 @@ export class GestionClientComponent implements OnInit {
 
   dismissModal(modal) {
     this.clientForm.reset();
+    this.delegations = "";
     modal.dismiss("Cross click");
   }
 
@@ -256,7 +281,7 @@ export class GestionClientComponent implements OnInit {
   // delete client
   delete(data) {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce client?")) {
-      this.clientService.deleteClient(data._id).subscribe(() => {
+      this.fournisseurService.deleteFournisseur(data._id).subscribe(() => {
         console.log("utilisateur supprimé");
         this.getDataJson();
       });
@@ -278,11 +303,16 @@ export class GestionClientComponent implements OnInit {
   // confirm client modification
   save() {
     console.log(this.clientModifyForm.value);
-    this.clientService
-      .updateClient(this.clientId, this.clientModifyForm.value)
+    this.fournisseurService
+      .updateFournisseur(this.clientId, this.clientModifyForm.value)
       .subscribe((data) => {
         console.log(data);
         this.router.navigate(["/gestion-client"]);
       });
+  }
+
+  //SHOW DEFAULT PASSWORD
+  showDefaultPassword() {
+    alert("Mot de passe par défaut est: " + this.DEFAULT_PASSWORD);
   }
 }

@@ -1,22 +1,13 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-var PickupSchema = new Schema(
+var RoadmapSchema = new Schema(
   {
-    pickupNb: {
+    roadmapNb: {
       type: Number,
       required: true,
       default: 1,
       unique: true,
-    },
-    isAllocated: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
-    fournisseurId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Delegation",
     },
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -35,8 +26,8 @@ var PickupSchema = new Schema(
   }
 );
 
-const Pickup = mongoose.model("Pickup", PickupSchema);
+const Roadmap = mongoose.model("Roadmap", RoadmapSchema);
 
 module.exports = {
-  Pickup,
+  Roadmap,
 };

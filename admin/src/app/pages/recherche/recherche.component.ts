@@ -9,14 +9,7 @@ import {
 import { PackageService } from "src/app/services/package.service";
 import { ClientService } from "src/app/services/client.service";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
-import {
-  FormGroup,
-  FormBuilder,
-  FormControl,
-  Validators,
-} from "@angular/forms";
-import { startWith } from "rxjs";
-import { AuthenticationService } from "src/app/services/authentication.service";
+import { FormGroup, FormBuilder } from "@angular/forms";
 import { HistoriqueService } from "src/app/services/historique.service";
 
 @Component({
@@ -51,17 +44,6 @@ export class RechercheComponent implements OnInit {
     { state: "livré", viewState: "Livré le " },
     { state: "annulé", viewState: "Annulé le " },
     { state: "payé", viewState: "Payé le " },
-  ];
-  historic2: any = [
-    { nouveau: "Colis créé le " },
-    { pret: "Colis modifié le " },
-    { collecté: "Collecté" },
-    { "ramassé par livreur": "Rammasé par livreur le " },
-    { "en cours": "En cours" },
-    { reporté: "Reporté" },
-    { livré: "Livré le " },
-    { annulé: "Annulé le " },
-    { payé: "Payé le " },
   ];
 
   constructor(
@@ -126,7 +108,9 @@ export class RechercheComponent implements OnInit {
   }
 
   public deleteState(historique) {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cet état de l'historique?")) {
+    if (
+      confirm("Êtes-vous sûr de vouloir supprimer cet état de l'historique?")
+    ) {
       this.historiqueService.deleteHistorique(historique._id).subscribe(() => {
         this.getActors(
           this.packageCAB,

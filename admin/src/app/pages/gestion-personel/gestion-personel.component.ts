@@ -25,6 +25,8 @@ export class GestionPersonelComponent implements OnInit {
   @ViewChild(alert) alert: any;
   @ViewChild("myEl") el: ElementRef;
 
+  DEFAULT_PASSWORD: string = "123456";
+
   success: boolean = false;
 
   public currentPageLimit: number = 10;
@@ -71,7 +73,6 @@ export class GestionPersonelComponent implements OnInit {
         { prop: "role", name: "Type" },
         { prop: "nom", name: "Nom & prénom" },
         { prop: "tel", name: "Téléphone" },
-        { prop: "password", name: "Mot de passe" },
         { prop: "createdAtSearch", name: "Date" },
       ];
 
@@ -95,7 +96,7 @@ export class GestionPersonelComponent implements OnInit {
       this.getDataJson();
       this.getFilieres();
       // adding super admin control protection => && this.userId != this.auth.getUserDetails()._id
-    } else if (this.routePath == 'modifier-personel') {
+    } else if (this.routePath == "modifier-personel") {
       this.userModifyForm = this.fb.group({
         role: ["", Validators.required],
         nom: ["", Validators.required],
@@ -209,7 +210,7 @@ export class GestionPersonelComponent implements OnInit {
 
   closeModal(modal) {
     this.userForm.value.nom = this.userForm.value.nom.toLowerCase();
-    this.userForm.value.password = "123456";
+    this.userForm.value.password = this.DEFAULT_PASSWORD;
 
     console.log(this.userForm.value);
 
@@ -265,5 +266,10 @@ export class GestionPersonelComponent implements OnInit {
         console.log(data);
         this.router.navigate(["/gestion-personel"]);
       });
+  }
+
+  //SHOW DEFAULT PASSWORD
+  showDefaultPassword() {
+    alert("Mot de passe par défaut est: " + this.DEFAULT_PASSWORD);
   }
 }

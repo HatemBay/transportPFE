@@ -155,7 +155,7 @@ export class CbPickupsComponent implements OnInit {
     });
   }
 
-  // count branches
+  // count pickups
   countPickups(startDate?, endDate?) {
     this.pickupService.countPickups(startDate, endDate).subscribe((data) => {
       this.count = data.count;

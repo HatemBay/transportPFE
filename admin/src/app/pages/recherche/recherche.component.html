@@ -151,7 +151,6 @@
                     <label class="form-label">Libelle marchandise : {{package.libelle}}</label>
                   </div>
                 </div>
-
                 <div class="col-sm-3">
                   <h5 class="card-title">Etat du colis</h5>
                   <hr>
@@ -172,12 +171,14 @@
         </ng-container>
       </ng-container>
       <ng-container *ngIf="routePath == 'recherche'">
-        <ng-container *ngFor="let item of packageData">
+        <ng-container *ngFor="let package of packageData">
           <div class="card mb-4" style="position: relative;">
-            <h1 class="card-header bg-primary text-white">{{item.CAB}}</h1>
+            <h1 class="card-header bg-primary text-white">{{package.CAB}}</h1>
             <div style="position: absolute; right: 1%; top: 4%;">
-              <a href="modifier_colis?code_barre=36317525" class="btn btn-sm btn-success mr-3"><i
-                  class="fa fa-edit"></i></a>
+              <ng-container *ngIf="package.etat !== 'nouveau'">
+                <a href="modifier_colis?code_barre=36317525" class="btn btn-sm btn-success mr-3"><i
+                    class="fa fa-edit"></i></a>
+              </ng-container>
               <button class="btn btn-sm btn-danger mr-3" data-toggle="modal" data-target="#deleteModal"
                 onclick="supprimer(36317525)"><i class="fa fa-trash"></i></button>
 
@@ -197,41 +198,41 @@
                   <h5 class="card-title">Coordonnées de l'expéditeur</h5>
                   <hr>
                   <div class="form-group">
-                    <label class="form-label">Téléphone : {{item.telf}}</label>
+                    <label class="form-label">Téléphone : {{package.telf}}</label>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Nom &amp; Prénom : {{item.nomf}}</label>
+                    <label class="form-label">Nom &amp; Prénom : {{package.nomf}}</label>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Ville : {{item.villef}}</label>
+                    <label class="form-label">Ville : {{package.villef}}</label>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Délegation : {{item.delegationf}}</label>
+                    <label class="form-label">Délegation : {{package.delegationf}}</label>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Adresse : {{item.adressef}}</label>
+                    <label class="form-label">Adresse : {{package.adressef}}</label>
                   </div>
                 </div>
                 <div class="col-sm-3">
                   <h5 class="card-title">Coordonnées du client</h5>
                   <hr>
                   <div class="form-group">
-                    <label class="form-label">Téléphone : {{item.telc}}</label>
+                    <label class="form-label">Téléphone : {{package.telc}}</label>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Nom &amp; Prénom : {{item.nomc}}</label>
+                    <label class="form-label">Nom &amp; Prénom : {{package.nomc}}</label>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Ville : {{item.villec}}</label>
+                    <label class="form-label">Ville : {{package.villec}}</label>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Délegation : {{item.delegationc}}</label>
+                    <label class="form-label">Délegation : {{package.delegationc}}</label>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Adresse : {{item.adressec}}</label>
+                    <label class="form-label">Adresse : {{package.adressec}}</label>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Code postale : {{item.codePostalec}}</label>
+                    <label class="form-label">Code postale : {{package.codePostalec}}</label>
                   </div>
                 </div>
 
@@ -240,27 +241,31 @@
                   <h5 class="card-title">Coordonnées de colis</h5>
                   <hr>
                   <div class="form-group">
-                    <label class="form-label h4">COD : {{item.c_remboursement}}</label>
+                    <label class="form-label h4">COD : {{package.c_remboursement}}</label>
                   </div>
                   <div class="form-group">
-                    <label class="form-label h5 text-success">Dernier etat : {{item.etat}}</label>
+                    <label class="form-label h5 text-success">Dernier etat : {{package.etat}}</label>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Service : {{item.service}}</label>
+                    <label class="form-label">Service : {{package.service}}</label>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Libelle marchandise : {{item.libelle}}</label>
+                    <label class="form-label">Libelle marchandise : {{package.libelle}}</label>
                   </div>
                 </div>
-
                 <div class="col-sm-3">
                   <h5 class="card-title">Etat du colis</h5>
                   <hr>
-                  <div class="form-group" id="etat_195905">
-                    <button class="btn btn-danger btn-sm" title="Supprimer etat"
-                      ondblclick="supp_etat(195905, 36317525)">x</button>
-                    <label class="form-label">Colis créé le 03/04/2022 à 17:57 </label>
-                  </div>
+                  <ng-container *ngFor="let historique of package.historique">
+                    <ng-container *ngIf="getIndex(historic, historique)">
+                      <div class="form-group col-12">
+                        <button class="btn btn-danger btn-sm" title="Supprimer etat"
+                          (click)="deleteState(historique)">x</button>
+                        <label class="form-label">{{historic[getIndex(historic, historique)].viewState}}
+                          {{historique?.dateFormatted}}</label>
+                      </div>
+                    </ng-container>
+                  </ng-container>
                 </div>
               </div>
             </div>

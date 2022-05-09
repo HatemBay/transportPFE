@@ -127,7 +127,7 @@
     <ng-template #editModal let-modal>
       <form class="modal-content" [formGroup]="clientForm" (ngSubmit)="closeModal(modal)">
         <div class="modal-header bg-success">
-          <h5 class="modal-title text-white">Ajouter Personel</h5>
+          <h5 class="modal-title text-white">Ajouter Client</h5>
           <button type="button" class="close text-white" aria-label="Close" (click)="dismissModal(modal)"><i
               class="fas fa-times text-white"></i></button>
         </div>
@@ -177,16 +177,16 @@
           </div> -->
           <div class="form-group">
             <label class="form-label">Ville (*)</label>
-            <select formControlName="ville" class="form-control">
+            <select formControlName="villeId" class="form-control">
               <option hidden="" value="">-- Choisir --</option>
-              <option value="sousse">Sousse </option>
-              <option value="monastir">Monastir </option>
-              <!-- <option *ngFor="let ville of villes" [value]="filiere._id">
-                {{ ville.nom | titlecase }} </option> -->
+              <!-- <option value="sousse">Sousse </option>
+              <option value="monastir">Monastir </option> -->
+              <option *ngFor="let ville of villes" [value]="ville._id">
+                {{ ville.nom | titlecase }} </option>
             </select>
             <ng-container
-              *ngIf="clientForm.controls['ville'].invalid && (clientForm.controls['ville'].dirty || clientForm.controls['ville'].touched)">
-              <ng-container *ngIf="clientForm.controls['ville'].errors?.['required']">
+              *ngIf="clientForm.controls['villeId'].invalid && (clientForm.controls['villeId'].dirty || clientForm.controls['villeId'].touched)">
+              <ng-container *ngIf="clientForm.controls['villeId'].errors?.['required']">
                 <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
                 <small class="text-danger">
                   Ville est requise.
@@ -196,16 +196,16 @@
           </div>
           <div class="form-group">
             <label class="form-label">Delegation (*)</label>
-            <select formControlName="delegation" class="form-control">
+            <select formControlName="delegationId" class="form-control">
               <option hidden="" value="">-- Choisir --</option>
-              <option value="sousse">Sousse</option>
-              <option value="ben arous">Ben Arous</option>
-              <!-- <option *ngFor="let delegation of delegations" [value]="filiere._id">
-                {{ delegation.nom | titlecase }} </option> -->
+              <!-- <option value="sousse">Sousse</option>
+              <option value="ben arous">Ben Arous</option> -->
+              <option *ngFor="let delegation of delegations" [value]="delegation._id">
+                {{ delegation.nom | titlecase }} </option>
             </select>
             <ng-container
-              *ngIf="clientForm.controls['delegation'].invalid && (clientForm.controls['delegation'].dirty || clientForm.controls['delegation'].touched)">
-              <ng-container *ngIf="clientForm.controls['delegation'].errors?.['required']">
+              *ngIf="clientForm.controls['delegationId'].invalid && (clientForm.controls['delegationId'].dirty || clientForm.controls['delegationId'].touched)">
+              <ng-container *ngIf="clientForm.controls['delegationId'].errors?.['required']">
                 <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
                 <small class="text-danger">
                   Delegation est requise.
@@ -292,14 +292,14 @@
                 </div> -->
                 <div class="form-group">
                   <label class="form-label">Ville (*)</label>
-                  <select formControlName="ville" class="form-control" (change)="getDelegations($event.target.value)">
+                  <select formControlName="villeId" class="form-control">
                     <option hidden="" value="">-- Choisir --</option>
                     <option *ngFor="let ville of villes" [value]="ville._id">
                       {{ ville.nom | titlecase }} </option>
                   </select>
                   <ng-container
-                    *ngIf="clientModifyForm.controls['ville'].invalid && (clientModifyForm.controls['ville'].dirty || clientModifyForm.controls['ville'].touched)">
-                    <ng-container *ngIf="clientModifyForm.controls['ville'].errors?.['required']">
+                    *ngIf="clientModifyForm.controls['villeId'].invalid && (clientModifyForm.controls['villeId'].dirty || clientModifyForm.controls['villeId'].touched)">
+                    <ng-container *ngIf="clientModifyForm.controls['villeId'].errors?.['required']">
                       <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
                       <small class="text-danger">
                         Ville est requise.
@@ -309,14 +309,14 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">Delegation (*)</label>
-                  <select formControlName="delegation" class="form-control">
+                  <select formControlName="delegationId" class="form-control">
                     <option hidden="" value="">-- Choisir --</option>
                     <option *ngFor="let delegation of delegations" [value]="delegation._id">
                       {{ delegation.nom | titlecase }} </option>
                   </select>
                   <ng-container
-                    *ngIf="clientModifyForm.controls['delegation'].invalid && (clientModifyForm.controls['delegation'].dirty || clientModifyForm.controls['delegation'].touched)">
-                    <ng-container *ngIf="clientModifyForm.controls['delegation'].errors?.['required']">
+                    *ngIf="clientModifyForm.controls['delegationId'].invalid && (clientModifyForm.controls['delegationId'].dirty || clientModifyForm.controls['delegationId'].touched)">
+                    <ng-container *ngIf="clientModifyForm.controls['delegationId'].errors?.['required']">
                       <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
                       <small class="text-danger">
                         Delegation est requise.

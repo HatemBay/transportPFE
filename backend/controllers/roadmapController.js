@@ -5,10 +5,10 @@ const { Fournisseur } = require("../models/fournisseur");
 var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
 
-var { Pickup } = require("../models/pickup");
+var { Roadmap } = require("../models/roadmap");
 const { User } = require("../models/users");
 
-// get pickups
+// get roadmaps
 router.get("/", (req, res) => {
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
@@ -46,15 +46,6 @@ router.get("/", (req, res) => {
   var data = [
     {
       $lookup: {
-        from: "fournisseurs",
-        localField: "fournisseurId",
-        foreignField: "_id",
-        as: "fournisseurs",
-      },
-    },
-    { $unwind: "$fournisseurs" },
-    {
-      $lookup: {
         from: "users",
         localField: "driverId",
         foreignField: "_id",
@@ -73,24 +64,6 @@ router.get("/", (req, res) => {
     { $unwind: { path: "$vehicules", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
-        from: "delegations",
-        localField: "fournisseurs.delegationId",
-        foreignField: "_id",
-        as: "delegations",
-      },
-    },
-    { $unwind: "$delegations" },
-    {
-      $lookup: {
-        from: "villes",
-        localField: "delegations.villeId",
-        foreignField: "_id",
-        as: "villes",
-      },
-    },
-    { $unwind: "$villes" },
-    {
-      $lookup: {
         from: "packages",
         localField: "packages",
         foreignField: "_id",
@@ -100,14 +73,7 @@ router.get("/", (req, res) => {
     {
       $project: {
         _id: 1,
-        pickupNb: 1,
-        isAllocated: "$isAllocated",
-        fournisseurId: "$fournisseurs._id",
-        nomf: "$fournisseurs.nom",
-        telf: "$fournisseurs.tel",
-        tel2f: "$fournisseurs.tel2",
-        delegationf: "$delegations.nom",
-        villef: "$villes.nom",
+        roadmapNb: 1,
         driverId: 1,
         nomd: "$drivers.nom",
         nomv: "$vehicules.serie",
@@ -136,14 +102,7 @@ router.get("/", (req, res) => {
       $sort: sort,
     }
   );
-  if (req.query.isAllocated) {
-    var isAllocated = req.query.isAllocated === "true";
-    data.push({
-      $match: {
-        isAllocated: isAllocated,
-      },
-    });
-  }
+
   if (startDate && endDate) {
     data.push({
       $match: {
@@ -154,46 +113,32 @@ router.get("/", (req, res) => {
       },
     });
   }
-  Pickup.aggregate(data).exec((err, pickups) => {
+  Roadmap.aggregate(data).exec((err, roadmaps) => {
     if (!err) {
       if (req.query.search) {
         res.send(
-          pickups.filter(
+          roadmaps.filter(
             (item) =>
-              item.nomf
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.villef
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.delegationf
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase())
+              item.roadmapNb.toString().includes(req.query.search) ||
+              item.nbPackages.toString().includes(req.query.search) ||
+              item.createdAtSearch.toString().includes(req.query.search) ||
+              item.nomd?.toLowerCase().includes(req.query.search.toLowerCase())
           )
         );
-      } else res.send(pickups);
+      } else res.send(roadmaps);
     } else {
       res
         .status(400)
-        .send("Erreur lors de la récupération des pickups: " + err);
+        .send("Erreur lors de la récupération des feuilles de route: " + err);
     }
   });
 });
 
-// get pickup
+// get roadmap
 router.get("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
   var data = [
-    {
-      $lookup: {
-        from: "fournisseurs",
-        localField: "fournisseurId",
-        foreignField: "_id",
-        as: "fournisseurs",
-      },
-    },
-    { $unwind: "$fournisseurs" },
     {
       $lookup: {
         from: "drivers",
@@ -205,34 +150,28 @@ router.get("/:id", (req, res) => {
     { $unwind: { path: "$drivers", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
-        from: "delegations",
-        localField: "fournisseurs.delegationId",
+        from: "vehicules",
+        localField: "drivers.vehiculeId",
         foreignField: "_id",
-        as: "delegations",
+        as: "vehicules",
       },
     },
-    { $unwind: "$delegations" },
+    { $unwind: { path: "$vehicules", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
-        from: "villes",
-        localField: "delegations.villeId",
+        from: "packages",
+        localField: "packages",
         foreignField: "_id",
-        as: "villes",
+        as: "packages",
       },
     },
-    { $unwind: "$villes" },
     {
       $project: {
         _id: 1,
-        pickupNb: 1,
-        isAllocated: "$isAllocated",
-        fournisseurId: "$fournisseurs._id",
-        nomf: "$fournisseurs.nom",
-        telf: "$fournisseurs.tel",
-        tel2f: "$fournisseurs.tel2",
-        delegationf: "$delegations.nom",
-        villef: "$villes.nom",
+        roadmapNb: 1,
+        driverId: 1,
         nomd: "$drivers.nom",
+        nomv: "$vehicules.serie",
         packages: "$packages",
         nbPackages: { $size: "$packages" },
         createdAt: 1,
@@ -246,38 +185,41 @@ router.get("/:id", (req, res) => {
       $match: { _id: ObjectId(req.params.id) },
     },
   ];
-  Pickup.aggregate(data).exec((err, pickup) => {
-    if (!err) res.send(pickup);
-    else console.log("Erreur lors de la récupération du pickup: " + err);
+  Roadmap.aggregate(data).exec((err, roadmap) => {
+    if (!err) res.send(roadmap);
+    else
+      console.log("Erreur lors de la récupération du feuille de route: " + err);
   });
 });
 
-// create pickup
+// create roadmap
 router.post("/", (req, res) => {
-  const pickup = new Pickup();
-  Pickup.find()
-    .sort({ pickupNb: -1 })
+  const roadmap = new Roadmap();
+  Roadmap.find()
+    .sort({ roadmapNb: -1 })
     .limit(1)
-    .exec((err, pickups) => {
-      if (err || !pickups.length) {
-        console.log("Erreur dans la récupération du nombre de pickup");
+    .exec((err, roadmaps) => {
+      if (err || !roadmaps.length) {
+        console.log(
+          "Erreur dans la récupération du nombre du feuille de route"
+        );
         return res
           .status(404)
-          .send("Erreur dans la récupération du nombre de pickup");
+          .send("Erreur dans la récupération du nombre du feuille de route");
       }
-      pickup.pickupNb = pickups[0].pickupNb + 1 || 1;
-      pickup.fournisseurId = req.body.fournisseurId;
-      pickup.packages = req.body.packages;
+      roadmap.roadmapNb = roadmaps[0].roadmapNb + 1 || 1;
+      roadmap.fournisseurId = req.body.fournisseurId;
+      roadmap.packages = req.body.packages;
 
-      pickup.save().then(
-        (pickup) => {
+      roadmap.save().then(
+        (roadmap) => {
           Fournisseur.findByIdAndUpdate(
             req.body.fournisseurId,
-            { $push: { pickups: pickup._id } },
+            { $push: { roadmaps: roadmap._id } },
             { new: true, useFindAndModify: false }
           ).then(
             () => {
-              return res.status(201).send(pickup);
+              return res.status(201).send(roadmap);
             },
             (err2) => {
               console.log(
@@ -288,15 +230,15 @@ router.post("/", (req, res) => {
           );
         },
         (err) => {
-          console.log("Erreur lors de la création du pickup: " + err);
+          console.log("Erreur lors de la création du feuille de route: " + err);
           return res.status(400).send(err.message);
         }
       );
     });
-  // pickup.pickupNb = pickupNb;
+  // roadmap.roadmapNb = roadmapNb;
 });
 
-// modify pickup
+// modify roadmap
 router.put("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
@@ -304,7 +246,7 @@ router.put("/:id", (req, res) => {
   var query;
 
   if (req.body.driverId) {
-    query = Pickup.findByIdAndUpdate(
+    query = Roadmap.findByIdAndUpdate(
       req.params.id,
       {
         $set: {
@@ -317,17 +259,19 @@ router.put("/:id", (req, res) => {
       () => {
         User.findByIdAndUpdate(
           req.body.driverId,
-          { $push: { pickups: req.params.id } },
+          { $push: { roadmaps: req.params.id } },
           { new: true, useFindAndModify: false }
         );
       },
       (err) => {
-        console.log("Erreur lors de la mise à jour du pickup: " + err);
+        console.log(
+          "Erreur lors de la mise à jour du feuille de route: " + err
+        );
         return res.status(400).send(err.message);
       }
     );
   } else if (req.body.isAllocated == 0) {
-    query = Pickup.findByIdAndUpdate(
+    query = Roadmap.findByIdAndUpdate(
       req.params.id,
       {
         $push: {
@@ -339,31 +283,31 @@ router.put("/:id", (req, res) => {
   }
 
   query.then(
-    (pickup) => {
-      return res.status(200).send(pickup);
+    (roadmap) => {
+      return res.status(200).send(roadmap);
     },
     (err) => {
-      console.log("Erreur lors du mis à jour du pickup: " + err);
+      console.log("Erreur lors du mis à jour du feuille de route: " + err);
       return res
         .status(400)
-        .send("Erreur lors du mis à jour du pickup: " + err);
+        .send("Erreur lors du mis à jour du feuille de route: " + err);
     }
   );
 });
 
-// delete pickup
-// *** technically pickup can't be deleted ***
+// delete roadmap
+// *** technically roadmap can't be deleted ***
 // router.delete("/:id", (req, res) => {
 //   if (!ObjectId.isValid(req.params.id))
 //     return res.status(400).send(`no record with given id ${req.params.id}`);
-//   Pickup.findByIdAndRemove(req.params.id, (err, doc) => {
+//   Roadmap.findByIdAndRemove(req.params.id, (err, doc) => {
 //     if (!err) {
 //       res.status(200);
 //       res.json({
-//         message: "pickup supprimée avec succès",
+//         message: "roadmap supprimée avec succès",
 //       });
 //     } else {
-//       console.log("Erreur dans la suppression du pickup: " + err);
+//       console.log("Erreur dans la suppression du feuille de route: " + err);
 //       res.status(400).send(err.message);
 //     }
 //   });
@@ -404,7 +348,7 @@ router.get("/count/all", (req, res) => {
       $lte: new Date(endYear, endMonth, endDay, 23, 59, 59, 999),
     };
   }
-  var query = Pickup.find(queryObj);
+  var query = Roadmap.find(queryObj);
   query.count((err, count) => {
     if (!err) {
       res.send({ count: count });
@@ -416,7 +360,7 @@ router.get("/count/all", (req, res) => {
 });
 
 router.get("count-colis/:id", (req, res) => {
-  Pickup.find({ _id: req.params.id }).then(
+  Roadmap.find({ _id: req.params.id }).then(
     (res) => {
       res.send({ count: res.packages.length });
     },

@@ -85,14 +85,21 @@ export class PickupService {
   }
 
   // Count pickups
-  countPickups(startDate?: any, endDate?: any): Observable<any> {
+  countPickups(
+    isAllocated?: any,
+    startDate?: any,
+    endDate?: any
+  ): Observable<any> {
     let url = `${this.baseUri}/count/all`;
     var queryParams = new HttpParams();
+    if (isAllocated) {
+      queryParams = queryParams.append("isAllocated", isAllocated);
+    }
     if (startDate) {
-      startDate = queryParams.append("startDate", startDate || "");
+      queryParams = queryParams.append("startDate", startDate);
     }
     if (endDate) {
-      queryParams = queryParams.append("endDate", endDate || "");
+      queryParams = queryParams.append("endDate", endDate);
     }
 
     return this.http

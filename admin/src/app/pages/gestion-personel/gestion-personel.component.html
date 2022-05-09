@@ -18,6 +18,9 @@
             <div class="row mb-4">
               <div class="col-8">Gestion Personel </div>
               <div class="col-4 text-right">
+                <button [routerLink]="" (click)="showDefaultPassword()" class="btn btn-sm btn-primary" title="afficher mot de passe par défault">
+                  <i class="fas fa-eye"></i>
+                </button>
                 <button [formGroup]="userForm" (click)="addModal()" data-target=""
                   class="m-0 float-right btn btn-success btn-sm">
                   Ajouter <i class="fas fa-plus"></i>

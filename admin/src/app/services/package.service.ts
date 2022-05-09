@@ -213,7 +213,7 @@ export class PackageService {
       queryParams = queryParams.append("etat", etat || "");
     }
     if (startDate) {
-      startDate = queryParams.append("startDate", startDate || "");
+      queryParams = queryParams.append("startDate", startDate || "");
     }
     if (endDate) {
       queryParams = queryParams.append("endDate", endDate || "");

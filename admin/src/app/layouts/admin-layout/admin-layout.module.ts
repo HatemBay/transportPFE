@@ -30,6 +30,7 @@ import { CbCollecteComponent } from '../../pages/cb-collecte/cb-collecte.compone
 import { CbFeuilleRouteComponent } from '../../pages/cb-feuille-route/cb-feuille-route.component';
 import { CbFeuilleRetourComponent } from '../../pages/cb-feuille-retour/cb-feuille-retour.component';
 import { NgxBarcodeModule } from "ngx-barcode";
+import { CbDebriefComponent } from '../../pages/cb-debrief/cb-debrief.component';
 
 
 // import { NgxPrintModule } from 'ngx-print';
@@ -69,6 +70,7 @@ import { NgxBarcodeModule } from "ngx-barcode";
     CbCollecteComponent,
     CbFeuilleRouteComponent,
     CbFeuilleRetourComponent,
+    CbDebriefComponent,
   ],
   providers: [NgbActiveModal],
 })

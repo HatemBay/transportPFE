@@ -73,10 +73,10 @@
             <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
                 <span>
-                  <button [routerLink]="" (click)="delete(row)" class="btn btn-primary btn-sm rounded-circle">
+                  <button [routerLink]="" title="Gestion" (click)="delete(row)" class="btn btn-primary btn-sm rounded-circle">
                     <i class="fa fa-barcode"></i>
                   </button>
-                  <button [routerLink]="" (click)="delete(row)" class="btn btn-info mr-2 btn-sm rounded-circle">
+                  <button [routerLink]="" title="Bilan" (click)="delete(row)" class="btn btn-info mr-2 btn-sm rounded-circle">
                     <i class="fa fa-tasks"></i>
                   </button>
                 </span>
