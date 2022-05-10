@@ -52,7 +52,7 @@ export class CbPickupsComponent implements OnInit {
   chauffeurs: any;
   init: boolean = false;
   isAllocated: string = "false";
-  routePath: any;
+  routePath: string;
   constructor(
     private fb: FormBuilder,
     private pickupService: PickupService,

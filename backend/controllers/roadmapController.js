@@ -1,6 +1,7 @@
 const express = require("express");
 const { parse } = require("path");
 const { Fournisseur } = require("../models/fournisseur");
+const { Package } = require("../models/package");
 
 var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
@@ -53,6 +54,17 @@ router.get("/", (req, res) => {
       },
     },
     { $unwind: { path: "$drivers", preserveNullAndEmptyArrays: true } },
+    // {
+    //   $lookup: {
+    //     from: "users",
+    //     localField: "warehouseManagers",
+    //     foreignField: "_id",
+    //     as: "warehouseManagers",
+    //   },
+    // },
+    // {
+    //   $unwind: { path: "$warehouseManagers", preserveNullAndEmptyArrays: true },
+    // },
     {
       $lookup: {
         from: "vehicules",
@@ -77,14 +89,12 @@ router.get("/", (req, res) => {
         driverId: 1,
         nomd: "$drivers.nom",
         nomv: "$vehicules.serie",
+        // whManagerId: 1,
+        // nomMan: "$warehouseManagers.nom",
         packages: "$packages",
         nbPackages: { $size: "$packages" },
         createdAt: 1,
         updatedAt: 1,
-      },
-    },
-    {
-      $addFields: {
         createdAtSearch: {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
         },
@@ -148,6 +158,17 @@ router.get("/:id", (req, res) => {
       },
     },
     { $unwind: { path: "$drivers", preserveNullAndEmptyArrays: true } },
+    // {
+    //   $lookup: {
+    //     from: "users",
+    //     localField: "warehouseManagers",
+    //     foreignField: "_id",
+    //     as: "warehouseManagers",
+    //   },
+    // },
+    // {
+    //   $unwind: { path: "$warehouseManagers", preserveNullAndEmptyArrays: true },
+    // },
     {
       $lookup: {
         from: "vehicules",
@@ -172,6 +193,8 @@ router.get("/:id", (req, res) => {
         driverId: 1,
         nomd: "$drivers.nom",
         nomv: "$vehicules.serie",
+        // whManagerId: 1,
+        // nomMan: "$warehouseManagers.nom",
         packages: "$packages",
         nbPackages: { $size: "$packages" },
         createdAt: 1,
@@ -194,12 +217,11 @@ router.get("/:id", (req, res) => {
 
 // create roadmap
 router.post("/", (req, res) => {
-  const roadmap = new Roadmap();
   Roadmap.find()
     .sort({ roadmapNb: -1 })
     .limit(1)
-    .exec((err, roadmaps) => {
-      if (err || !roadmaps.length) {
+    .exec(async (err, roadmaps) => {
+      if (err) {
         console.log(
           "Erreur dans la récupération du nombre du feuille de route"
         );
@@ -207,23 +229,47 @@ router.post("/", (req, res) => {
           .status(404)
           .send("Erreur dans la récupération du nombre du feuille de route");
       }
-      roadmap.roadmapNb = roadmaps[0].roadmapNb + 1 || 1;
-      roadmap.fournisseurId = req.body.fournisseurId;
-      roadmap.packages = req.body.packages;
+
+      const roadmap = new Roadmap();
+      if (roadmaps.length > 0) {
+        roadmap.roadmapNb = roadmaps[0].roadmapNb + 1;
+      }
+
+      var packages = [];
+
+      for (const package of req.body.packages) {
+        packages.push(await Package.findOne({ CAB: package }));
+      }
+      var packageIds = [];
+      packages.forEach((element) => {
+        packageIds.push(element._id);
+      });
+
+      roadmap.driverId = req.body.driverId;
+      // roadmap.whManagerId = req.body.whManagerId;
+      roadmap.packages = packageIds;
 
       roadmap.save().then(
         (roadmap) => {
-          Fournisseur.findByIdAndUpdate(
-            req.body.fournisseurId,
+          User.findByIdAndUpdate(
+            req.body.driverId,
             { $push: { roadmaps: roadmap._id } },
             { new: true, useFindAndModify: false }
           ).then(
             () => {
-              return res.status(201).send(roadmap);
+              () => {
+                return res.status(201).send(roadmap);
+              },
+                (err3) => {
+                  console.log(
+                    "Erreur lors de la mise à jour du chef de depot: " + err3
+                  );
+                  return res.status(400).send(err3);
+                };
             },
             (err2) => {
               console.log(
-                "Erreur lors de la mise à jour du fournisseur: " + err2
+                "Erreur lors de la mise à jour du chauffeur: " + err2
               );
               return res.status(400).send(err2);
             }
@@ -245,42 +291,29 @@ router.put("/:id", (req, res) => {
 
   var query;
 
-  if (req.body.driverId) {
-    query = Roadmap.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          driverId: req.body.driverId,
-          isAllocated: 1,
-        },
+  // roadmaps can't be modified so just in case there's a need to change a driver we have this code
+  query = Roadmap.findByIdAndUpdate(
+    req.params.id,
+    {
+      $set: {
+        driverId: req.body.driverId,
+        isAllocated: 1,
       },
-      { new: true }
-    ).then(
-      () => {
-        User.findByIdAndUpdate(
-          req.body.driverId,
-          { $push: { roadmaps: req.params.id } },
-          { new: true, useFindAndModify: false }
-        );
-      },
-      (err) => {
-        console.log(
-          "Erreur lors de la mise à jour du feuille de route: " + err
-        );
-        return res.status(400).send(err.message);
-      }
-    );
-  } else if (req.body.isAllocated == 0) {
-    query = Roadmap.findByIdAndUpdate(
-      req.params.id,
-      {
-        $push: {
-          packages: req.body.packages,
-        },
-      },
-      { new: true }
-    );
-  }
+    },
+    { new: true }
+  ).then(
+    () => {
+      User.findByIdAndUpdate(
+        req.body.driverId,
+        { $push: { roadmaps: req.params.id } },
+        { new: true, useFindAndModify: false }
+      );
+    },
+    (err) => {
+      console.log("Erreur lors de la mise à jour du feuille de route: " + err);
+      return res.status(400).send(err.message);
+    }
+  );
 
   query.then(
     (roadmap) => {

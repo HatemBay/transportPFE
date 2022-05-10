@@ -46,6 +46,7 @@ export const AdminLayoutRoutes: Routes = [
   { path: "ramassage", component: CbRamassageComponent },
   { path: "collecte", component: CbCollecteComponent },
   { path: "feuille-de-route", component: CbFeuilleRouteComponent },
+  { path: "feuille-de-route-historique", component: CbFeuilleRouteComponent },
   { path: "feuille-de-retour", component: CbFeuilleRetourComponent },
   { path: "debrief", component: CbDebriefComponent },
 

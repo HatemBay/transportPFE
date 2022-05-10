@@ -259,7 +259,7 @@ router.post("/", (req, res) => {
     .sort({ pickupNb: -1 })
     .limit(1)
     .exec((err, pickups) => {
-      if (err || !pickups.length) {
+      if (err) {
         console.log("Erreur dans la récupération du nombre de pickup");
         return res
           .status(404)

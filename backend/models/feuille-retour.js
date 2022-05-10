@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-var RoadmapSchema = new Schema(
+var FeuilleRetourSchema = new Schema(
   {
-    roadmapNb: {
+    feuilleTetourNb: {
       type: Number,
       required: true,
       default: 1,
@@ -30,8 +30,8 @@ var RoadmapSchema = new Schema(
   }
 );
 
-const Roadmap = mongoose.model("Roadmap", RoadmapSchema);
+const FeuilleRetour = mongoose.model("FeuilleRetour", FeuilleRetourSchema);
 
 module.exports = {
-  Roadmap,
+  FeuilleRetour,
 };

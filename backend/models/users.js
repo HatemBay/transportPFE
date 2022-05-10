@@ -61,6 +61,18 @@ var UserSchema = new Schema(
         ref: "Package",
       }
     ],
+    roadmaps: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Roadmap",
+      }
+    ],
+    returnSheets: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeuilleRetour",
+      }
+    ],
   },
   {
     timestamps: true,
