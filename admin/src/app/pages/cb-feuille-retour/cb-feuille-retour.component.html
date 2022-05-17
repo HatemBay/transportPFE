@@ -1,1 +1,299 @@
-<p>cb-feuille-retour works!</p>
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <!-- ************************ START: PATH = FEUILLE-DE-ROUTE (1) ************************ -->
+    <ng-container *ngIf="routePath == 'feuille-de-retour'">
+      <div class="header-body">
+        <div class="row">
+          <div class="col-lg-12 mb-4">
+            <div class="card mb-4 text-center">
+              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+                style="border-bottom: 1px solid #eee;">
+                <h5 class="m-0 font-weight-bold text-primary">Feuille de route (Elle donne l'état 'Retourné à')</h5>
+                <a [routerLink]="['/feuille-de-route-historique']" class="m-0 float-right btn btn-primary btn-sm">
+                  Historique
+                </a>
+              </div>
+              <div class="card-body form-inline d-flex justify-content-center">
+                <form [formGroup]="fournisseursForm" class="input-group col-lg-4">
+                  <select formControlName="chauffeurs" id="chauffeur" class="form-control" name="chauffeur">
+                    <option value="" hidden="">-- Choisir fournisseur--</option>
+                    <option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur._id">{{fournisseur.nom}} </option>
+                  </select>
+                </form>
+                <div class="input-group col-lg-2">
+                  <button [routerLink]="" [disabled]="fournisseursForm.invalid" class="btn btn-sm btn-primary btn-block"
+                    (click)="getPackagesByProvider(fournisseur._id)"><i class="fa fa-check"></i>
+                    Valider</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <!-- ************************ END: PATH = FEUILLE-DE-ROUTE (1) ************************ -->
+  </div>
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <!-- ************************ START: PATH = FEUILLE-DE-ROUTE (2) ************************ -->
+  <ng-container *ngIf="routePath == 'feuille-de-retour'">
+    <!-- Table -->
+    <div class="row" [ngClass]="[display]">
+      <div class="col">
+        <div class="card shadow">
+          <div class="card mb-4" id="show">
+            <div class="card-body">
+              <form [formGroup]="referenceForm" class="row">
+                <div class="col-sm-3 offset-1">
+                  <div class="form-group text-right">
+                    <label class="form-label">Réference,<br> <b><u>un</u></b> sur chaque ligne :</label>
+                  </div>
+                </div>
+                <div class="col-sm-2">
+                  <div class="form-group">
+                    <input type="hidden" name="date" id="date_show" value="2022-05-04">
+                    <input type="hidden" name="chauffeur" id="chauffeur_show" value="11">
+                    <input type="hidden" name="vehicule" id="vehicule_show">
+                    <input type="hidden" name="user" value="XTw=">
+                    <textarea formControlName="references" name="code_barre" id="ingredients_list" class="form-control"
+                      rows="17"></textarea>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <button [disabled]="referenceForm.invalid" (click)="printRoadmap()" name=""
+                      class="btn btn-primary btn-sm px-5">Imprimer la feuille de route</button>
+                    <div *ngIf="error" class="alert alert-danger mt-4">
+                      <span class="closebtn"
+                        onclick="this.parentElement.style.display='none'; error = false;">&times;</span>
+                      <ng-container *ngFor="let item of index">
+                        Erreur dans la ligne {{item+1}}
+                        <br>
+                      </ng-container>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <!-- ************************ END: PATH = FEUILLE-DE-ROUTE (2) ************************ -->
+  <!-- ************************ START: PATH = FEUILLE-DE-ROUTE-HISTORIQUE (2) ************************ -->
+  <!-- <ng-container *ngIf="routePath == 'feuille-de-route-historique'">
+    <div class="row">
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-header">
+            <div class="row mb-4">
+              <div class="col-8">Historique: </div>
+            </div>
+            <div class="row">
+              <div class="col-6 pr-4">
+                <div class="row">
+                  <div class="col-2">
+                    <label for="per-page">
+                      Afficher
+                    </label>
+                  </div>
+                  <div class="col-2">
+                    <select class="form-control" id="per-page" (change)="onLimitChange($event.target.value)">
+                      <option *ngFor="let option of pageLimitOptions" [value]="option.value"
+                        [selected]="option.value == currentPageLimit">
+                        {{ option.value }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label for="per-page">
+                      éléments
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+              <div class="col-6 float-right" style="padding-left: 300px !important;">
+                <input #search class="form-control" type="text" placeholder="Rechercher" (keyup)="updateFilter($event)"
+                  autocomplete="false" />
+              </div>
+            </div>
+          </div>
+          <div>
+            <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
+              [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
+              (sort)="onSort($event)">
+
+              <ngx-datatable-column *ngFor="let column of columns;
+        let i = index;" name="{{column.name}}" prop="{{column.prop}}">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span *ngIf="row[column.prop] !== undefined">
+                    {{row[column.prop] + '' | titlecase }}
+                  </span>
+                  <span *ngIf="row[column.prop] === undefined">
+                    -
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
+                  <a [routerLink]="" (click)="toFacture(row)" class="btn btn-sm btn-primary rounded-circle">
+                    <i class="fa fa-eye"></i>
+                  </a>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-footer>
+                <ng-template ngx-datatable-footer-template let-rowCount="count" let-pageSize="pageSize"
+                  let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
+                  <div class="pl-2">
+                    Elements: {{ count }} | Taille: {{ pageSize }} | Page:
+                    {{ curPage }}
+                  </div>
+                  <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'"
+                    [pagerRightArrowIcon]="'datatable-icon-right'" [pagerPreviousIcon]="'datatable-icon-prev'"
+                    [pagerNextIcon]="'datatable-icon-skip'" [page]="curPage" [size]="pageSize" [count]="count"
+                    [hidden]="!((count / pageSize) > 1)" (change)="onFooterPage($event)">
+                  </datatable-pager>
+                </ng-template>
+              </ngx-datatable-footer>
+            </ngx-datatable>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container> -->
+  <!-- ************************ START: PATH = FEUILLE-DE-ROUTE-HISTORIQUE (2) ************************ -->
+</div>
+
+
+<!-- <div id="hiddenRoadmapHistoric" hidden class="dt-print-view">
+  <div class="my-3 my-md-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <div class="" style="border: 1px solid #eee">
+            <div class="card-body pt-0">
+              <div class="row">
+                <div class="col-md-6">
+                  <img src="" style=" height: 180px; float: left; margin-right: 25px;">
+                  <h5>Colis Express</h5>
+                  <h5>MF : 1737963/W</h5>
+                  <h5>TEL : 26 539 959</h5>
+                  <h5>ADRESSE : El jem</h5>
+                </div>
+                <div class="col-md-4 m-auto text-right" style="font-size: 17px">
+                  <span style="font-size: 20px; color: black; font-weight: bold;">
+                    BON DE SORTIE N° 13 </span>
+                  <ng-container *ngIf="chauffeur.length > 0">
+                    <br>Chauffeur : {{chauffeur[0].nom}} <br>Marticule : 111TN1111 <br>Nombre de colis : 2 <br>Date :
+                    05/05/2022
+                  </ng-container>
+                </div>
+              </div>
+              <div class="col-md-12 mt-5">
+                <table class="table-bordered" style="width: 100%">
+                  <tbody>
+                    <tr>
+                      <th style="padding: 5px; width: 15%;" class="text-center">Code à barre</th>
+                      <th style="padding: 5px; width: 10%;">Expéditeur</th>
+                      <th style="padding: 5px; width: 10%;">Destinataire</th>
+                      <th style="padding: 5px; width: 25%;">Adresse</th>
+                      <th style="padding: 5px; width: 10%; text-align: center;">Tél</th>
+                    </tr>
+                    <ng-container *ngFor="let package of packages">
+                      <tr>
+                        <td rowspan="2" style=" width: 15%; padding: 5px" class="text-center">
+                          <ngx-barcode [bc-value]="package.CAB" [bc-display-value]="true" [bc-height]="50"
+                            [bc-background]="'#ffffff'"></ngx-barcode>
+                        </td>
+                        <td style="font-size: 12px">{{package.nomf}} <br>{{package.telf}} </td>
+                        <td style="font-size: 17px;">{{package.nomc}}</td>
+                        <td style="font-size: 17px;">{{package.adressec}}, {{package.villec}}, {{package.delegationc}}
+                        </td>
+                        <td style="font-size: 17px;">{{package.telc}}</td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 15px;" colspan="3"><span
+                            style="font-weight: 700">{{package.libelle}}</span><br>Remarque: {{package.remarque}}
+                        </td>
+                        <td style="text-align: center; font-weight: bolder; font-size: 30px;">
+                          {{package.c_remboursement}}.000</td>
+                      </tr>
+                    </ng-container>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12 mt-4" style="text-align: center;">
+          <h5>Signature et cachet</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+<!-- <div id="hiddenRoadmapPrint" hidden class="dt-print-view">
+  <div class="my-3 my-md-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <div class="card-body pt-0">
+            <div class="row">
+              <div class="col-md-6 offset-md-1" style="font-size: 17px">
+                <img src="../assets/img/logo2-01.png" style=" height: 180px; float: left; margin-right: 25px;">
+                <h5>Colis Express</h5>
+                <h5>MF : 1737963/W</h5>
+                <h5>TEL : 26 539 959</h5>
+                <h5>ADRESSE : El jem</h5>
+              </div>
+              <div class="col-md-4">
+                <h6>Date: 10/05/2022</h6>
+                <h6>Nombre de colis: 6</h6>
+                <h6>Fournisseur: hatem</h6>
+                <h6>Chauffeur: Kichrida</h6>
+              </div>
+              <div class="col-md-12 text-center">
+                <h4>Decharge <small>(Pickup)</small> N°: 15</h4>
+              </div>
+            </div>
+            <div class="col-md-12 mt-5">
+              <table class="table-bordered" style="width: 100%">
+                <tbody>
+                  <tr>
+                    <th style="width: 20%" class="text-center">Code à barre</th>
+                    <th style="width: 20%" class="text-center">Client</th>
+                    <th style="width: 30%">Adresse</th>
+                    <th style="width: 15%" class="text-center">Tél1 / Tél2</th>
+                    <th style="width: 5%" class="text-center">COD</th>
+                  </tr>
+                  <ng-container *ngFor="let package of packages">
+                    <tr style="border-bottom: 2px solid">
+                      <td>
+                        <ngx-barcode [bc-value]="package.CAB" [bc-display-value]="true" [bc-height]="50"
+                          [bc-background]="'#ffffff'"></ngx-barcode>
+                      </td>
+                      <td class="text-center">{{package.nomc}}</td>
+                      <td>{{package.villec}}, {{package.delegationc}}</td>
+                      <td class="text-center">
+                        {{package.telc}} <ng-container *ngIf="package.tel2c"> / {{package.tel2c}} </ng-container>
+                      </td>
+                      <td class="text-center">{{package.c_remboursement}}.000</td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12 mt-4" style="text-align: center;">
+          <h6>Signature et cachet</h6>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->

@@ -1,8 +1,10 @@
 import { DatePipe } from "@angular/common";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormGroup, FormBuilder } from "@angular/forms";
+import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
-import { PickupService } from "src/app/services/pickup.service";
+import { RoadmapService } from "src/app/services/roadmap.service";
+import { ClientService } from "src/app/services/client.service"
 
 @Component({
   selector: "app-cb-debrief",
@@ -20,6 +22,8 @@ export class CbDebriefComponent implements OnInit {
   temp: any = [];
   rows: any = [];
   public columns: Array<object>;
+  routePath: string;
+  roadmapId: any;
 
   public currentPageLimit: number = 10;
   public currentPage: number = 1;
@@ -32,35 +36,48 @@ export class CbDebriefComponent implements OnInit {
     { value: 100 },
   ];
   count: number;
+  roadmap: any = {};
 
   constructor(
     private fb: FormBuilder,
     private datePipe: DatePipe,
-    private pickupService: PickupService
-  ) {}
-
-  ngOnInit(): void {
-    this.columns = [
-      { prop: "nomd", name: "Chauffeur" },
-      { prop: "nbPackages", name: "Tous" },
-      { prop: "createdAtSearch", name: "Date" },
-    ];
-    this.setDates();
-
-    this.dateForm = this.fb.group({
-      date: this.date,
-    });
-
-    this.dateForm.valueChanges.subscribe((data) =>
-      this.onDateFormValueChange(data)
-    );
-
-    this.countPickups(this.date);
-
-    this.getDataJson(null, null, null, null, null, this.date);
+    private roadmapService: RoadmapService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private clientService: ClientService
+  ) {
+    this.routePath = this.route.snapshot.routeConfig.path;
+    this.roadmapId = this.route.snapshot.queryParamMap.get("id");
   }
 
-  getDataJson(
+  ngOnInit(): void {
+    if (this.routePath == "debrief-list") {
+      this.columns = [
+        { prop: "nomd", name: "Chauffeur" },
+        { prop: "nbPackages", name: "Tous" },
+        { prop: "createdAtSearch", name: "Date" },
+      ];
+      this.setDates();
+
+      this.dateForm = this.fb.group({
+        date: this.date,
+      });
+
+      this.dateForm.valueChanges.subscribe((data) =>
+        this.onDateFormValueChange(data)
+      );
+
+      this.countRoadmaps(this.date);
+
+      this.getRoadmaps(null, null, null, null, null, this.date);
+    } else if (this.routePath == "debrief-bilan") {
+      this.getRoadmap(this.roadmapId);
+    } else if (this.routePath == "debrief-gestion") {
+    }
+  }
+
+  //get roadmap list
+  getRoadmaps(
     limit?: any,
     page?: any,
     sortBy?: any,
@@ -68,16 +85,41 @@ export class CbDebriefComponent implements OnInit {
     search?: any,
     date?: any
   ) {
-    this.pickupService
-      .getPickups("true", limit, page, sortBy, sort, search, date, date)
+    this.roadmapService
+      .getRoadmaps(limit, page, sortBy, sort, search, date, date)
       .subscribe((data) => {
         this.rows = this.temp = data;
       });
   }
 
+  //get one roadmap
+  getRoadmap(id) {
+    this.roadmapService.getRoadmap(id).subscribe((data) => {
+      this.roadmap = data[0];
+    });
+  }
+
+  getClientName(id) {
+    this.clientService.getClient(id).subscribe((data) => {
+
+    })
+    // return await this.packageService
+    //   .getPackageByCAB(cab)
+    //   .pipe(
+    //     map((data) => {
+    //       if (data[0]) {
+    //         return true;
+    //       } else {
+    //         return false;
+    //       }
+    //     })
+    //   )
+    //   .toPromise();
+  }
+
   // count pickups
-  countPickups(date) {
-    this.pickupService.countPickups("true", date, date).subscribe((data) => {
+  countRoadmaps(date) {
+    this.roadmapService.countRoadmaps(date, date).subscribe((data) => {
       this.count = data.count;
     });
   }
@@ -97,14 +139,14 @@ export class CbDebriefComponent implements OnInit {
 
   updateFilter(event) {
     const val = event.target.value.toLowerCase();
-    this.getDataJson(this.currentPageLimit, 1, null, null, val, this.date);
+    this.getRoadmaps(this.currentPageLimit, 1, null, null, val, this.date);
   }
 
   // When number of displayed elements changes
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit, this.currentPage);
+    this.getRoadmaps(limit, this.currentPage);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -124,7 +166,7 @@ export class CbDebriefComponent implements OnInit {
 
   // Data sorting
   onSort(event) {
-    this.getDataJson(
+    this.getRoadmaps(
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
@@ -135,7 +177,7 @@ export class CbDebriefComponent implements OnInit {
   // When page changes
   onFooterPage(event) {
     this.changePage(event.page);
-    this.getDataJson(
+    this.getRoadmaps(
       this.currentPageLimit,
       event.page,
       null,
@@ -150,8 +192,8 @@ export class CbDebriefComponent implements OnInit {
   }
 
   update() {
-    this.getDataJson(null, null, null, null, null, this.date);
-    this.countPickups(this.date);
+    this.getRoadmaps(null, null, null, null, null, this.date);
+    this.countRoadmaps(this.date);
   }
 
   public countEtat(row, etat) {
@@ -162,5 +204,28 @@ export class CbDebriefComponent implements OnInit {
       }
     });
     return count;
+  }
+
+  bilan(row) {
+    var navigationExtras: NavigationExtras = {
+      queryParams: {
+        id: row._id,
+      },
+    };
+    this.router.navigate(["/debrief-bilan"], navigationExtras);
+  }
+
+  gestion(row) {
+    var navigationExtras: NavigationExtras = {
+      queryParams: {
+        id: row._id,
+      },
+    };
+    this.router.navigate(["/debrief-gestion"], navigationExtras);
+  }
+
+  public logg(data) {
+    console.log("data");
+    console.log(data);
   }
 }

@@ -1,155 +1,230 @@
 <div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
   <div class="container-fluid">
-    <div class="header-body">
-      <!-- Search dates -->
-      <div class="row">
-        <div class="col-lg-12 col-xl-12">
-          <div class="card mb-4 text-center">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
-              style="border-bottom: 1px solid #eee;">
-              <h5 class="m-0 font-weight-bold text-primary">Debrief (Elle donne les états 'Livré, Reporté, Annulé')</h5>
-            </div>
-            <form (ngSubmit)="update()" class="card-body col-xl-6 col-lg-6 offset-2 col-xs-12" [formGroup]="dateForm">
-              <div class="row text-center">
-                <input formControlName="date" [value]="date | date:'yyyy-MM-dd'" type="date" name="dateD"
-                  class="form-control col-lg-8 col-xl-8">
-                <div class="input-group col-lg-4 col-xl-4">
-                  <button class="btn btn-sm btn-primary btn-block" name="valider" type="submit"><i
-                      class="fa fa-check"></i>
-                    Valider</button>
-                </div>
+    <!-- ************************ START: PATH = DEBRIEF-LIST (1) ************************ -->
+    <ng-container *ngIf="routePath == 'debrief-list'">
+      <div class="header-body">
+        <!-- Search dates -->
+        <div class="row">
+          <div class="col-lg-12 col-xl-12">
+            <div class="card mb-4 text-center">
+              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+                style="border-bottom: 1px solid #eee;">
+                <h5 class="m-0 font-weight-bold text-primary">Debrief (Elle donne les états 'Livré, Reporté, Annulé')
+                </h5>
               </div>
-            </form>
+              <form (ngSubmit)="update()" class="card-body col-xl-6 col-lg-6 offset-2 col-xs-12" [formGroup]="dateForm">
+                <div class="row text-center">
+                  <input formControlName="date" [value]="date | date:'yyyy-MM-dd'" type="date" name="dateD"
+                    class="form-control col-lg-8 col-xl-8">
+                  <div class="input-group col-lg-4 col-xl-4">
+                    <button class="btn btn-sm btn-primary btn-block" name="valider" type="submit"><i
+                        class="fa fa-check"></i>
+                      Valider</button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
+        <!-- Search dates -->
       </div>
-      <!-- Search dates -->
-    </div>
+    </ng-container>
+    <!-- ************************ END: PATH = DEBRIEF-LIST (1) ************************ -->
   </div>
 </div>
 <!-- Page content -->
 <div class="container-fluid mt--7">
+  <!-- ************************ START: PATH = DEBRIEF-LIST (2) ************************ -->
+  <ng-container *ngIf="routePath == 'debrief-list'">
+    <!-- Table -->
+    <div class="row">
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-header">
+            <div class="row">
+              <div class="col-6 pr-4">
+                <div class="row">
+                  <div class="col-2">
+                    <label for="per-page">
+                      Afficher
+                    </label>
+                  </div>
+                  <div class="col-2">
+                    <select class="form-control" id="per-page" (change)="onLimitChange($event.target.value)">
+                      <option *ngFor="let option of pageLimitOptions" [value]="option.value"
+                        [selected]="option.value == currentPageLimit">
+                        {{ option.value }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label for="per-page">
+                      éléments
+                    </label>
+                  </div>
+                </div>
 
-  <!-- Table -->
-  <div class="row">
-    <div class="col">
-      <div class="card shadow">
-        <div class="card-header">
-          <div class="row">
-            <div class="col-6 pr-4">
-              <div class="row">
-                <div class="col-2">
-                  <label for="per-page">
-                    Afficher
-                  </label>
-                </div>
-                <div class="col-2">
-                  <select class="form-control" id="per-page" (change)="onLimitChange($event.target.value)">
-                    <option *ngFor="let option of pageLimitOptions" [value]="option.value"
-                      [selected]="option.value == currentPageLimit">
-                      {{ option.value }}
-                    </option>
-                  </select>
-                </div>
-                <div class="col-6">
-                  <label for="per-page">
-                    éléments
-                  </label>
-                </div>
               </div>
-
-            </div>
-            <div class="col-6 float-right" style="padding-left: 300px !important;">
-              <input #search class="form-control" type="text" placeholder="Rechercher" (keyup)="updateFilter($event)"
-                autocomplete="false" />
+              <div class="col-6 float-right" style="padding-left: 300px !important;">
+                <input #search class="form-control" type="text" placeholder="Rechercher" (keyup)="updateFilter($event)"
+                  autocomplete="false" />
+              </div>
             </div>
           </div>
-        </div>
-        <div>
-          <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
-            [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
-            (sort)="onSort($event)">
+          <div>
+            <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
+              [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
+              (sort)="onSort($event)">
 
-            <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
-              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
-                <span>
-                  <button [routerLink]="" title="Gestion" (click)="delete(row)" class="btn btn-primary btn-sm rounded-circle">
-                    <i class="fa fa-barcode"></i>
-                  </button>
-                  <button [routerLink]="" title="Bilan" (click)="delete(row)" class="btn btn-info mr-2 btn-sm rounded-circle">
-                    <i class="fa fa-tasks"></i>
-                  </button>
-                </span>
-              </ng-template>
-            </ngx-datatable-column>
+              <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
+                  <span>
+                    <button [routerLink]="" title="Gestion" (click)="gestion(row)"
+                      class="btn btn-primary btn-sm rounded-circle">
+                      <i class="fa fa-barcode"></i>
+                    </button>
+                    <button [routerLink]="" title="Bilan" (click)="bilan(row)"
+                      class="btn btn-info mr-2 btn-sm rounded-circle">
+                      <i class="fa fa-tasks"></i>
+                    </button>
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
 
-            <ngx-datatable-column name="Chauffeur">
-              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                <span>
-                  {{row.nomd}}
-                </span>
-              </ng-template>
-            </ngx-datatable-column>
+              <ngx-datatable-column name="Chauffeur">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.nomd}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
 
 
-            <ngx-datatable-column name="Tout" prop="telf">
-              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                <span>
-                  {{row.nbPackages}}
-                </span>
-              </ng-template>
-            </ngx-datatable-column>
+              <ngx-datatable-column name="Tout" prop="telf">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.nbPackages}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
 
-            <ngx-datatable-column name="Livré">
-              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                <span>
-                  {{countEtat(row, 'livré')}}
-                </span>
-              </ng-template>
-            </ngx-datatable-column>
+              <ngx-datatable-column name="Livré">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{countEtat(row, 'livré')}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
 
-            <ngx-datatable-column name="Livré autre moyen">
-              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                <span>
-                  {{countEtat(row, 'livré autre moyen')}}
-                </span>
-              </ng-template>
-            </ngx-datatable-column>
+              <ngx-datatable-column name="Livré autre moyen">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{countEtat(row, 'livré autre moyen')}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
 
-            <ngx-datatable-column name="Reporté">
-              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                <span>
-                  {{countEtat(row, 'reporté')}}
-                </span>
-              </ng-template>
-            </ngx-datatable-column>
+              <ngx-datatable-column name="Reporté">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{countEtat(row, 'reporté')}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
 
-            <ngx-datatable-column name="Annulé">
-              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
-                <span>
-                  {{countEtat(row, 'annulé')}}
-                </span>
-              </ng-template>
-            </ngx-datatable-column>
+              <ngx-datatable-column name="Annulé">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{countEtat(row, 'annulé')}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
 
-            <ngx-datatable-footer>
-              <ng-template ngx-datatable-footer-template let-rowCount="count" let-pageSize="pageSize"
-                let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
-                <div class="pl-2">
-                  Elements: {{ count }} | Taille: {{ pageSize }} | Page:
-                  {{ curPage }}
-                </div>
-                <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'"
-                  [pagerRightArrowIcon]="'datatable-icon-right'" [pagerPreviousIcon]="'datatable-icon-prev'"
-                  [pagerNextIcon]="'datatable-icon-skip'" [page]="curPage" [size]="pageSize" [count]="count"
-                  [hidden]="!((count / pageSize) > 1)" (change)="onFooterPage($event)">
-                </datatable-pager>
-              </ng-template>
-            </ngx-datatable-footer>
-          </ngx-datatable>
+              <ngx-datatable-footer>
+                <ng-template ngx-datatable-footer-template let-rowCount="count" let-pageSize="pageSize"
+                  let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
+                  <div class="pl-2">
+                    Elements: {{ count }} | Taille: {{ pageSize }} | Page:
+                    {{ curPage }}
+                  </div>
+                  <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'"
+                    [pagerRightArrowIcon]="'datatable-icon-right'" [pagerPreviousIcon]="'datatable-icon-prev'"
+                    [pagerNextIcon]="'datatable-icon-skip'" [page]="curPage" [size]="pageSize" [count]="count"
+                    [hidden]="!((count / pageSize) > 1)" (change)="onFooterPage($event)">
+                  </datatable-pager>
+                </ng-template>
+              </ngx-datatable-footer>
+            </ngx-datatable>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </ng-container>
+  <!-- ************************ END: PATH = DEBRIEF-LIST (2) ************************ -->
+  <!-- ************************ START: PATH = DEBRIEF-BILAN ************************ -->
+  <ng-container *ngIf="routePath == 'debrief-bilan'">
+    <div class="col-lg-12 mb-4">
+      <div class="card mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h4 class="m-0 font-weight-bold">Debrief détaillé de <u> {{roadmap.nomd | titlecase}} </u> le <u>
+              {{roadmap.createdAtSearch}} </u></h4>
+        </div>
+        <div class="table-responsive p-3">
+          <table class="table align-items-center table-bordered" id="exemple">
+            <thead class="thead-light">
+              <tr>
+                <th>Code à barre</th>
+                <th class="text-center">Action</th>
+                <th>Client</th>
+                <th>Etat</th>
+                <th class="text-center">COD</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let package of roadmap.packages">
+                <tr>
+                  <td><a href="rechercher?code_barre=36317525" target="_blank"> {{package.CAB}} </a></td>
+                  <td id="tr_b_36317525" class="text-center">
+                    <button onclick="livre(package.CAB)" title="Livré (Espèce)"
+                      class="btn btn-success btn-sm rounded-circle mr-1"><i class="fa fa-check"></i></button>
+                    <button onclick="livrechq(package.CAB)" title="Livré (Chèque)"
+                      class="btn btn-warning btn-sm rounded-circle mr-1"><i class="fa fa-check-square"></i></button>
+                    <button onclick="annuler(package.CAB)" title="Annulé"
+                      class="btn btn-danger btn-sm rounded-circle mr-1"><i class="fa fa-times"></i></button>
+                    <button onclick="reporter(package.CAB)" title="Réporter"
+                      class="btn btn-info btn-sm rounded-circle mr-1"><i class="fa fa-reply-all"></i></button>
+                  </td>
+                  <td>John2</td>
+                  <td id="tr_36317525"> {{package.etat}} </td>
+                  <td class="text-center"> {{package.c_remboursement}}.000 </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-body">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" style="border-radius: 5px">
+              <div class="card-body ">
+                <div class="row justify-content-center">
+                  <div class="col-lg-3">
+                    <div class="alert alert-light"><b>Total espèce: 10,000</b></div>
+                  </div>
+                  <div class="col-lg-3">
+                    <div class="alert alert-light"><b>Total autre moyen: 0,000</b></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <!-- ************************ END: PATH = DEBRIEF-BILAN ************************ -->
+  <!-- ************************ START: PATH = DEBRIEF-GESTION ************************ -->
+  <ng-container *ngIf="routePath == 'debrief-gestion'">
 
+  </ng-container>
+  <!-- ************************ END: PATH = DEBRIEF-GESTION ************************ -->
 </div>

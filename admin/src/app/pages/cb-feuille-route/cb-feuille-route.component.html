@@ -52,10 +52,6 @@
                 </div>
                 <div class="col-sm-2">
                   <div class="form-group">
-                    <input type="hidden" name="date" id="date_show" value="2022-05-04">
-                    <input type="hidden" name="chauffeur" id="chauffeur_show" value="11">
-                    <input type="hidden" name="vehicule" id="vehicule_show">
-                    <input type="hidden" name="user" value="XTw=">
                     <textarea formControlName="references" name="code_barre" id="ingredients_list" class="form-control"
                       rows="17"></textarea>
                   </div>
@@ -64,14 +60,26 @@
                   <div class="form-group">
                     <button [disabled]="referenceForm.invalid" (click)="printRoadmap()" name=""
                       class="btn btn-primary btn-sm px-5">Imprimer la feuille de route</button>
-                    <div *ngIf="error" class="alert alert-danger mt-4">
-                      <span class="closebtn"
-                        onclick="this.parentElement.style.display='none'; error = false;">&times;</span>
-                      <ng-container *ngFor="let item of index">
-                        Erreur dans la ligne {{item+1}}
-                        <br>
-                      </ng-container>
-                    </div>
+                    <ng-container *ngIf="index.length > 0">
+                      <div class="alert alert-danger mt-4">
+                        <span class="closebtn"
+                          onclick="this.parentElement.style.display='none'; error = false;">&times;</span>
+                        <ng-container *ngFor="let item of index">
+                          <ng-container *ngIf="item.error == 'duplicateError'">
+                            Code à barre dupliqué: {{item.value}}, ligne {{item.index+1}}<br>
+                          </ng-container>
+                          <ng-container *ngIf="item.error == 'falseError'">
+                            Code à barre éronné: {{item.value}}, ligne {{item.index+1}}<br>
+                          </ng-container>
+                          <ng-container *ngIf="item.error == 'nonExistantError'">
+                            Code à barre non existant: {{item.value}}, ligne {{item.index+1}}<br>
+                          </ng-container>
+                          <ng-container *ngIf="item.error == 'absurdError'">
+                            Colis dans un état avancé ({{item.state}}): {{item.value}}, ligne {{item.index+1}}<br>
+                          </ng-container>
+                        </ng-container>
+                      </div>
+                    </ng-container>
                   </div>
                 </div>
               </form>
@@ -233,71 +241,6 @@
         </div>
         <div class="col-md-12 mt-4" style="text-align: center;">
           <h5>Signature et cachet</h5>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="hiddenRoadmapPrint" hidden class="dt-print-view">
-  <div class="my-3 my-md-5">
-    <div class="container">
-      <div class="row">
-        <div class="col-12">
-          <div class="card-body pt-0">
-            <div class="row">
-              <div class="col-md-6 offset-md-1" style="font-size: 17px">
-                <img src="../assets/img/logo2-01.png" style=" height: 180px; float: left; margin-right: 25px;">
-                <h5>Colis Express</h5>
-                <h5>MF : 1737963/W</h5>
-                <h5>TEL : 26 539 959</h5>
-                <h5>ADRESSE : El jem</h5>
-              </div>
-              <div class="col-md-4">
-                <h6>Date: 10/05/2022</h6>
-                <h6>Nombre de colis: 6</h6>
-                <h6>Fournisseur: hatem</h6>
-                <h6>Chauffeur: Kichrida</h6>
-              </div>
-              <div class="col-md-12 text-center">
-                <h4>Decharge <small>(Pickup)</small> N°: 15</h4>
-              </div>
-            </div>
-            <div class="col-md-12 mt-5">
-              <table class="table-bordered" style="width: 100%">
-                <tbody>
-                  <tr>
-                    <th style="width: 20%" class="text-center">Code à barre</th>
-                    <th style="width: 20%" class="text-center">Client</th>
-                    <th style="width: 30%">Adresse</th>
-                    <th style="width: 15%" class="text-center">Tél1 / Tél2</th>
-                    <th style="width: 5%" class="text-center">COD</th>
-                  </tr>
-                  <ng-container *ngFor="let package of packages">
-                    <tr style="border-bottom: 2px solid">
-                      <!-- <td style="padding: 5px" class="text-center">
-                        {{package.CAB}} <img alt="36317522" src="../assets/code/codeBarre.php?code=36317522"
-                          style="height: 50px; width: 300px;">
-                      </td> -->
-                      <td>
-                        <ngx-barcode [bc-value]="package.CAB" [bc-display-value]="true" [bc-height]="50"
-                          [bc-background]="'#ffffff'"></ngx-barcode>
-                      </td>
-                      <td class="text-center">{{package.nomc}}</td>
-                      <td>{{package.villec}}, {{package.delegationc}}</td>
-                      <td class="text-center">
-                        {{package.telc}} <ng-container *ngIf="package.tel2c"> / {{package.tel2c}} </ng-container>
-                      </td>
-                      <td class="text-center">{{package.c_remboursement}}.000</td>
-                    </tr>
-                  </ng-container>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-12 mt-4" style="text-align: center;">
-          <h6>Signature et cachet</h6>
         </div>
       </div>
     </div>

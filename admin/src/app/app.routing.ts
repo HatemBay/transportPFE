@@ -8,6 +8,7 @@ import { AuthLayoutComponent } from "./layouts/auth-layout/auth-layout.component
 import { LoginComponent } from "./pages/login/login.component";
 import { AuthGuard } from "./services/auth.guard";
 import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
+import { ImprimerRoadmapComponent } from "./pages/imprimer-roadmap/imprimer-roadmap.component";
 
 const routes: Routes = [
   {
@@ -33,7 +34,16 @@ const routes: Routes = [
     path: "login",
     component: LoginComponent,
   },
-  { path: "imprimer-pickup", canActivate: [AuthGuard], component: ImprimerComponent },
+  {
+    path: "imprimer-pickup",
+    canActivate: [AuthGuard],
+    component: ImprimerComponent,
+  },
+  {
+    path: "imprimer-roadmap",
+    canActivate: [AuthGuard],
+    component: ImprimerRoadmapComponent,
+  },
   {
     path: "**",
     redirectTo: "dashboard",

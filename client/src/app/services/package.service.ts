@@ -48,7 +48,7 @@ export class PackageService {
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }
 
-  // Get all packages with all foreign info
+  // Get all packages with all foreign info (by provider id)
   getFullPackage(id: any) {
     const url = `${this.baseUri}/all-info/${id}/${this.userId}`;
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header

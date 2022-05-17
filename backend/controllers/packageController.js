@@ -49,7 +49,7 @@ router.get("/:id", (req, res) => {
 router.get("/cab/:cab", (req, res) => {
   if (req.params.cab.length !== 10 || isNaN(req.params.cab))
     return res.status(400).send(`Format CAB invalide: ${req.params.cab}`);
-  Package.findOne({ CAB: req.params.cab }, (err, doc) => {
+  Package.find({ CAB: req.params.cab }, (err, doc) => {
     if (!err) res.send(doc);
     else console.log("Erreur lors de la récupération des colis: " + err);
   });

@@ -173,7 +173,7 @@ export const ROUTES: RouteInfo[] = [
     parent: "Chef de bureau",
   },
   {
-    path: "/debrief",
+    path: "/debrief-list",
     title: "Debrief",
     class: "",
     roles: [],

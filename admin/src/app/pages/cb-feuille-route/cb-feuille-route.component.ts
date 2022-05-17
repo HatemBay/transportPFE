@@ -1,7 +1,18 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { ActivatedRoute, NavigationExtras } from "@angular/router";
+import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
+import {
+  map,
+  of,
+  ReplaySubject,
+  Subject,
+  switchMap,
+  tap,
+  lastValueFrom,
+  delay,
+  forkJoin,
+} from "rxjs";
 import { PackageService } from "src/app/services/package.service";
 import { RoadmapService } from "src/app/services/roadmap.service";
 import { UserService } from "src/app/services/user.service";
@@ -17,8 +28,8 @@ export class CbFeuilleRouteComponent implements OnInit {
   @ViewChild(alert) alert: any;
   @ViewChild("myEl") el: ElementRef;
 
-  error: boolean = false;
-  index: Array<number> = [];
+  check: boolean = false;
+  index: any = [];
   display: string = "default";
   display2: string = "default";
   chauffeurs: any = [];
@@ -26,6 +37,7 @@ export class CbFeuilleRouteComponent implements OnInit {
   chauffeursForm: FormGroup;
   referenceForm: FormGroup;
   references: Array<number> = [];
+  refs: any = [];
   packages: any = [];
   routePath: string;
 
@@ -49,6 +61,7 @@ export class CbFeuilleRouteComponent implements OnInit {
     private fb: FormBuilder,
     private packageService: PackageService,
     private roadmapService: RoadmapService,
+    private router: Router,
     private route: ActivatedRoute
   ) {
     this.routePath = this.route.snapshot.routeConfig.path;
@@ -63,7 +76,7 @@ export class CbFeuilleRouteComponent implements OnInit {
       this.referenceForm = this.fb.group({
         references: ["", Validators.required],
       });
-      this.getDataJson();
+      this.getDrivers();
     } else {
       this.columns = [
         { prop: "roadmapNb", name: "N° bon de sortie" },
@@ -106,24 +119,13 @@ export class CbFeuilleRouteComponent implements OnInit {
     return this.referenceForm.controls;
   }
 
-  getDataJson() {
-    this.userService.getChauffeurs().subscribe((data) => {
+  getDrivers() {
+    this.userService.getUsersByRole("chauffeur").subscribe((data) => {
       this.chauffeurs = data;
     });
   }
 
-  getPackageData(element: any) {
-    this.packageService.getFullPackageByCAB(element).subscribe((data) => {
-      this.packages.push(data[0]);
-    });
-  }
-
-  // checkPackage(id: any) {
-  //   this.packageService.getPackageByCAB(id).subscribe((data) => {
-  //     if (data[0].CAB) this.references.push(data[0].CAB);
-  //   });
-  // }
-
+  //shows textarea for roadmap
   public show() {
     this.display = "block";
     this.chauffeur = this.chauffeurs.slice(
@@ -135,48 +137,109 @@ export class CbFeuilleRouteComponent implements OnInit {
     console.log(this.chauffeur);
   }
 
-  public printRoadmap() {
-    // this.index = [];
+  async checkPackage(cab: any) {
+    return await this.packageService
+      .getPackageByCAB(cab)
+      .pipe(
+        map((data) => {
+          if (data[0]) {
+            return { value: true, etat: data[0].etat };
+          } else {
+            return { value: false };
+          }
+        })
+      )
+      .toPromise();
+  }
+
+  public async printRoadmap() {
+    this.index = [];
     var references = this.referenceForm.value.references;
-    this.references = references.split("\n");
-    this.roadmapService
-      .createRoadmap({ driverId: this.chauffeur[0], packages: this.references })
-      .subscribe((data) => {});
-    // console.log(refs);
-    // refs.forEach((element) => {
-    //   if (!isNaN(element) && element.length === 10) {
-    //     this.checkPackage(element);
-    //   } else {
-    //     this.error = true;
-    //     this.index.push(refs.indexOf(element));
-    //   }
-    // });
+    this.refs = references.split("\n");
 
-    console.log(this.references);
-    this.references.forEach((element) => {
-      this.getPackageData(element);
-    });
+    // this.references = references.split("\n");
 
-    const printContent = document.getElementById("hiddenRoadmapPrint");
+    // *testing phase
+    for (let [index, element] of this.refs.entries()) {
+      if (!isNaN(element) && element.length === 10) {
+        const data = await this.checkPackage(element);
+        if (data.value === true) {
+          if (this.references.indexOf(parseInt(element)) !== -1) {
+            this.index.push({
+              index: index,
+              error: "duplicateError",
+              value: element,
+              state: "",
+            });
+          }
+          //TODO: to be changed to all states representing steps after 'en cours'
+          else if (data.etat == "en cours") {
+            this.index.push({
+              index: index,
+              error: "absurdError",
+              value: element,
+              state: data.etat,
+            });
+          } else {
+            this.references.push(parseInt(element));
+          }
+        } else {
+          this.index.push({
+            index: index,
+            error: "nonExistantError",
+            value: element,
+            state: "",
+          });
+        }
+      } else {
+        this.index.push({
+          index: index,
+          error: "falseError",
+          value: element,
+          state: "",
+        });
+      }
+    }
+
+    //* index array represents false data
+    if (this.index.length === 0) {
+      this.roadmapService
+        .createRoadmap({
+          driverId: this.chauffeur[0],
+          packages: this.references,
+        })
+        .subscribe();
+    }
+
+    // Create our query parameters object
+    const queryParams: any = {};
+    queryParams.CABs = JSON.stringify(this.references);
+    queryParams.errors = JSON.stringify(this.index);
+    queryParams.type = "list";
+    queryParams.nb = null;
+    var navigationExtras: NavigationExtras = {
+      queryParams,
+    };
+    console.log(navigationExtras.queryParams);
+
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(["/imprimer-roadmap"], navigationExtras)
+    );
 
     const WindowPrt = window.open(
-      "",
-      "",
+      url,
+      "_blank",
       "left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0"
     );
-    WindowPrt.setTimeout(() => {
-      WindowPrt.document.write(printContent.innerHTML);
-      WindowPrt.document.close();
-    }, 1000);
 
     WindowPrt.setTimeout(function () {
       WindowPrt.focus();
       WindowPrt.print();
+      if (this.index.length === 0) {
+        location.reload();
+      }
       // WindowPrt.close();
-    }, 1000);
-
-    this.references = [];
-    this.packages = [];
+    }, 2000);
   }
 
   // print selecetd elements
@@ -235,35 +298,42 @@ export class CbFeuilleRouteComponent implements OnInit {
 
   // redirects to printable facture for pickup
   toFacture(row) {
-    var ids = [];
+    var CABs = [];
     console.log(row.packages);
     for (var el of row.packages) {
-      ids.push(el.CAB);
+      CABs.push(el.CAB);
     }
 
-    ids.forEach((element) => {
-      this.getPackageData(element);
-    });
+    // Create our query parameters object
+    const queryParams: any = {};
+    queryParams.CABs = JSON.stringify(CABs);
+    queryParams.errors = [];
+    queryParams.type = "historique";
+    queryParams.nb = row.roadmapNb;
+    var navigationExtras: NavigationExtras = {
+      queryParams,
+    };
+    console.log(navigationExtras.queryParams);
 
-    const printContent = document.getElementById("hiddenRoadmapHistoric");
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(["/imprimer-roadmap"], navigationExtras)
+    );
 
     const WindowPrt = window.open(
-      "",
-      "",
+      url,
+      "_blank",
       "left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0"
     );
-    WindowPrt.setTimeout(() => {
-      WindowPrt.document.write(printContent.innerHTML);
-      WindowPrt.document.close();
-    }, 1000);
 
     WindowPrt.setTimeout(function () {
       WindowPrt.focus();
       WindowPrt.print();
       // WindowPrt.close();
-    }, 1000);
+    }, 2000);
+  }
 
-    this.references = [];
-    this.packages = [];
+  public logg(data) {
+    console.log("data");
+    console.log(data);
   }
 }

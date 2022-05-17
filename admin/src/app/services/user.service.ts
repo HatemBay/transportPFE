@@ -52,14 +52,14 @@ export class UserService {
 
   // Get users by role
   // temporarily: get drivers with no vehicules
-  getUsersByRole(): Observable<any> {
-    const url = `${this.baseUri}/role/chauffeur`;
-    return this.http.get(url, { headers: this.headers });
-  }
+  // getUsersByRole(): Observable<any> {
+  //   const url = `${this.baseUri}/role/chauffeur`;
+  //   return this.http.get(url, { headers: this.headers });
+  // }
 
-  // Get all drivers
-  getChauffeurs(): Observable<any> {
-    const url = `${this.baseUri}/role/chauffeur/all`;
+  // Get users by role
+  getUsersByRole(role: any): Observable<any> {
+    const url = `${this.baseUri}/role/${role}/all`;
     return this.http.get(url, { headers: this.headers });
   }
 

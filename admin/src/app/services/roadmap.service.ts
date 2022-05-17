@@ -32,9 +32,14 @@ export class RoadmapService {
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }
 
+  // Get last roadmap number
+  getLastRoadmapNb() {
+    const url = `${this.baseUri}/nb/last`;
+    return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
+  }
+
   // Get all roadmaps with all foreign info
   getRoadmaps(
-    isAllocated?: any,
     limit?: any,
     page?: any,
     sortBy?: any,
@@ -45,9 +50,7 @@ export class RoadmapService {
   ) {
     const url = `${this.baseUri}`;
     var queryParams = new HttpParams();
-    if (isAllocated) {
-      queryParams = queryParams.append("isAllocated", isAllocated);
-    }
+
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);
     if (sortBy) {
@@ -85,16 +88,9 @@ export class RoadmapService {
   }
 
   // Count roadmaps
-  countRoadmaps(
-    isAllocated?: any,
-    startDate?: any,
-    endDate?: any
-  ): Observable<any> {
+  countRoadmaps(startDate?: any, endDate?: any): Observable<any> {
     let url = `${this.baseUri}/count/all`;
     var queryParams = new HttpParams();
-    if (isAllocated) {
-      queryParams = queryParams.append("isAllocated", isAllocated);
-    }
     if (startDate) {
       queryParams = queryParams.append("startDate", startDate);
     }

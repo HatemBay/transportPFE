@@ -120,10 +120,9 @@ router.get("/role/chauffeur", (req, res) => {
   });
 });
 
-// get chauffeurs
-// can get modified
-router.get("/role/chauffeur/all", (req, res) => {
-  User.find({ role: "chauffeur" }, (err, doc) => {
+// get users by role
+router.get("/role/:role/all", (req, res) => {
+  User.find({ role: req.params.role }, (err, doc) => {
     if (!err) res.send(doc);
     else {
       console.log("Erreur lors de la récupération de l'utilisateur: " + err);

@@ -171,7 +171,7 @@ export class GestionVehiculeComponent implements OnInit {
   }
 
   getChauffeurs() {
-    this.userService.getUsersByRole().subscribe((data) => {
+    this.userService.getUsersByRole('chauffeur').subscribe((data) => {
       this.chauffeurs = data;
     });
   }

@@ -140,8 +140,9 @@ export class CbCollecteComponent implements OnInit {
   public changeState() {
     this.references.forEach((element) => {
       this.packageService
-        .updatePackageByCAB(element, { etat: "collecté", userId: this.authService.getUserDetails()._id })
+        .updatePackageByCAB(element, { etat: "collecté", userId: this.authService.getUserDetails()._id }) //* userId has no use for now
         .subscribe(() => {
+          // clear references
           this.references = [];
           this.getDataJson(null, null, null, null, null, this.references);
         });

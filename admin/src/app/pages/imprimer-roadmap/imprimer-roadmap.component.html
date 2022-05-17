@@ -1,0 +1,85 @@
+<div class="my-3 my-md-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="card-body pt-0">
+          <div class="row">
+            <div class="col-md-6 offset-md-1" style="font-size: 17px">
+              <img src="../assets/img/logo2-01.png" style=" height: 180px; float: left; margin-right: 25px;">
+              <h5>Colis Express</h5>
+              <h5>MF : 1737963/W</h5>
+              <h5>TEL : 26 539 959</h5>
+              <h5>ADRESSE : El jem</h5>
+            </div>
+            <div class="col-md-4">
+              <h6>Date: 10/05/2022</h6>
+              <h6>Nombre de colis: {{packages.length}} </h6>
+              <h6>Fournisseur: hatem</h6>
+              <h6>Chauffeur: Kichrida</h6>
+            </div>
+            <div class="col-md-12 text-center">
+              <ng-container *ngIf="index.length > 0">
+                <ng-container *ngFor="let item of index">
+                  <ng-container *ngIf="item.error == 'duplicateError'">
+                    Code à barre dupliqué: {{item.value}}, ligne {{item.index+1}}<br>
+                  </ng-container>
+                  <ng-container *ngIf="item.error == 'falseError'">
+                    Code à barre éronné: {{item.value}}, ligne {{item.index+1}}<br>
+                  </ng-container>
+                  <ng-container *ngIf="item.error == 'nonExistantError'">
+                    Code à barre non existant: {{item.value}}, ligne {{item.index+1}}<br>
+                  </ng-container>
+                  <ng-container *ngIf="item.error == 'absurdError'">
+                    Colis dans un état avancé ({{item.state}}): {{item.value}}, ligne {{item.index+1}}<br>
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+            </div>
+            <div class="col-md-12 text-center">
+              <h4>Decharge <small>(Feuille de route)</small> N°: {{roadmapNb}} </h4>
+            </div>
+          </div>
+          <div class="col-md-12 mt-5">
+            <table class="table-bordered" style="width: 100%">
+              <tbody>
+                <tr>
+                  <th style="width: 20%" class="text-center">Code à barre</th>
+                  <th style="width: 20%" class="text-center">Client</th>
+                  <th style="width: 30%">Adresse</th>
+                  <th style="width: 15%" class="text-center">Tél1 / Tél2</th>
+                  <th style="width: 5%" class="text-center">COD</th>
+                </tr>
+                <!-- {{g('packages')}}
+                {{g(packages)}} -->
+                <ng-container *ngFor="let package of packages; let packageIndex = index;">
+                  <tr style="border-bottom: 2px solid">
+                    <!-- <td style="padding: 5px" class="text-center">
+                        {{package.CAB}} <img alt="36317522" src="../assets/code/codeBarre.php?code=36317522"
+                          style="height: 50px; width: 300px;">
+                      </td> -->
+                    <!-- <ng-container *ngIf="package.CAB != 1"> -->
+                    <td>
+                      <ngx-barcode [bc-value]="package.CAB" [bc-display-value]="true" [bc-height]="50"
+                        [bc-background]="'#ffffff'"></ngx-barcode>
+                    </td>
+                    <td class="text-center">{{package.nomc}}</td>
+                    <td>{{package.villec}}, {{package.delegationc}}</td>
+                    <td class="text-center">
+                      {{package.telc}} <ng-container *ngIf="package.tel2c"> / {{package.tel2c}} </ng-container>
+                    </td>
+                    <td class="text-center">{{package.c_remboursement}}.000</td>
+                    <!-- </ng-container> -->
+
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12 mt-4" style="text-align: center;">
+        <h6>Signature et cachet</h6>
+      </div>
+    </div>
+  </div>
+</div>

@@ -17,6 +17,7 @@ import { DatePipe } from "@angular/common";
 import { NgxDatatableModule } from "@swimlane/ngx-datatable";
 import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
 import { NgxBarcodeModule } from "ngx-barcode";
+import { ImprimerRoadmapComponent } from './pages/imprimer-roadmap/imprimer-roadmap.component';
 
 @NgModule({
   imports: [
@@ -37,6 +38,7 @@ import { NgxBarcodeModule } from "ngx-barcode";
     AuthLayoutComponent,
     LoginComponent,
     ImprimerComponent,
+    ImprimerRoadmapComponent,
   ],
   providers: [DatePipe, NgbActiveModal],
   bootstrap: [AppComponent],

@@ -19,7 +19,6 @@ import { UserService } from "src/app/services/user.service";
   styleUrls: ["./cb-pickups.component.scss"],
 })
 export class CbPickupsComponent implements OnInit {
-  @ViewChild("editModal") editModal: TemplateRef<any>;
   @ViewChild(DatatableComponent) search: DatatableComponent;
   @ViewChild(DatatableComponent) table: DatatableComponent;
   @ViewChild(alert) alert: any;
@@ -150,14 +149,14 @@ export class CbPickupsComponent implements OnInit {
 
   // get drivers
   getChauffeurs() {
-    this.userService.getChauffeurs().subscribe((data) => {
+    this.userService.getUsersByRole('chauffeur').subscribe((data) => {
       this.chauffeurs = data;
     });
   }
 
   // count pickups
-  countPickups(startDate?, endDate?) {
-    this.pickupService.countPickups(startDate, endDate).subscribe((data) => {
+  countPickups(isAllocated?, startDate?, endDate?) {
+    this.pickupService.countPickups(isAllocated, startDate, endDate).subscribe((data) => {
       this.count = data.count;
     });
   }
@@ -299,6 +298,6 @@ export class CbPickupsComponent implements OnInit {
       this.startDate,
       this.today
     );
-    this.countPickups(this.startDate, this.today);
+    this.countPickups(this.isAllocated, this.startDate, this.today);
   }
 }
