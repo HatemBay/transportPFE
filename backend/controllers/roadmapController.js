@@ -1,6 +1,4 @@
 const express = require("express");
-const { parse } = require("path");
-const { Fournisseur } = require("../models/fournisseur");
 const { Package } = require("../models/package");
 
 var router = express.Router();
@@ -44,6 +42,7 @@ router.get("/", (req, res) => {
   var sortBy = req.query.sortBy || "createdAt";
   if (req.query.sort == "asc") n = 1;
   sort[sortBy] = n;
+
   var data = [
     {
       $lookup: {
@@ -101,17 +100,6 @@ router.get("/", (req, res) => {
       },
     },
   ];
-  data.push(
-    {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
-    },
-    {
-      $sort: sort,
-    }
-  );
 
   if (startDate && endDate) {
     data.push({
@@ -123,6 +111,19 @@ router.get("/", (req, res) => {
       },
     });
   }
+
+  data.push(
+    {
+      $sort: sort,
+    },
+    {
+      $skip: skip,
+    },
+    {
+      $limit: limit,
+    }
+  );
+
   Roadmap.aggregate(data).exec((err, roadmaps) => {
     if (!err) {
       if (req.query.search) {
@@ -151,13 +152,14 @@ router.get("/:id", (req, res) => {
   var data = [
     {
       $lookup: {
-        from: "drivers",
+        from: "users",
         localField: "driverId",
         foreignField: "_id",
         as: "drivers",
       },
     },
     { $unwind: { path: "$drivers", preserveNullAndEmptyArrays: true } },
+
     // {
     //   $lookup: {
     //     from: "users",
@@ -200,7 +202,7 @@ router.get("/:id", (req, res) => {
         createdAt: 1,
         updatedAt: 1,
         createdAtSearch: {
-          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
+          $dateToString: { format: "%d/%m/%Y", date: "$createdAt" },
         },
       },
     },
@@ -345,6 +347,24 @@ router.put("/:id", (req, res) => {
 //     }
 //   });
 // });
+
+router.get("/nb/last", (req, res) => {
+  Roadmap.find()
+    .sort({ roadmapNb: -1 })
+    .limit(1)
+    .exec(async (err, roadmaps) => {
+      if (err) {
+        console.log(
+          "Erreur dans la récupération du nombre du feuille de route"
+        );
+        return res
+          .status(404)
+          .send("Erreur dans la récupération du nombre du feuille de route");
+      }
+
+      return res.status(200).send(roadmaps[0].roadmapNb.toString());
+    });
+});
 
 /********************** STATISTICS **********************/
 router.get("/count/all", (req, res) => {

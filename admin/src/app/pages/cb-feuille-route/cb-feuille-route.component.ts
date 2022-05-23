@@ -126,15 +126,13 @@ export class CbFeuilleRouteComponent implements OnInit {
   }
 
   //shows textarea for roadmap
-  public show() {
+  public show(id: any) {
+    this.chauffeur = [];
     this.display = "block";
-    this.chauffeur = this.chauffeurs.slice(
-      this.chauffeurs.findIndex(
-        (x) => x._id === this.chauffeursForm.value.chauffeurs
-      ),
-      1
+    const index: number = this.chauffeurs.findIndex(
+      (x: any) => x._id === this.chauffeursForm.value.chauffeurs
     );
-    console.log(this.chauffeur);
+    this.chauffeur = this.chauffeurs.slice(index, index + 1);
   }
 
   async checkPackage(cab: any) {
@@ -154,6 +152,7 @@ export class CbFeuilleRouteComponent implements OnInit {
 
   public async printRoadmap() {
     this.index = [];
+    this.references = [];
     var references = this.referenceForm.value.references;
     this.refs = references.split("\n");
 
@@ -173,7 +172,15 @@ export class CbFeuilleRouteComponent implements OnInit {
             });
           }
           //TODO: to be changed to all states representing steps after 'en cours'
-          else if (data.etat == "en cours") {
+          else if (
+            [
+              "en cours",
+              "livré (espèce)",
+              "livré (chèque)",
+              "annulé",
+              "reporté",
+            ].indexOf(data.etat) !== -1
+          ) {
             this.index.push({
               index: index,
               error: "absurdError",

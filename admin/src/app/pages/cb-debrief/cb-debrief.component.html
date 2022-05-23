@@ -79,7 +79,7 @@
               <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
                   <span>
-                    <button [routerLink]="" title="Gestion" (click)="gestion(row)"
+                    <button [routerLink]="" title="Details" (click)="details(row)"
                       class="btn btn-primary btn-sm rounded-circle">
                       <i class="fa fa-barcode"></i>
                     </button>
@@ -181,20 +181,20 @@
               </tr>
             </thead>
             <tbody>
-              <ng-container *ngFor="let package of roadmap.packages">
+              <ng-container *ngFor="let package of roadmap.packages; let index=i">
                 <tr>
                   <td><a href="rechercher?code_barre=36317525" target="_blank"> {{package.CAB}} </a></td>
                   <td id="tr_b_36317525" class="text-center">
-                    <button onclick="livre(package.CAB)" title="Livré (Espèce)"
+                    <button (click)="changeState(package.CAB, 'livré (espèce)')" title="Livré (Espèce)"
                       class="btn btn-success btn-sm rounded-circle mr-1"><i class="fa fa-check"></i></button>
-                    <button onclick="livrechq(package.CAB)" title="Livré (Chèque)"
+                    <button (click)="changeState(package.CAB, 'livré (chèque)')" title="Livré (Chèque)"
                       class="btn btn-warning btn-sm rounded-circle mr-1"><i class="fa fa-check-square"></i></button>
-                    <button onclick="annuler(package.CAB)" title="Annulé"
+                    <button (click)="changeState(package.CAB, 'annulé')" title="Annulé"
                       class="btn btn-danger btn-sm rounded-circle mr-1"><i class="fa fa-times"></i></button>
-                    <button onclick="reporter(package.CAB)" title="Réporter"
+                    <button (click)="changeState(package.CAB, 'reporté')" title="Réporté"
                       class="btn btn-info btn-sm rounded-circle mr-1"><i class="fa fa-reply-all"></i></button>
                   </td>
-                  <td>John2</td>
+                  <td> {{package.client}} </td>
                   <td id="tr_36317525"> {{package.etat}} </td>
                   <td class="text-center"> {{package.c_remboursement}}.000 </td>
                 </tr>
@@ -208,10 +208,10 @@
               <div class="card-body ">
                 <div class="row justify-content-center">
                   <div class="col-lg-3">
-                    <div class="alert alert-light"><b>Total espèce: 10,000</b></div>
+                    <div class="alert alert-light"><b>Total espèce: {{totalEspece}},000</b></div>
                   </div>
                   <div class="col-lg-3">
-                    <div class="alert alert-light"><b>Total autre moyen: 0,000</b></div>
+                    <div class="alert alert-light"><b>Total autre moyen: {{totalAutre}},000</b></div>
                   </div>
                 </div>
               </div>
@@ -222,9 +222,149 @@
     </div>
   </ng-container>
   <!-- ************************ END: PATH = DEBRIEF-BILAN ************************ -->
-  <!-- ************************ START: PATH = DEBRIEF-GESTION ************************ -->
-  <ng-container *ngIf="routePath == 'debrief-gestion'">
+  <!-- ************************ START: PATH = DEBRIEF-DETAILLE ************************ -->
+  <ng-container *ngIf="routePath == 'debrief-detaillé'">
+    <div class="container-fluid">
+      <h1 class="col-xl-12 text-white">Debrief détaillé de <u> {{roadmap.nomd}} </u> le <u> {{roadmap.createdAt | date:'yyyy/MM/dd'}} </u> </h1>
+      <div class="card text-center">
+        <div class="card-body p-4 form-inline">
+          <div class="row justify-content-md-center" style="width: 100%;">
+            <!-- 0 element -->
+            <div class="col-lg">
+              <div class="pricing text-center" style="border: 2px solid #ccc; border-radius: 8px">
+                <div class="x_content">
+                  <div style="border-bottom: 1px solid #ccc; background: #eee; padding: 4%">Affecté</div>
+                  <div class="pricing_features" style="height: 390px; overflow-y : auto;">
+                    <ul class="list-unstyled p-3" id="ul_livre">
+                      <ng-container *ngFor="let package of roadmap.packages">
+                        <ng-container *ngIf="package.etat == 'en cours'">
+                          <h4 class="p-1 border" style="border-radius: 25px"> {{package.CAB}} </h4>
+                        </ng-container>
+                      </ng-container>
+                    </ul>
+                  </div>
+                </div>
+                <div style="border-top: 1px solid #ccc; padding: 2%">
+                  <span style="color: #000; font-weight: bold;" class="text-center">
+                    ( <strong> {{countEtat(roadmap, 'en cours')}} </strong> )
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- //0 -->
+            <!-- 1 element -->
+            <div class="col-lg">
+              <div class="pricing" style="border: 2px solid #ccc; border-radius: 8px">
+                <h5>Livré</h5>
+                <div class="x_content text-center">
+                  <div class="pricing_features" style="height: 400px; overflow-y : auto;">
+                    <ul class="list-unstyled p-3" id="ul_livre">
+                      <ng-container *ngFor="let package of roadmap.packages">
+                        <ng-container *ngIf="package.etat == 'livré (espèce)'">
+                          <h4 class="p-1 bg-primary text-white" style="border-radius: 25px"> {{package.CAB}} </h4>
+                        </ng-container>
+                      </ng-container>
+                    </ul>
+                  </div>
+                </div>
+                <div style="border-top: 1px solid #ccc; padding: 2%">
+                  <span style="color: #000; font-weight: bold;" class="text-center">
+                    ( <strong> {{countEtat(roadmap, 'livré (espèce)')}} </strong> )
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- //1 -->
+            <!-- 2 element -->
+            <div class="col-lg">
+              <div class="pricing text-center" style="border: 2px solid #ccc; border-radius: 8px">
+                <h5>Livré (Autre moyen)</h5>
+                <div class="x_content">
+                  <div class="pricing_features" style="height: 400px; overflow-y : auto;">
+                    <ul class="list-unstyled p-3" id="ul_livre">
+                      <ng-container *ngFor="let package of roadmap.packages">
+                        <ng-container *ngIf="package.etat == 'livré (chèque)'">
+                          <h4 class="p-1 bg-primary text-white" style="border-radius: 25px"> {{package.CAB}} </h4>
+                        </ng-container>
+                      </ng-container>
+                    </ul>
+                  </div>
+                </div>
+                <div style="border-top: 1px solid #ccc; padding: 2%">
+                  <span style="color: #000; font-weight: bold;" class="text-center">
+                    ( <strong> {{countEtat(roadmap, 'livré (chèque)')}} </strong> )
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- //2 -->
+            <!-- 3 element -->
+            <div class="col-lg">
+              <div class="pricing text-center" style="border: 2px solid #ccc; border-radius: 8px">
+                <h5>Reporté</h5>
+                <div class="x_content">
+                  <div class="pricing_features" style="height: 400px; overflow-y : auto;">
+                    <ul class="list-unstyled text-left p-3 text-center" id="ul_livreanulle">
+                      <ng-container *ngFor="let package of roadmap.packages">
+                        <ng-container *ngIf="package.etat == 'reporté'">
+                          <h4 class="p-1 bg-primary text-white" style="border-radius: 25px"> {{package.CAB}} </h4>
+                        </ng-container>
+                      </ng-container>
+                    </ul>
+                  </div>
+                </div>
+                <div style="border-top: 1px solid #ccc; padding: 2%">
+                  <span style="color: #000; font-weight: bold;" class="text-center">
+                    ( <strong> {{countEtat(roadmap, 'reporté')}} </strong> )
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- //3 -->
+            <!-- 4  element -->
+            <div class="col-lg">
+              <div class="pricing text-center" style="border: 2px solid #ccc; border-radius: 8px">
+                <h5>Annulé</h5>
+                <div class="x_content">
+                  <div class="pricing_features" style="height: 400px; overflow-y : auto;">
+                    <ul class="list-unstyled text-left p-3 text-center">
+                      <ng-container *ngFor="let package of roadmap.packages">
+                        <ng-container *ngIf="package.etat == 'annulé'">
+                          <h4 class="p-1 bg-primary text-white" style="border-radius: 25px"> {{package.CAB}} </h4>
+                        </ng-container>
+                      </ng-container>
+                    </ul>
+                  </div>
+                </div>
+                <div style="border-top: 1px solid #ccc; padding: 2%">
+                  <span style="color: #000; font-weight: bold;" class="text-center">
+                    ( <strong> {{countEtat(roadmap, 'annulé')}} </strong> )
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- //4  -->
 
+          </div>
+          <div class="row justify-content-md-center" style="width: 100%;">
+            <!-- calcul -->
+            <div class="col-md-3 col-lg-3 m-4 border rounded pt-3 pb-2">
+              <h4>Espèce</h4>
+              <h5>10<sup>DT</sup></h5>
+            </div>
+            <div class="col-md-3 col-lg-3 m-4 border rounded pt-3 pb-2">
+              <h4>Chèque</h4>
+              <h5>0<sup>DT</sup></h5>
+            </div>
+            <div class="col-md-3 col-lg-3 m-4 border rounded pt-3 pb-2">
+              <h4>Total</h4>
+              <h5>10<sup>DT</sup></h5>
+            </div>
+            <!-- //calcul -->
+          </div>
+        </div>
+      </div>
+    </div>
   </ng-container>
-  <!-- ************************ END: PATH = DEBRIEF-GESTION ************************ -->
+  <!-- ************************ END: PATH = DEBRIEF-DETAILLE ************************ -->
 </div>

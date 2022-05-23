@@ -1,10 +1,12 @@
+import { map } from "rxjs/operators";
 import { DatePipe } from "@angular/common";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormGroup, FormBuilder } from "@angular/forms";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { RoadmapService } from "src/app/services/roadmap.service";
-import { ClientService } from "src/app/services/client.service"
+import { ClientService } from "src/app/services/client.service";
+import { PackageService } from "src/app/services/package.service";
 
 @Component({
   selector: "app-cb-debrief",
@@ -37,6 +39,12 @@ export class CbDebriefComponent implements OnInit {
   ];
   count: number;
   roadmap: any = {};
+  clients: any = [];
+  packages: any = [];
+  totalEspece: number;
+  totalAutre: number;
+  total: number;
+  dateSave: any;
 
   constructor(
     private fb: FormBuilder,
@@ -44,10 +52,17 @@ export class CbDebriefComponent implements OnInit {
     private roadmapService: RoadmapService,
     private route: ActivatedRoute,
     private router: Router,
-    private clientService: ClientService
+    private clientService: ClientService,
+    private packageService: PackageService
   ) {
     this.routePath = this.route.snapshot.routeConfig.path;
     this.roadmapId = this.route.snapshot.queryParamMap.get("id");
+    // saves the search date
+    this.dateSave = this.route.snapshot.queryParamMap.get("date") || null;
+    if (this.dateSave) {
+      this.date = this.dateSave;
+    }
+
   }
 
   ngOnInit(): void {
@@ -57,7 +72,9 @@ export class CbDebriefComponent implements OnInit {
         { prop: "nbPackages", name: "Tous" },
         { prop: "createdAtSearch", name: "Date" },
       ];
-      this.setDates();
+      if (!this.dateSave) {
+        this.setDates();
+      }
 
       this.dateForm = this.fb.group({
         date: this.date,
@@ -70,10 +87,32 @@ export class CbDebriefComponent implements OnInit {
       this.countRoadmaps(this.date);
 
       this.getRoadmaps(null, null, null, null, null, this.date);
-    } else if (this.routePath == "debrief-bilan") {
-      this.getRoadmap(this.roadmapId);
-    } else if (this.routePath == "debrief-gestion") {
+    } else {
+      this.initiateData();
     }
+  }
+
+  // initiates ui in bilan and 'debrief détaillé' pages
+  async initiateData() {
+    this.totalEspece = 0;
+    this.totalAutre = 0;
+    this.total = 0;
+    this.roadmap = await this.getRoadmap(this.roadmapId);
+
+    for (let element of this.roadmap.packages) {
+      const client = await this.getClientByPackageId(element._id);
+      element.client = client;
+      if (element.etat == "livré (espèce)") {
+        console.log(typeof element.c_remboursement);
+
+        this.totalEspece += parseInt(element.c_remboursement);
+        console.log(this.totalEspece);
+      } else if (element.etat == "livré (Chèque)") {
+        this.totalAutre += parseInt(element.c_remboursement);
+        console.log(this.totalAutre);
+      }
+    }
+    this.total = this.totalEspece + this.totalAutre;
   }
 
   //get roadmap list
@@ -93,16 +132,19 @@ export class CbDebriefComponent implements OnInit {
   }
 
   //get one roadmap
-  getRoadmap(id) {
-    this.roadmapService.getRoadmap(id).subscribe((data) => {
-      this.roadmap = data[0];
-    });
+  async getRoadmap(id) {
+    return await this.roadmapService
+      .getRoadmap(id)
+      .pipe(
+        map((data) => {
+          return data[0];
+        })
+      )
+      .toPromise();
   }
 
   getClientName(id) {
-    this.clientService.getClient(id).subscribe((data) => {
-
-    })
+    this.clientService.getClient(id).subscribe((data) => {});
     // return await this.packageService
     //   .getPackageByCAB(cab)
     //   .pipe(
@@ -192,13 +234,22 @@ export class CbDebriefComponent implements OnInit {
   }
 
   update() {
-    this.getRoadmaps(null, null, null, null, null, this.date);
-    this.countRoadmaps(this.date);
+    var navigationExtras: NavigationExtras = {
+      queryParams: {
+        date: this.date,
+      },
+    };
+    this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => {
+      this.router.navigate(["/debrief-list"], navigationExtras);
+  });
+    // this.router.navigate(["/debrief-list"], navigationExtras);
+    // this.getRoadmaps(null, null, null, null, null, this.date);
+    // this.countRoadmaps(this.date);
   }
 
   public countEtat(row, etat) {
     var count = 0;
-    row.packages.forEach((element) => {
+    row.packages?.forEach((element) => {
       if (element.etat === etat) {
         count++;
       }
@@ -215,17 +266,39 @@ export class CbDebriefComponent implements OnInit {
     this.router.navigate(["/debrief-bilan"], navigationExtras);
   }
 
-  gestion(row) {
+  details(row) {
     var navigationExtras: NavigationExtras = {
       queryParams: {
         id: row._id,
       },
     };
-    this.router.navigate(["/debrief-gestion"], navigationExtras);
+    this.router.navigate(["/debrief-detaillé"], navigationExtras);
   }
 
   public logg(data) {
     console.log("data");
     console.log(data);
   }
+
+  /*********************** BILAN ********************** */
+  changeState(element: any, state: string) {
+    this.packageService
+      .updatePackageByCAB(element, { etat: state })
+      .subscribe(async () => {
+        //reset state for package in ui
+        this.initiateData();
+      });
+  }
+
+  async getClientByPackageId(id) {
+    return await this.packageService
+      .getPackage(id)
+      .pipe(
+        map((data) => {
+          return data[0].nomc;
+        })
+      )
+      .toPromise();
+  }
+  /*********************** BILAN ********************** */
 }

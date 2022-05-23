@@ -8,6 +8,7 @@ var PackageSchema = new Schema(
       minlength: 10,
       maxlength: 10,
       unique: true,
+      index: true,
     },
     service: {
       type: String,
@@ -42,10 +43,10 @@ var PackageSchema = new Schema(
         "ramassé par livreur",
         "collecté",
         "en cours",
-        "reporté",
-        "livré",
+        "livré (espèce)",
+        "livré (chèque)",
         "annulé",
-        "payé",
+        "reporté",
       ],
       reqiured: true,
       default: "nouveau",
@@ -74,6 +75,7 @@ var PackageSchema = new Schema(
   },
   {
     timestamps: true,
+    
   }
 );
 
