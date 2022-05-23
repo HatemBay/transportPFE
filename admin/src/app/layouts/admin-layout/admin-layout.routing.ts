@@ -48,6 +48,7 @@ export const AdminLayoutRoutes: Routes = [
   { path: "feuille-de-route", component: CbFeuilleRouteComponent },
   { path: "feuille-de-route-historique", component: CbFeuilleRouteComponent },
   { path: "feuille-de-retour", component: CbFeuilleRetourComponent },
+  { path: "feuille-de-retour-historique", component: CbFeuilleRetourComponent },
   { path: "debrief-list", component: CbDebriefComponent },
   { path: "debrief-bilan", component: CbDebriefComponent },
   { path: "debrief-detaillé", component: CbDebriefComponent },

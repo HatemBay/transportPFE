@@ -1,6 +1,6 @@
 <div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
   <div class="container-fluid">
-    <!-- ************************ START: PATH = FEUILLE-DE-ROUTE (1) ************************ -->
+    <!-- ************************ START: PATH = FEUILLE-DE-RETOUR (1) ************************ -->
     <ng-container *ngIf="routePath == 'feuille-de-retour'">
       <div class="header-body">
         <div class="row">
@@ -8,21 +8,23 @@
             <div class="card mb-4 text-center">
               <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
                 style="border-bottom: 1px solid #eee;">
-                <h5 class="m-0 font-weight-bold text-primary">Feuille de route (Elle donne l'état 'Retourné à')</h5>
-                <a [routerLink]="['/feuille-de-route-historique']" class="m-0 float-right btn btn-primary btn-sm">
+                <h5 class="m-0 font-weight-bold text-primary">Feuille de retour (Elle donne l'état 'Retourné à')</h5>
+                <a [routerLink]="['/feuille-de-retour-historique']" class="m-0 float-right btn btn-primary btn-sm">
                   Historique
                 </a>
               </div>
               <div class="card-body form-inline d-flex justify-content-center">
                 <form [formGroup]="fournisseursForm" class="input-group col-lg-4">
-                  <select formControlName="chauffeurs" id="chauffeur" class="form-control" name="chauffeur">
+                  <select formControlName="fournisseurs" class="form-control">
                     <option value="" hidden="">-- Choisir fournisseur--</option>
-                    <option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur._id">{{fournisseur.nom}} </option>
+                    <option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur._id">
+                      {{fournisseur.nom}}
+                    </option>
                   </select>
                 </form>
                 <div class="input-group col-lg-2">
                   <button [routerLink]="" [disabled]="fournisseursForm.invalid" class="btn btn-sm btn-primary btn-block"
-                    (click)="getPackagesByProvider(fournisseur._id)"><i class="fa fa-check"></i>
+                    (click)="getPackages()"><i class="fa fa-check"></i>
                     Valider</button>
                 </div>
               </div>
@@ -31,58 +33,111 @@
         </div>
       </div>
     </ng-container>
-    <!-- ************************ END: PATH = FEUILLE-DE-ROUTE (1) ************************ -->
+    <!-- ************************ END: PATH = FEUILLE-DE-RETOUR (1) ************************ -->
   </div>
 </div>
 <!-- Page content -->
 <div class="container-fluid mt--7">
-  <!-- ************************ START: PATH = FEUILLE-DE-ROUTE (2) ************************ -->
+  <!-- ************************ START: PATH = FEUILLE-DE-RETOUR (2) ************************ -->
   <ng-container *ngIf="routePath == 'feuille-de-retour'">
     <!-- Table -->
     <div class="row" [ngClass]="[display]">
       <div class="col">
         <div class="card shadow">
-          <div class="card mb-4" id="show">
-            <div class="card-body">
-              <form [formGroup]="referenceForm" class="row">
-                <div class="col-sm-3 offset-1">
-                  <div class="form-group text-right">
-                    <label class="form-label">Réference,<br> <b><u>un</u></b> sur chaque ligne :</label>
+          <div class="card-header">
+            <div class="row">
+              <div class="col-6 pr-4">
+                <div class="row">
+                  <div class="col-2">
+                    <label for="per-page">
+                      Afficher
+                    </label>
+                  </div>
+                  <div class="col-2">
+                    <select class="form-control" id="per-page" (change)="onLimitChange($event.target.value)">
+                      <option *ngFor="let option of pageLimitOptions" [value]="option.value"
+                        [selected]="option.value == currentPageLimit">
+                        {{ option.value }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label for="per-page">
+                      éléments
+                    </label>
                   </div>
                 </div>
-                <div class="col-sm-2">
-                  <div class="form-group">
-                    <input type="hidden" name="date" id="date_show" value="2022-05-04">
-                    <input type="hidden" name="chauffeur" id="chauffeur_show" value="11">
-                    <input type="hidden" name="vehicule" id="vehicule_show">
-                    <input type="hidden" name="user" value="XTw=">
-                    <textarea formControlName="references" name="code_barre" id="ingredients_list" class="form-control"
-                      rows="17"></textarea>
-                  </div>
-                </div>
-                <div class="col-sm-6">
-                  <div class="form-group">
-                    <button [disabled]="referenceForm.invalid" (click)="printRoadmap()" name=""
-                      class="btn btn-primary btn-sm px-5">Imprimer la feuille de route</button>
-                    <div *ngIf="error" class="alert alert-danger mt-4">
-                      <span class="closebtn"
-                        onclick="this.parentElement.style.display='none'; error = false;">&times;</span>
-                      <ng-container *ngFor="let item of index">
-                        Erreur dans la ligne {{item+1}}
-                        <br>
-                      </ng-container>
-                    </div>
-                  </div>
-                </div>
-              </form>
+
+              </div>
+              <div class="col-6 float-right" style="padding-left: 300px !important;">
+                <input #search class="form-control" type="text" placeholder="Rechercher" (keyup)="updateFilter($event)"
+                  autocomplete="false" />
+              </div>
             </div>
+          </div>
+          <div>
+            <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
+              [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
+              (sort)="onSort($event)">
+
+              <ngx-datatable-column *ngFor="let column of columns;
+        let i = index;" name="{{column.name}}" prop="{{column.prop}}">
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Chauffeur">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.nomd}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+
+              <ngx-datatable-column name="Tout" prop="telf">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.nbPackages}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
+                  <span>
+                    <button [routerLink]="" title="Details" (click)="details(row)"
+                      class="btn btn-primary btn-sm rounded-circle">
+                      <i class="fa fa-barcode"></i>
+                    </button>
+                    <button [routerLink]="" title="Bilan" (click)="bilan(row)"
+                      class="btn btn-info mr-2 btn-sm rounded-circle">
+                      <i class="fa fa-tasks"></i>
+                    </button>
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-footer>
+                <ng-template ngx-datatable-footer-template let-rowCount="count" let-pageSize="pageSize"
+                  let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
+                  <div class="pl-2">
+                    Elements: {{ count }} | Taille: {{ pageSize }} | Page:
+                    {{ curPage }}
+                  </div>
+                  <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'"
+                    [pagerRightArrowIcon]="'datatable-icon-right'" [pagerPreviousIcon]="'datatable-icon-prev'"
+                    [pagerNextIcon]="'datatable-icon-skip'" [page]="curPage" [size]="pageSize" [count]="count"
+                    [hidden]="!((count / pageSize) > 1)" (change)="onFooterPage($event)">
+                  </datatable-pager>
+                </ng-template>
+              </ngx-datatable-footer>
+            </ngx-datatable>
           </div>
         </div>
       </div>
     </div>
   </ng-container>
-  <!-- ************************ END: PATH = FEUILLE-DE-ROUTE (2) ************************ -->
-  <!-- ************************ START: PATH = FEUILLE-DE-ROUTE-HISTORIQUE (2) ************************ -->
+  <!-- ************************ END: PATH = FEUILLE-DE-RETOUR (2) ************************ -->
+  <!-- ************************ START: PATH = FEUILLE-DE-RETOUR-HISTORIQUE (2) ************************ -->
   <!-- <ng-container *ngIf="routePath == 'feuille-de-route-historique'">
     <div class="row">
       <div class="col">
@@ -165,7 +220,7 @@
       </div>
     </div>
   </ng-container> -->
-  <!-- ************************ START: PATH = FEUILLE-DE-ROUTE-HISTORIQUE (2) ************************ -->
+  <!-- ************************ START: PATH = FEUILLE-DE-RETOUR-HISTORIQUE (2) ************************ -->
 </div>
 
 

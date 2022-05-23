@@ -46,8 +46,27 @@ export class PackageService {
   }
 
   // Get all packages with all foreign info
-  getPackageByProvider(id: any) {
+  getPackageByProvider(
+    id: any,
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any
+  ) {
     const url = `${this.baseUri}/all-info/${id}`;
+    var queryParams = new HttpParams();
+    queryParams = queryParams.append("limit", limit);
+    queryParams = queryParams.append("page", page);
+    if (sortBy) {
+      queryParams = queryParams.append("sortBy", sortBy);
+    }
+    if (sort) {
+      queryParams = queryParams.append("sort", sort);
+    }
+    if (search) {
+      queryParams = queryParams.append("search", search);
+    }
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }
 
@@ -175,6 +194,11 @@ export class PackageService {
       }),
       catchError(this.errorMgmt)
     );
+  }
+
+  getFullPackageByCABPromise(cab: any): Observable<any> {
+    const url = `${this.baseUri}/all-info-admin-cab/${cab}`;
+    return this.http.get(url, { headers: this.headers });
   }
 
   // Update package

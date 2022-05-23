@@ -126,7 +126,7 @@ export class CbFeuilleRouteComponent implements OnInit {
   }
 
   //shows textarea for roadmap
-  public show(id: any) {
+  public show() {
     this.chauffeur = [];
     this.display = "block";
     const index: number = this.chauffeurs.findIndex(
