@@ -1,20 +1,19 @@
-import { VehiculeService } from "src/app/services/vehicule.service";
-import { map } from "rxjs/operators";
+import { DatePipe } from "@angular/common";
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { FeuilleRetourService } from "src/app/services/feuille-retour.service";
 import { FournisseurService } from "src/app/services/fournisseur.service";
 import { PackageService } from "src/app/services/package.service";
 import { UserService } from "src/app/services/user.service";
-import { DatatableComponent } from "@swimlane/ngx-datatable";
-import { FeuilleRetourService } from "src/app/services/feuille-retour.service";
+import { VehiculeService } from "src/app/services/vehicule.service";
 
 @Component({
-  selector: "app-cb-feuille-retour",
-  templateUrl: "./cb-feuille-retour.component.html",
-  styleUrls: ["./cb-feuille-retour.component.scss"],
+  selector: "app-finance-client",
+  templateUrl: "./finance-client.component.html",
+  styleUrls: ["./finance-client.component.scss"],
 })
-export class CbFeuilleRetourComponent implements OnInit {
+export class FinanceClientComponent implements OnInit {
   @ViewChild(DatatableComponent) search: DatatableComponent;
   @ViewChild(DatatableComponent) table: DatatableComponent;
   @ViewChild(alert) alert: any;
@@ -23,6 +22,10 @@ export class CbFeuilleRetourComponent implements OnInit {
   routePath: string;
   fournisseursForm: FormGroup;
   chauffeursForm: FormGroup;
+  dateForm: FormGroup;
+  today: string;
+  startDate: string;
+  myDate = new Date();
 
   temp: any = [];
   rows: any = [];
@@ -32,6 +35,7 @@ export class CbFeuilleRetourComponent implements OnInit {
   fournisseurs: any = [];
   vehicules: any = [];
   fournisseur: any = [];
+  success: boolean = false;
 
   public currentPageLimit: number = 10;
   public currentPage: number = 1;
@@ -45,12 +49,10 @@ export class CbFeuilleRetourComponent implements OnInit {
   ];
   display: string = "default";
   selected: any = [];
-  printable: boolean = false;
-  success: boolean = false;
-
   constructor(
     private fb: FormBuilder,
     private fournisseurService: FournisseurService,
+    private datePipe: DatePipe,
     private vehiculeService: VehiculeService,
     private userService: UserService,
     private packageService: PackageService,
@@ -64,38 +66,16 @@ export class CbFeuilleRetourComponent implements OnInit {
       fournisseurs: ["", Validators.required],
     });
 
-    this.chauffeursForm = this.fb.group({
-      driverId: ["", Validators.required],
-      // TODO: to be added
-      // vehicules: ["", Validators.required],
+    this.setDates();
+
+    this.dateForm = this.fb.group({
+      today: this.today,
+      startDate: this.startDate,
     });
 
-    this.initiateData();
-  }
-
-  async initiateData() {
-    this.fournisseurs = await this.getProviders();
-    this.chauffeurs = await this.getDrivers();
-    this.vehicules = await this.getVehicles();
-    console.log(this.fournisseurs);
-    console.log(this.chauffeurs);
-    console.log(this.vehicules);
-    // this.getPackagesByProvider(
-    //   this.fournisseurs[0]._id,
-    //   this.currentPageLimit,
-    //   1,
-    //   null,
-    //   null,
-    //   null
-    // );
-  }
-
-  get f() {
-    return this.fournisseursForm.controls;
-  }
-
-  get g() {
-    return this.chauffeursForm.controls;
+    this.dateForm.valueChanges.subscribe((data) =>
+      this.onDateFormValueChange(data)
+    );
   }
 
   //get packages from selected provider
@@ -109,6 +89,62 @@ export class CbFeuilleRetourComponent implements OnInit {
       null,
       null
     );
+  }
+
+  async getPackagesByProvider(
+    id: any,
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any,
+    startDate?: any,
+    endDate?: any
+  ) {
+    this.packageService
+      .getPackageByProvider(
+        "finance-client",
+        id,
+        limit,
+        page,
+        sortBy,
+        sort,
+        search,
+        startDate,
+        endDate
+      )
+      .subscribe(async (data) => {
+        var result: any = [];
+        var packages: any = [];
+        packages = data;
+        for (let item of packages) {
+          if (
+            item.etat === "livré (espèce)" ||
+            item.etat === "livré (chèque)"
+          ) {
+            result = [...result, item];
+          }
+        }
+
+        this.rows = this.temp = result;
+      });
+  }
+
+  // initiate our dates
+  public setDates() {
+    this.today = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
+    const thisDate = this.myDate.getDate();
+    // this.myDate.setDate(this.myDate.getMonth() - 2);
+    this.myDate.setMonth(this.myDate.getMonth() - 1);
+    this.myDate.setDate(thisDate);
+
+    this.startDate = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
+  }
+
+  // save changes in credentials
+  private onDateFormValueChange(data: any): void {
+    this.today = data.today;
+    this.startDate = data.startDate;
   }
 
   updateFilter(event) {
@@ -165,13 +201,12 @@ export class CbFeuilleRetourComponent implements OnInit {
   // checkbox selection
   onSelect(event) {
     // console.log("Select Event", event);
-    this.selected = event.selected;
-    if (this.selected.length > 0) {
-      this.printable = true;
-    } else {
-      this.printable = false;
-    }
-
+    // this.selected = event.selected;
+    // if (this.selected.length > 0) {
+    //   this.printable = true;
+    // } else {
+    //   this.printable = false;
+    // }
     // console.log(this.selected[0]._id);
   }
 
@@ -189,61 +224,20 @@ export class CbFeuilleRetourComponent implements OnInit {
     this.currentPage = parseInt(page, 10);
   }
 
-  async getDrivers(): Promise<any> {
-    return await this.userService.getUsersByRole("chauffeur").toPromise();
-  }
-
-  async getProviders() {
-    return await this.fournisseurService.getFournisseurs().toPromise();
-  }
-
-  async getVehicles() {
-    return await this.vehiculeService.getVehicules().toPromise();
-  }
-
-  async getPackagesByProvider(
-    id: any,
-    limit?: any,
-    page?: any,
-    sortBy?: any,
-    sort?: any,
-    search?: any
-  ) {
-    this.packageService
-      .getPackageByProvider(
-        "feuille-de-retour",
-        id,
-        limit,
-        page,
-        sortBy,
-        sort,
-        search
-      )
-      .subscribe(async (data) => {
-        var result: any = [];
-        var packages: any = [];
-        packages = data;
-        for (let item of packages) {
-          if (item.etat === "annulé") {
-            result = [...result, item];
-          }
-        }
-
-        this.rows = this.temp = result;
-      });
-  }
-
-  // allocate driver to return paper
-  allocate() {
-    console.log(this.selected[0]);
-
-    this.feuilleRetourService
-      .createFeuilleRetour({
-        driverId: this.g.driverId.value,
-        packages: this.selected,
-      })
-      .subscribe(() => {
-        this.success = true;
-      });
+  update() {
+    //dates are set when the view is initiated so when table search is implemented it will use those values regardless of initiating date periods search
+    //so we need to use a variable that checks if the time periods search has been initiated at least once
+    // this.init = true;
+    this.getPackagesByProvider(
+      this.fournisseursForm.value.fournisseurs,
+      null,
+      null,
+      null,
+      null,
+      null,
+      this.startDate,
+      this.today
+    );
+    // this.countPackages(this.isAllocated, this.startDate, this.today);
   }
 }
