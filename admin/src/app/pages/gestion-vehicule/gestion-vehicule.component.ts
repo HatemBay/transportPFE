@@ -51,7 +51,7 @@ export class GestionVehiculeComponent implements OnInit {
   count: any;
   vehiculeForm: any;
   vehiculeModifyForm: any;
-  error: any = "none";
+  error: string = "none";
   chauffeurs: Object;
   routePath: any;
   vehiculeId: string;

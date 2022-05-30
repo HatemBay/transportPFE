@@ -42,7 +42,7 @@ export class GestionDelegationComponent implements OnInit {
   public columns: Array<object>;
   count: any;
   delegationForm: any;
-  error: any = "none";
+  error: string = "none";
   villes: Object;
   constructor(
     private fb: FormBuilder,

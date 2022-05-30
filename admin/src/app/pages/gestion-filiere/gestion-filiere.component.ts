@@ -50,7 +50,7 @@ export class GestionFiliereComponent implements OnInit {
   public columns: Array<object>;
   count: any;
   filiereForm: any;
-  error: any = "none";
+  error: string = "none";
   constructor(
     private fb: FormBuilder,
     private filiereService: FiliereService,

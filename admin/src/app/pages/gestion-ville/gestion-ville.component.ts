@@ -41,7 +41,7 @@ export class GestionVilleComponent implements OnInit {
   public columns: Array<object>;
   count: any;
   villeForm: any;
-  error: any = "none";
+  error: string = "none";
   constructor(
     private fb: FormBuilder,
     private villeService: VilleService,
