@@ -50,7 +50,7 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">Ville (*)</label>
-                  <select formControlName="ville" [value]="clientData.ville" class="form-control" name="ville_cl"
+                  <select formControlName="ville" [value]="packageForm.ville" class="form-control" name="ville_cl"
                     id="ville_cl">
                     <option hidden="" value="">-- Choisir --</option>
                     <option data-value="1" value="Ariana">Ariana</option>
@@ -75,7 +75,7 @@
                 </div>
                 <div class="form-group" id="delegation">
                   <label class="form-label">Délegation (*)</label>
-                  <select formControlName="delegation" [value]="clientData.delegation" class="form-control"
+                  <select formControlName="delegation" [value]="packageForm.delegation" class="form-control"
                     name="delegation_cl" id="delegation_cl">
                     <option hidden="" value="">-- Choisir ville --</option>
                     <option data-value="1" value="Ariana">Ariana</option>
@@ -94,7 +94,7 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">Adresse (*)</label>
-                  <input formControlName="adresse" [value]="clientData.adresse" name="adresse_cl" id="adresse_cl"
+                  <input formControlName="adresse" [value]="packageForm.adresse" name="adresse_cl" id="adresse_cl"
                     type="text" class="form-control">
                   <ng-container
                     *ngIf="packageForm.controls['adresse'].invalid && (packageForm.controls['adresse'].dirty || packageForm.controls['adresse'].touched)">
@@ -108,12 +108,12 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">Code postale</label>
-                  <input formControlName="codePostale" [value]="clientData.codePostale" name="code_post_cl" type="text"
+                  <input formControlName="codePostale" [value]="packageForm.codePostale" name="code_post_cl" type="text"
                     id="code_post_cl " class="form-control">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Téléphone 2</label>
-                  <input formControlName="tel2" [value]="clientData.tel2" name="tel_2_cl" class="form-control"
+                  <input formControlName="tel2" [value]="packageForm.tel2" name="tel_2_cl" class="form-control"
                     id="tel_2_cl">
                 </div>
               </div>
@@ -122,7 +122,7 @@
                 <h3 class="card-title">Coordonnées de colis</h3>
                 <div class="form-group">
                   <label class="form-label">Contre remboursement <sup>TND</sup> (*)</label>
-                  <input formControlName="c_remboursement" [value]="packageData.c_remboursement" name="cod"
+                  <input formControlName="c_remboursement" [value]="packageForm.c_remboursement" name="cod"
                     type="number" class="form-control" step="any">
                   <ng-container
                     *ngIf="packageForm.controls['c_remboursement'].invalid && (packageForm.controls['c_remboursement'].dirty || packageForm.controls['c_remboursement'].touched)">
@@ -137,7 +137,7 @@
 
                 <div class="form-group">
                   <label class="form-label">Service (*)</label>
-                  <select formControlName="service" [value]="packageData.service || null" name="service"
+                  <select formControlName="service" [value]="packageForm.service || null" name="service"
                     class="form-control">
                     <option value="livraison" selected>Livraison</option>
                     <option value="collection">Collecte</option>
@@ -155,7 +155,7 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">Libelle de marchandise (*)</label>
-                  <input formControlName="libelle" [value]="packageData.libelle" name="libelle" class="form-control">
+                  <input formControlName="libelle" [value]="packageForm.libelle" name="libelle" class="form-control">
                   <ng-container
                     *ngIf="packageForm.controls['libelle'].invalid && (packageForm.controls['libelle'].dirty || packageForm.controls['libelle'].touched)">
                     <ng-container *ngIf="packageForm.controls['libelle'].errors?.['required']">
@@ -168,7 +168,7 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">Volume</label>
-                  <select formControlName="volume" [value]="packageData.volume" name="volume" class="form-control">
+                  <select formControlName="volume" [value]="packageForm.volume" name="volume" class="form-control">
                     <option hidden="" value="">-- Choisir volume--</option>
                     <option value="petit">Petit</option>
                     <option value="moyen">Moyen</option>
@@ -177,17 +177,17 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">Poids</label>
-                  <input formControlName="poids" [value]="packageData.poids" name="poids" type="number"
+                  <input formControlName="poids" [value]="packageForm.poids" name="poids" type="number"
                     class="form-control">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Nombre de pièce par colis</label>
-                  <input formControlName="pieces" [value]="packageData.pieces" name="nb_piece" type="number"
+                  <input formControlName="pieces" [value]="packageForm.pieces" name="nb_piece" type="number"
                     class="form-control">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Remarque</label>
-                  <textarea formControlName="remarque" [value]="packageData.remarque" name="remarque"
+                  <textarea formControlName="remarque" [value]="packageForm.remarque" name="remarque"
                     class="form-control" rows="3"></textarea>
                 </div>
                 <div class="form-group">

@@ -32,7 +32,7 @@ router.get("/all", (req, res) => {
         as: "delegations",
       },
     },
-    { $unwind: "$delegations" },
+    { $unwind: { path: "$delegations", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "villes",
@@ -41,7 +41,7 @@ router.get("/all", (req, res) => {
         as: "villes",
       },
     },
-    { $unwind: "$villes" },
+    { $unwind: { path: "$villes", preserveNullAndEmptyArrays: true } },
     {
       $project: {
         _id: 1,
@@ -134,7 +134,7 @@ router.get("/:id", (req, res) => {
         as: "delegations",
       },
     },
-    { $unwind: "$delegations" },
+    { $unwind: { path: "$delegations", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "villes",
@@ -143,7 +143,7 @@ router.get("/:id", (req, res) => {
         as: "villes",
       },
     },
-    { $unwind: "$villes" },
+    { $unwind: { path: "$villes", preserveNullAndEmptyArrays: true } },
     {
       $project: {
         _id: 1,
@@ -271,8 +271,10 @@ router.post("/", (req, res) => {
 
 // update client
 router.put("/:id", (req, res) => {
-  if (!ObjectId.isValid(req.params.id))
+  if (!ObjectId.isValid(req.params.id)) {
+    console.log(err);
     return res.status(400).send(`no record with given id: ${req.params.id}`);
+  }
 
   var oldDelegation = null;
   Client.findById(req.params.id, (err, doc) => {
@@ -306,7 +308,8 @@ router.put("/:id", (req, res) => {
             },
             { new: true, useFindAndModify: false }
           ).then(
-            (doc2) => {
+            () => {
+              
               Delegation.findByIdAndUpdate(
                 req.body.delegationId,
                 {
@@ -315,12 +318,12 @@ router.put("/:id", (req, res) => {
                 { new: true, useFindAndModify: false }
               ).exec((err3) => {
                 if (!err3) {
-                  res.send(doc);
+                  return res.status(200).send(doc);
                 } else {
                   console.log(
                     "Erreur lors de la mise à jour de la délégation: " + err3
                   );
-                  res.status(400).send(err3.message);
+                  return res.status(400).send(err3.message);
                 }
               });
             },
@@ -328,17 +331,19 @@ router.put("/:id", (req, res) => {
               console.log(
                 "Erreur lors de mis à jour de la délégation: " + err2
               );
-              res
+              return res
                 .status(400)
                 .send("Erreur lors du mis à jour de la délégation: " + err2);
             }
           );
         } else {
-          res.status(400).send(doc);
+          return res.status(200).send(doc);
         }
       } else {
         console.log("Erreur lors de mis à jour du client: " + err);
-        res.status(400).send("Erreur lors de mis à jour du client: " + err);
+        return res
+          .status(400)
+          .send("Erreur lors de mis à jour du client: " + err);
       }
     }
   );

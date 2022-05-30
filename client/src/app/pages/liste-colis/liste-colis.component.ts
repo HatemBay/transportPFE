@@ -44,6 +44,9 @@ export class ListeColisComponent implements OnInit {
   ) {
     this.added = Boolean(this.route.snapshot.queryParamMap.get("added"));
     this.edited = Boolean(this.route.snapshot.queryParamMap.get("edited"));
+    // TODO: remove
+    console.log(localStorage.getItem("mean-token"));
+
   }
   ngOnInit(): void {
     // Initial columns, can be used for data list which is will be filtered

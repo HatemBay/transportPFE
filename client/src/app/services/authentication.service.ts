@@ -94,7 +94,7 @@ export class AuthenticationService {
 
   private request(
     method: 'post' | 'get',
-    type: 'login' | 'register',
+    type: 'login-provider' | 'register',
     user?: TokenPayload
   ): Observable<any> {
     let base: Observable<any>;
@@ -129,7 +129,7 @@ export class AuthenticationService {
 
   public login(user: TokenPayload): Observable<any> {
     this.isLoadingSubject.next(true);
-    return this.request('post', 'login', user).pipe(
+    return this.request('post', 'login-provider', user).pipe(
       finalize(() => this.isLoadingSubject.next(false))
     );
 

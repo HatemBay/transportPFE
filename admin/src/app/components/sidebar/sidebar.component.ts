@@ -75,27 +75,10 @@ export const ROUTES: RouteInfo[] = [
     parent: "",
     collapsable: false,
   },
-  {
-    path: "/finance",
-    title: "Finance",
-    icon: "ni-circle-08 text-pink",
-    class: "",
-    roles: ["admin", "fourn"],
-    parent: "",
-    collapsable: false,
-  },
+  //* gestion
   {
     path: "",
     title: "Gestion",
-    icon: "ni-settings-gear-65 text-info",
-    class: "",
-    roles: [],
-    parent: "",
-    collapsable: true,
-  },
-  {
-    path: "",
-    title: "Chef de bureau",
     icon: "ni-settings-gear-65 text-info",
     class: "",
     roles: [],
@@ -144,6 +127,17 @@ export const ROUTES: RouteInfo[] = [
     roles: [],
     parent: "Gestion",
   },
+  //* chef de bureau
+  {
+    path: "",
+    title: "Chef de bureau",
+    icon: "ni-settings-gear-65 text-info",
+    class: "",
+    roles: [],
+    parent: "",
+    collapsable: true,
+  },
+
   {
     path: "/pickup",
     title: "Pickup",
@@ -186,6 +180,30 @@ export const ROUTES: RouteInfo[] = [
     roles: [],
     parent: "Chef de bureau",
   },
+  //* finance
+  {
+    path: "/finance",
+    title: "Finance",
+    icon: "ni-circle-08 text-pink",
+    class: "",
+    roles: ["admin", "fourn"],
+    parent: "",
+    collapsable: true,
+  },
+  {
+    path: "/finance-client",
+    title: "Client",
+    class: "",
+    roles: [],
+    parent: "Finance",
+  },
+  {
+    path: "/debrief-global",
+    title: "Debrief global",
+    class: "",
+    roles: [],
+    parent: "Finance",
+  },
 ];
 
 @Component({
@@ -197,6 +215,7 @@ export class SidebarComponent implements OnInit {
   public menuItems: any[];
   public isCBCollapsed = false;
   public isGCollapsed = false;
+  public isFCollapsed = false;
   public isCollapsed = false;
   role: any;
 

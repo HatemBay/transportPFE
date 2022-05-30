@@ -21,6 +21,7 @@ import { CbCollecteComponent } from "src/app/pages/cb-collecte/cb-collecte.compo
 import { CbFeuilleRouteComponent } from "src/app/pages/cb-feuille-route/cb-feuille-route.component";
 import { CbFeuilleRetourComponent } from "src/app/pages/cb-feuille-retour/cb-feuille-retour.component";
 import { CbDebriefComponent } from "src/app/pages/cb-debrief/cb-debrief.component";
+import { ModifierColisComponent } from "src/app/pages/modifier-colis/modifier-colis.component";
 
 export const AdminLayoutRoutes: Routes = [
   { path: "dashboard", component: DashboardComponent },
@@ -29,6 +30,7 @@ export const AdminLayoutRoutes: Routes = [
   { path: "recherche", component: RechercheComponent },
   { path: "recherche-av", component: RechercheComponent },
   { path: "recherche-av-sub", component: RechercheComponent },
+  { path: "modifier-colis", component: ModifierColisComponent },
   { path: "icons", component: IconsComponent },
   { path: "modifier-colis", component: ColisJourComponent },
   { path: "carnet-adresses", component: CarnetAdresseComponent },

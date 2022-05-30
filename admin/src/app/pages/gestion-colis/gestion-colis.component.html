@@ -42,15 +42,14 @@
           </div>
           <div class="mb-4">
             <ul #myEl class="nav nav-pills row text-center" id="myTab" role="tablist">
-              <div class="col-12">
+              <div class="col-6">
                 <div class="row">
                   <li class="nav-item col-2">
-                    <a class="nav-link btn btn-primary" (click)="copyToClipboard()"
-                      type="button">{{printList[0].name}}</a>
+                    <a class="nav-link btn btn-primary" (click)="copyToClipboard()" type="button">{{printList[0].name}}</a>
                   </li>
                   <li class="nav-item col-2">
-                    <a csvLink [data]="rows" [headers]="headers" style="color: #5e72e4 !important;" class="nav-link btn btn-primary"
-                      (click)="exportToExcel()" type="button">{{printList[1].name}}</a>
+                    <a csvLink [data]="rows" [headers]="headers" style="color: #5e72e4 !important;"
+                      class="nav-link btn btn-primary" (click)="exportToExcel()" type="button">{{printList[1].name}}</a>
                   </li>
                   <li class="nav-item col-2">
                     <a class="nav-link btn btn-primary" (click)="exportToExcel()"
@@ -205,20 +204,20 @@
     </thead>
     <tbody>
       <ng-container *ngFor="let row of rows">
-      <tr>
-        <td>{{row.CAB}}</td>
-        <td>{{row.etat}}</td>
-        <td>{{row.nomf}}</td>
-        <td>{{row.nomc}}</td>
-        <td>{{row.telc}}</td>
-        <td>{{row.tel2c}}</td>
-        <td>{{row.villec}}</td>
-        <td>{{row.delegationc}}</td>
-        <td>{{row.adressec}}</td>
-        <td>{{row.c_remboursement}}</td>
-        <td>{{row.createdAtSearch}}/td>
-      </tr>
-    </ng-container>
+        <tr>
+          <td>{{row.CAB}}</td>
+          <td>{{row.etat}}</td>
+          <td>{{row.nomf}}</td>
+          <td>{{row.nomc}}</td>
+          <td>{{row.telc}}</td>
+          <td>{{row.tel2c}}</td>
+          <td>{{row.villec}}</td>
+          <td>{{row.delegationc}}</td>
+          <td>{{row.adressec}}</td>
+          <td>{{row.c_remboursement}}</td>
+          <td>{{row.createdAtSearch}}/td>
+        </tr>
+      </ng-container>
     </tbody>
   </table>
   <div></div>

@@ -32,7 +32,7 @@ export class FournisseurService {
       .pipe(catchError(this.errorMgmt));
   }
   // Get all fournisseurs
-  getFournisseurs(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
+  getFournisseurs(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any): Observable<any> {
     const url = `${this.baseUri}/`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);

@@ -23,6 +23,7 @@ const { User } = require("../models/users");
 const { Client } = require("../models/client");
 const { Fournisseur } = require("../models/fournisseur");
 const { default: mongoose } = require("mongoose");
+const { query } = require("express");
 
 // Read all
 router.get("/", (req, res) => {
@@ -115,6 +116,24 @@ router.get("/all-info/:fid", (req, res) => {
     },
     { $unwind: "$fournisseurs" },
     {
+      $lookup: {
+        from: "villes",
+        localField: "fournisseurs.villeId",
+        foreignField: "_id",
+        as: "villes",
+      },
+    },
+    { $unwind: "$villes" },
+    {
+      $lookup: {
+        from: "delegations",
+        localField: "fournisseurs.delegationId",
+        foreignField: "_id",
+        as: "delegations",
+      },
+    },
+    { $unwind: "$delegations" },
+    {
       $project: {
         _id: 1,
         CAB: 1,
@@ -134,6 +153,9 @@ router.get("/all-info/:fid", (req, res) => {
         telc: "$clients.tel",
         tel2c: "$clients.tel2",
         fournisseurId: "$fournisseurs._id",
+        nomf: "$fournisseurs.nom",
+        villef: "$villes.nom",
+        delegationf: "$delegations.nom",
         createdAt: 1,
         updatedAt: {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
@@ -150,15 +172,6 @@ router.get("/all-info/:fid", (req, res) => {
     {
       $match: { fournisseurId: id },
     },
-    {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
-    },
-    {
-      $sort: sort,
-    },
   ];
 
   if (startDate && endDate) {
@@ -172,37 +185,66 @@ router.get("/all-info/:fid", (req, res) => {
     });
   }
 
+  if (req.query.type == "feuille-de-retour") {
+    data.push({
+      $match: {
+        etat: { $in: ["annulé", "reporté"] },
+      },
+    });
+  }
+
+  data.push(
+    {
+      $skip: skip,
+    },
+    {
+      $limit: limit,
+    },
+    {
+      $sort: sort,
+    }
+  );
+
   Package.aggregate(data).exec((err, doc) => {
     if (!err) {
-      if (req.query.search && req.query.search.length > 2) {
+      if (req.query.search) {
         if (startDate && endDate) {
           if (state) {
             res.send(
               doc.filter(
                 (item) =>
                   (item.CAB.toString().includes(req.query.search) ||
-                    item.telc.toString().includes(req.query.search) ||
-                    item.tel2c?.toString().includes(req.query.search) ||
-                    item.c_remboursement
-                      .toString()
-                      .includes(req.query.search) ||
-                    item.codePostalec.toString().includes(req.query.search) ||
-                    item.createdAtSearch
-                      .toString()
-                      .includes(req.query.search) ||
-                    item.nomc
-                      .toLowerCase()
+                    // item.telc.toString().includes(req.query.search) ||
+                    // item.tel2c?.toString().includes(req.query.search) ||
+                    // item.c_remboursement
+                    //   .toString()
+                    //   .includes(req.query.search) ||
+                    // item.codePostalec.toString().includes(req.query.search) ||
+                    // item.createdAtSearch
+                    //   .toString()
+                    //   .includes(req.query.search) ||
+                    // item.nomc
+                    //   .toLowerCase()
+                    //   .includes(req.query.search.toLowerCase()) ||
+                    item.nomf
+                      ?.toLowerCase()
                       .includes(req.query.search.toLowerCase()) ||
-                    item.villec
-                      .toLowerCase()
+                    item.villef
+                      ?.toLowerCase()
                       .includes(req.query.search.toLowerCase()) ||
-                    item.delegationc
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.adressec
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase())) &&
-                  item.etat.toLowerCase().includes(state.toLowerCase())
+                    item.delegationf
+                      ?.toLowerCase()
+                      .includes(req.query.search.toLowerCase()))
+                  //   item.villec
+                  //     .toLowerCase()
+                  //     .includes(req.query.search.toLowerCase()) ||
+                  //   item.delegationc
+                  //     .toLowerCase()
+                  //     .includes(req.query.search.toLowerCase()) ||
+                  //   item.adressec
+                  //     .toLowerCase()
+                  //     .includes(req.query.search.toLowerCase())) &&
+                  // item.etat.toLowerCase().includes(state.toLowerCase())
               )
             );
           } else if (!state) {

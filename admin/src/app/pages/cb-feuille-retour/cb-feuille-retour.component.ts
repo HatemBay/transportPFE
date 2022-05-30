@@ -1,3 +1,4 @@
+import { VehiculeService } from "src/app/services/vehicule.service";
 import { map } from "rxjs/operators";
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -6,6 +7,7 @@ import { FournisseurService } from "src/app/services/fournisseur.service";
 import { PackageService } from "src/app/services/package.service";
 import { UserService } from "src/app/services/user.service";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { FeuilleRetourService } from "src/app/services/feuille-retour.service";
 
 @Component({
   selector: "app-cb-feuille-retour",
@@ -28,6 +30,7 @@ export class CbFeuilleRetourComponent implements OnInit {
   count: any;
   chauffeurs: any = [];
   fournisseurs: any = [];
+  vehicules: any = [];
   fournisseur: any = [];
 
   public currentPageLimit: number = 10;
@@ -41,51 +44,42 @@ export class CbFeuilleRetourComponent implements OnInit {
     { value: 100 },
   ];
   display: string = "default";
+  selected: any = [];
+  printable: boolean = false;
+  success: boolean = false;
 
   constructor(
-    private route: ActivatedRoute,
     private fb: FormBuilder,
     private fournisseurService: FournisseurService,
-    private packageService: PackageService
-  ) {
-    this.routePath = this.route.snapshot.routeConfig.path;
-  }
+    private vehiculeService: VehiculeService,
+    private userService: UserService,
+    private packageService: PackageService,
+    private feuilleRetourService: FeuilleRetourService
+  ) {}
 
   ngOnInit(): void {
-    if (this.routePath === "feuille-de-retour") {
-      this.columns = [
-        { prop: "CAB", name: "Code à barre" },
-        { prop: "nbPackages", name: "Etat" },
-        { prop: "nomd", name: "Nom & prénom" },
-        { prop: "villec", name: "Ville" },
-        { prop: "c_remboursement", name: "COD" },
-        { prop: "createdAtSearch", name: "Date" },
-      ];
+    this.columns = [{ prop: "createdAtSearch", name: "Date" }];
 
-      this.fournisseursForm = this.fb.group({
-        fournisseurs: ["", Validators.required],
-      });
+    this.fournisseursForm = this.fb.group({
+      fournisseurs: ["", Validators.required],
+    });
 
-      this.chauffeursForm = this.fb.group({
-        chauffeurs: ["", Validators.required],
-      });
-      this.initiateData();
-    } else {
-      this.columns = [
-        { prop: "roadmapNb", name: "N° bon de sortie" },
-        { prop: "nbPackages", name: "Nbre de colis" },
-        { prop: "nomd", name: "Chauffeur" },
-        { prop: "createdAtSearch", name: "Date" },
-      ];
+    this.chauffeursForm = this.fb.group({
+      driverId: ["", Validators.required],
+      // TODO: to be added
+      // vehicules: ["", Validators.required],
+    });
 
-      // this.countRoadmaps();
-      // this.getRoadmapData();
-    }
+    this.initiateData();
   }
 
   async initiateData() {
     this.fournisseurs = await this.getProviders();
+    this.chauffeurs = await this.getDrivers();
+    this.vehicules = await this.getVehicles();
     console.log(this.fournisseurs);
+    console.log(this.chauffeurs);
+    console.log(this.vehicules);
     // this.getPackagesByProvider(
     //   this.fournisseurs[0]._id,
     //   this.currentPageLimit,
@@ -100,8 +94,12 @@ export class CbFeuilleRetourComponent implements OnInit {
     return this.fournisseursForm.controls;
   }
 
+  get g() {
+    return this.chauffeursForm.controls;
+  }
+
   //get packages from selected provider
-  getPackages() {
+  async getPackages() {
     this.display = "block";
     this.getPackagesByProvider(
       this.fournisseursForm.value.fournisseurs,
@@ -115,6 +113,8 @@ export class CbFeuilleRetourComponent implements OnInit {
 
   updateFilter(event) {
     const val = event.target.value.toLowerCase();
+    console.log(val);
+
     this.getPackagesByProvider(
       this.fournisseursForm.value.fournisseurs,
       this.currentPageLimit,
@@ -152,7 +152,7 @@ export class CbFeuilleRetourComponent implements OnInit {
 
   // Data sorting
   onSort(event) {
-    console.log(this.fournisseursForm.value.fournisseurs);
+    // console.log(this.fournisseursForm.value.fournisseurs);
     this.getPackagesByProvider(
       this.fournisseursForm.value.fournisseurs,
       this.currentPageLimit,
@@ -160,6 +160,19 @@ export class CbFeuilleRetourComponent implements OnInit {
       event.sorts[0].prop,
       event.newValue
     );
+  }
+
+  // checkbox selection
+  onSelect(event) {
+    // console.log("Select Event", event);
+    this.selected = event.selected;
+    if (this.selected.length > 0) {
+      this.printable = true;
+    } else {
+      this.printable = false;
+    }
+
+    // console.log(this.selected[0]._id);
   }
 
   // When page changes
@@ -176,18 +189,19 @@ export class CbFeuilleRetourComponent implements OnInit {
     this.currentPage = parseInt(page, 10);
   }
 
-  async getProviders() {
-    return await this.fournisseurService
-      .getFournisseurs()
-      .pipe(
-        map((data) => {
-          return data;
-        })
-      )
-      .toPromise();
+  async getDrivers(): Promise<any> {
+    return await this.userService.getUsersByRole("chauffeur").toPromise();
   }
 
-  getPackagesByProvider(
+  async getProviders() {
+    return await this.fournisseurService.getFournisseurs().toPromise();
+  }
+
+  async getVehicles() {
+    return await this.vehiculeService.getVehicules().toPromise();
+  }
+
+  async getPackagesByProvider(
     id: any,
     limit?: any,
     page?: any,
@@ -196,19 +210,36 @@ export class CbFeuilleRetourComponent implements OnInit {
     search?: any
   ) {
     this.packageService
-      .getPackageByProvider(id, limit, page, sortBy, sort, search)
-      .subscribe((data) => {
+      .getPackageByProvider('feuille-de-retour', id, limit, page, sortBy, sort, search)
+      .subscribe(async (data) => {
         var result: any = [];
         var packages: any = [];
+        console.log('1');
+        console.log(result);
         packages = data;
         for (let item of packages) {
           if (item.etat === "annulé" || item.etat === "reporté") {
             result = [...result, item];
           }
         }
+        console.log('2');
         console.log(result);
 
         this.rows = this.temp = result;
+      });
+  }
+
+  // allocate driver to return paper
+  allocate() {
+    console.log(this.selected[0]);
+
+    this.feuilleRetourService
+      .createFeuilleRetour({
+        driverId: this.g.driverId.value,
+        packages: this.selected,
+      })
+      .subscribe(() => {
+        this.success = true;
       });
   }
 }

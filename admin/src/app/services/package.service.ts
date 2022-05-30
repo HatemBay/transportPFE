@@ -47,6 +47,7 @@ export class PackageService {
 
   // Get all packages with all foreign info
   getPackageByProvider(
+    type: any,
     id: any,
     limit?: any,
     page?: any,
@@ -58,6 +59,9 @@ export class PackageService {
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);
+    if (type) {
+      queryParams = queryParams.append("type", type);
+    }
     if (sortBy) {
       queryParams = queryParams.append("sortBy", sortBy);
     }
@@ -67,7 +71,7 @@ export class PackageService {
     if (search) {
       queryParams = queryParams.append("search", search);
     }
-    return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
+    return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
   }
 
   // get package with cab

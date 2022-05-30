@@ -54,7 +54,7 @@ passport.use(
         queryObj["email"] = username;
       }
       // console.log("uname: " + password);
-      Provider.findOne(
+      Fournisseur.findOne(
         { queryObj },
         function (err, user) {
           if (err) {

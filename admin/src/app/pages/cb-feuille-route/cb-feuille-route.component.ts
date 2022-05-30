@@ -31,7 +31,6 @@ export class CbFeuilleRouteComponent implements OnInit {
   check: boolean = false;
   index: any = [];
   display: string = "default";
-  display2: string = "default";
   chauffeurs: any = [];
   chauffeur: any = [];
   chauffeursForm: FormGroup;
@@ -208,7 +207,7 @@ export class CbFeuilleRouteComponent implements OnInit {
       }
     }
 
-    //* index array represents false data
+    //* index array represents erroneous data
     if (this.index.length === 0) {
       this.roadmapService
         .createRoadmap({
@@ -247,12 +246,6 @@ export class CbFeuilleRouteComponent implements OnInit {
       }
       // WindowPrt.close();
     }, 2000);
-  }
-
-  // print selecetd elements
-
-  public showRetour() {
-    this.display2 = "block";
   }
 
   updateFilter(event) {

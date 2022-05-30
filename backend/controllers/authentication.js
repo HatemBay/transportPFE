@@ -67,6 +67,7 @@ const loginUser = (req, res) => {
     if (err) {
       console.log(err);
       res.status(404).json(err);
+      console.log(err);
       return;
     }
 
@@ -95,6 +96,7 @@ const loginProvider = (req, res) => {
     // If Passport throws/catches an error
     if (err) {
       res.status(404).json(err);
+      console.log(err);
       return;
     }
 
