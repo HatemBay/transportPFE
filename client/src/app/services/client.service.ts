@@ -41,7 +41,7 @@ export class ClientService {
       .pipe(catchError(this.errorMgmt));
   }
   // Get all clients
-  getClients(limit?: any, page?: any, sortBy?: any, sort?: any, search?:any) {
+  getClients(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
     const url = `${this.baseUri}/all`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("fid", this.userId);
@@ -104,13 +104,13 @@ export class ClientService {
   }
   // Error handling
   errorMgmt(error: HttpErrorResponse) {
-    let errorMessage = "";
+    let errorMessage;
     if (error.error instanceof ErrorEvent) {
       // Get client-side error
-      errorMessage = error.error.message;
+      errorMessage = { message: error.message };
     } else {
       // Get server-side error
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      errorMessage = { code: error.status, message: error.error };
     }
     console.log(errorMessage);
     return throwError(errorMessage);

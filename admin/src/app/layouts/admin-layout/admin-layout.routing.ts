@@ -22,6 +22,8 @@ import { CbFeuilleRouteComponent } from "src/app/pages/cb-feuille-route/cb-feuil
 import { CbFeuilleRetourComponent } from "src/app/pages/cb-feuille-retour/cb-feuille-retour.component";
 import { CbDebriefComponent } from "src/app/pages/cb-debrief/cb-debrief.component";
 import { ModifierColisComponent } from "src/app/pages/modifier-colis/modifier-colis.component";
+import { FinanceClientComponent } from "src/app/pages/finance-client/finance-client.component";
+import { FinanceDebriefGlobalComponent } from 'src/app/pages/finance-debrief-global/finance-debrief-global.component';
 
 export const AdminLayoutRoutes: Routes = [
   { path: "dashboard", component: DashboardComponent },
@@ -53,7 +55,10 @@ export const AdminLayoutRoutes: Routes = [
   { path: "feuille-de-retour-historique", component: CbFeuilleRetourComponent },
   { path: "debrief-list", component: CbDebriefComponent },
   { path: "debrief-bilan", component: CbDebriefComponent },
+  { path: "debrief-detail", component: CbDebriefComponent },
   { path: "debrief-detaillé", component: CbDebriefComponent },
+  { path: "finance-client", component: FinanceClientComponent },
+  { path: "debrief-global", component: FinanceDebriefGlobalComponent },
 
   {
     path: "gestion-colis",

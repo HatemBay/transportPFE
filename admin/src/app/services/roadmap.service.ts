@@ -46,7 +46,9 @@ export class RoadmapService {
     sort?: any,
     search?: any,
     startDate?: any,
-    endDate?: any
+    endDate?: any,
+    driver?: any,
+    noLimit?: any
   ) {
     const url = `${this.baseUri}`;
     var queryParams = new HttpParams();
@@ -68,6 +70,12 @@ export class RoadmapService {
     if (endDate) {
       queryParams = queryParams.append("endDate", endDate);
     }
+    if (driver) {
+      queryParams = queryParams.append("driver", driver);
+    }
+    if (noLimit) {
+      queryParams = queryParams.append("noLimit", noLimit);
+    }
     return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
   }
 
@@ -88,7 +96,11 @@ export class RoadmapService {
   }
 
   // Count roadmaps
-  countRoadmaps(startDate?: any, endDate?: any): Observable<any> {
+  countRoadmaps(
+    startDate?: any,
+    endDate?: any,
+    driverId?: any
+  ): Observable<any> {
     let url = `${this.baseUri}/count/all`;
     var queryParams = new HttpParams();
     if (startDate) {
@@ -96,6 +108,9 @@ export class RoadmapService {
     }
     if (endDate) {
       queryParams = queryParams.append("endDate", endDate);
+    }
+    if (driverId) {
+      queryParams = queryParams.append("driverId", driverId);
     }
 
     return this.http

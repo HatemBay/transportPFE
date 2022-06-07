@@ -4,11 +4,11 @@ import { BrowserModule } from "@angular/platform-browser";
 import { Routes, RouterModule } from "@angular/router";
 
 import { AdminLayoutComponent } from "./layouts/admin-layout/admin-layout.component";
-import { AuthLayoutComponent } from "./layouts/auth-layout/auth-layout.component";
 import { LoginComponent } from "./pages/login/login.component";
 import { AuthGuard } from "./services/auth.guard";
 import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
 import { ImprimerRoadmapComponent } from "./pages/imprimer-roadmap/imprimer-roadmap.component";
+import { ImprimerFeuilleRetourComponent } from "./pages/imprimer-feuille-retour/imprimer-feuille-retour.component";
 
 const routes: Routes = [
   {
@@ -43,6 +43,11 @@ const routes: Routes = [
     path: "imprimer-roadmap",
     canActivate: [AuthGuard],
     component: ImprimerRoadmapComponent,
+  },
+  {
+    path: "imprimer-feuille-retour",
+    canActivate: [AuthGuard],
+    component: ImprimerFeuilleRetourComponent,
   },
   {
     path: "**",

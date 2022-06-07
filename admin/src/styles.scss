@@ -7,3 +7,7 @@
 
 /* Importing Bootstrap SCSS file. */
 @import '~bootstrap/scss/bootstrap';
+
+.important-row {
+  background: #fa7c73 !important;
+}

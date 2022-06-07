@@ -37,6 +37,7 @@ export class CbDebriefComponent implements OnInit {
     { value: 50 },
     { value: 100 },
   ];
+  val: string = "";
   count: number;
   roadmap: any = {};
   clients: any = [];
@@ -45,6 +46,10 @@ export class CbDebriefComponent implements OnInit {
   totalAutre: number;
   total: number;
   dateSave: any;
+  startDate: any;
+  endDate: any;
+  driver: any;
+  driverId: any;
 
   constructor(
     private fb: FormBuilder,
@@ -59,10 +64,13 @@ export class CbDebriefComponent implements OnInit {
     this.roadmapId = this.route.snapshot.queryParamMap.get("id");
     // saves the search date
     this.dateSave = this.route.snapshot.queryParamMap.get("date") || null;
+    this.driver = this.route.snapshot.queryParamMap.get("driver") || null;
+    this.driverId = this.route.snapshot.queryParamMap.get("driverId") || null;
+    this.startDate = this.route.snapshot.queryParamMap.get("startDate") || null;
+    this.endDate = this.route.snapshot.queryParamMap.get("endDate") || null;
     if (this.dateSave) {
       this.date = this.dateSave;
     }
-
   }
 
   ngOnInit(): void {
@@ -84,9 +92,28 @@ export class CbDebriefComponent implements OnInit {
         this.onDateFormValueChange(data)
       );
 
-      this.countRoadmaps(this.date);
+      this.countRoadmaps(this.date, this.date);
 
-      this.getRoadmaps(null, null, null, null, null, this.date);
+      this.getRoadmaps(null, null, null, null, null, this.date, this.date);
+    } else if (this.routePath == "debrief-detail") {
+      this.columns = [
+        { prop: "nomd", name: "Chauffeur" },
+        { prop: "nbPackages", name: "Tous" },
+        { prop: "createdAtSearch", name: "Date" },
+      ];
+      this.countRoadmaps(this.startDate, this.endDate, this.driverId);
+
+      this.getRoadmaps(
+        null,
+        null,
+        null,
+        null,
+        null,
+        this.startDate,
+        this.endDate,
+        this.driver
+      );
+
     } else {
       this.initiateData();
     }
@@ -122,12 +149,16 @@ export class CbDebriefComponent implements OnInit {
     sortBy?: any,
     sort?: any,
     search?: any,
-    date?: any
+    startDate?: any,
+    endDate?: any,
+    driver?: any
   ) {
     this.roadmapService
-      .getRoadmaps(limit, page, sortBy, sort, search, date, date)
+      .getRoadmaps(limit, page, sortBy, sort, search, startDate, endDate, driver)
       .subscribe((data) => {
         this.rows = this.temp = data;
+        console.log(data);
+
       });
   }
 
@@ -159,9 +190,9 @@ export class CbDebriefComponent implements OnInit {
     //   .toPromise();
   }
 
-  // count pickups
-  countRoadmaps(date) {
-    this.roadmapService.countRoadmaps(date, date).subscribe((data) => {
+  // count roadmaps
+  countRoadmaps(startDate, endDate, driver?) {
+    this.roadmapService.countRoadmaps(startDate, endDate, driver).subscribe((data) => {
       this.count = data.count;
     });
   }
@@ -180,15 +211,15 @@ export class CbDebriefComponent implements OnInit {
   }
 
   updateFilter(event) {
-    const val = event.target.value.toLowerCase();
-    this.getRoadmaps(this.currentPageLimit, 1, null, null, val, this.date);
+    this.val = event.target.value.toLowerCase();
+    this.getRoadmaps(this.currentPageLimit, 1, null, null, this.val, this.date, this.date);
   }
 
   // When number of displayed elements changes
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getRoadmaps(limit, this.currentPage);
+    this.getRoadmaps(limit, this.currentPage, null, null, this.val, this.date, this.date);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -212,7 +243,10 @@ export class CbDebriefComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val,
+      this.date,
+      this.date
     );
   }
 
@@ -224,7 +258,8 @@ export class CbDebriefComponent implements OnInit {
       event.page,
       null,
       null,
-      null,
+      this.val,
+      this.date,
       this.date
     );
   }
@@ -239,11 +274,11 @@ export class CbDebriefComponent implements OnInit {
         date: this.date,
       },
     };
-    this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => {
+    this.router.navigateByUrl("/", { skipLocationChange: true }).then(() => {
       this.router.navigate(["/debrief-list"], navigationExtras);
-  });
+    });
     // this.router.navigate(["/debrief-list"], navigationExtras);
-    // this.getRoadmaps(null, null, null, null, null, this.date);
+    // this.getRoadmaps(null, null, null, null, null, this.date, this.date);
     // this.countRoadmaps(this.date);
   }
 

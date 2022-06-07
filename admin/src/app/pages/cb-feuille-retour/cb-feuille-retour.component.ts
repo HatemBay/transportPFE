@@ -2,7 +2,7 @@ import { VehiculeService } from "src/app/services/vehicule.service";
 import { map } from "rxjs/operators";
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { FournisseurService } from "src/app/services/fournisseur.service";
 import { PackageService } from "src/app/services/package.service";
 import { UserService } from "src/app/services/user.service";
@@ -54,7 +54,8 @@ export class CbFeuilleRetourComponent implements OnInit {
     private vehiculeService: VehiculeService,
     private userService: UserService,
     private packageService: PackageService,
-    private feuilleRetourService: FeuilleRetourService
+    private feuilleRetourService: FeuilleRetourService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -162,19 +163,6 @@ export class CbFeuilleRetourComponent implements OnInit {
     );
   }
 
-  // checkbox selection
-  onSelect(event) {
-    // console.log("Select Event", event);
-    this.selected = event.selected;
-    if (this.selected.length > 0) {
-      this.printable = true;
-    } else {
-      this.printable = false;
-    }
-
-    // console.log(this.selected[0]._id);
-  }
-
   // When page changes
   onFooterPage(event) {
     this.changePage(event.page);
@@ -233,9 +221,23 @@ export class CbFeuilleRetourComponent implements OnInit {
       });
   }
 
+  // checkbox selection
+  onSelect(event) {
+    // console.log("Select Event", event);
+    this.selected = event.selected;
+    if (this.selected.length > 0) {
+      this.printable = true;
+    } else {
+      this.printable = false;
+    }
+
+    // console.log(this.selected[0]._id);
+  }
+
   // allocate driver to return paper
   allocate() {
     console.log(this.selected[0]);
+    console.log(this.selected);
 
     this.feuilleRetourService
       .createFeuilleRetour({
@@ -245,5 +247,39 @@ export class CbFeuilleRetourComponent implements OnInit {
       .subscribe(() => {
         this.success = true;
       });
+
+    this.print();
+  }
+
+  // print selecetd elements
+  print() {
+    var CABs: Array<number> = [];
+    for (var el of this.selected) {
+      CABs.push(el.CAB);
+    }
+
+    // Create our query parameters object
+    const queryParams: any = {};
+    queryParams.CABs = JSON.stringify(CABs);
+    var navigationExtras: NavigationExtras = {
+      queryParams,
+    };
+    console.log(navigationExtras.queryParams);
+
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(["/imprimer-feuille-retour"], navigationExtras)
+    );
+
+    const WindowPrt = window.open(
+      url,
+      "_blank",
+      "left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0"
+    );
+
+    WindowPrt.setTimeout(function () {
+      WindowPrt.focus();
+      WindowPrt.print();
+      // WindowPrt.close();
+    }, 1000);
   }
 }

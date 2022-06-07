@@ -112,6 +112,12 @@ export class FeuilleRetourService {
       );
   }
 
+  // Get last feuille-retour number
+  getLastFeuilleRetourNb() {
+    const url = `${this.baseUri}/nb/last`;
+    return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
+  }
+
   // Error handling
   errorMgmt(error: HttpErrorResponse) {
     let errorMessage = "";

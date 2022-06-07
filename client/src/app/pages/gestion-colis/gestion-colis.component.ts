@@ -3,7 +3,6 @@ import { DatePipe } from "@angular/common";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { Router, NavigationExtras } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
-import { element } from "protractor";
 import { ClientService } from "src/app/services/client.service";
 import { PackageService } from "src/app/services/package.service";
 

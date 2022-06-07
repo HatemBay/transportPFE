@@ -188,7 +188,13 @@ router.get("/all-info/:fid", (req, res) => {
   if (req.query.type == "feuille-de-retour") {
     data.push({
       $match: {
-        etat: { $in: ["annulé", "reporté"] },
+        etat: "annulé",
+      },
+    });
+  } else if (req.query.type == "finance-client") {
+    data.push({
+      $match: {
+        etat: { $in: ["livré (espèce)", "livré (chèque)"] },
       },
     });
   }
@@ -214,37 +220,37 @@ router.get("/all-info/:fid", (req, res) => {
               doc.filter(
                 (item) =>
                   (item.CAB.toString().includes(req.query.search) ||
-                    // item.telc.toString().includes(req.query.search) ||
-                    // item.tel2c?.toString().includes(req.query.search) ||
-                    // item.c_remboursement
-                    //   .toString()
-                    //   .includes(req.query.search) ||
-                    // item.codePostalec.toString().includes(req.query.search) ||
-                    // item.createdAtSearch
-                    //   .toString()
-                    //   .includes(req.query.search) ||
-                    // item.nomc
-                    //   .toLowerCase()
-                    //   .includes(req.query.search.toLowerCase()) ||
+                    item.telc.toString().includes(req.query.search) ||
+                    item.tel2c?.toString().includes(req.query.search) ||
+                    item.c_remboursement
+                      .toString()
+                      .includes(req.query.search) ||
+                    item.codePostalec.toString().includes(req.query.search) ||
+                    item.createdAtSearch
+                      .toString()
+                      .includes(req.query.search) ||
+                    item.nomc
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase()) ||
                     item.nomf
-                      ?.toLowerCase()
+                      .toLowerCase()
                       .includes(req.query.search.toLowerCase()) ||
                     item.villef
-                      ?.toLowerCase()
+                      .toLowerCase()
                       .includes(req.query.search.toLowerCase()) ||
                     item.delegationf
-                      ?.toLowerCase()
-                      .includes(req.query.search.toLowerCase()))
-                  //   item.villec
-                  //     .toLowerCase()
-                  //     .includes(req.query.search.toLowerCase()) ||
-                  //   item.delegationc
-                  //     .toLowerCase()
-                  //     .includes(req.query.search.toLowerCase()) ||
-                  //   item.adressec
-                  //     .toLowerCase()
-                  //     .includes(req.query.search.toLowerCase())) &&
-                  // item.etat.toLowerCase().includes(state.toLowerCase())
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase()) ||
+                    item.villec
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase()) ||
+                    item.delegationc
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase()) ||
+                    item.adressec
+                      .toLowerCase()
+                      .includes(req.query.search.toLowerCase())) &&
+                  item.etat.toLowerCase().includes(state.toLowerCase())
               )
             );
           } else if (!state) {
@@ -447,45 +453,42 @@ router.get("/all-info-daily/admin", (req, res) => {
       },
     },
     {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
-    },
-    {
       $sort: sort,
     },
   ]).exec((err, doc) => {
     if (!err) {
       if (req.query.search && req.query.search.length > 2) {
-        res.send(
-          doc.filter(
-            (item) =>
-              item.CAB.toString().includes(req.query.search) ||
-              item.telc.toString().includes(req.query.search) ||
-              item.tel2c?.toString().includes(req.query.search) ||
-              item.telf.toString().includes(req.query.search) ||
-              item.c_remboursement.toString().includes(req.query.search) ||
-              item.createdAtSearch.toString().includes(req.query.search) ||
-              item.nomc
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.nomf
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.villec
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.delegationc
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.adressec
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase())
+        res
+          .send(
+            doc.filter(
+              (item) =>
+                item.CAB.toString().includes(req.query.search) ||
+                item.telc.toString().includes(req.query.search) ||
+                item.tel2c?.toString().includes(req.query.search) ||
+                item.telf.toString().includes(req.query.search) ||
+                item.c_remboursement.toString().includes(req.query.search) ||
+                item.createdAtSearch.toString().includes(req.query.search) ||
+                item.nomc
+                  .toLowerCase()
+                  .includes(req.query.search.toLowerCase()) ||
+                item.nomf
+                  .toLowerCase()
+                  .includes(req.query.search.toLowerCase()) ||
+                item.villec
+                  .toLowerCase()
+                  .includes(req.query.search.toLowerCase()) ||
+                item.delegationc
+                  .toLowerCase()
+                  .includes(req.query.search.toLowerCase()) ||
+                item.adressec
+                  .toLowerCase()
+                  .includes(req.query.search.toLowerCase())
+            )
           )
-        );
+          .limit(limit)
+          .skip(skip);
       } else {
-        res.send(doc);
+        res.send(doc.limit(limit).skip(skip));
       }
     } else console.log("Erreur lors de la récupération des colis: " + err);
   });
@@ -1435,9 +1438,12 @@ router.get("/count/all-daily", (req, res) => {
     }
   });
 });
+
 //count all packages
 router.get("/count/all-period", (req, res) => {
   var state = req.query.etat || null;
+  var driverId = req.query.driverId || null;
+  var debrief = req.query.debrief || null;
   var query;
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
@@ -1449,6 +1455,11 @@ router.get("/count/all-period", (req, res) => {
   var endYear = null;
   var endMonth = null;
   var endDay = null;
+
+  const queryObj = {};
+  if (state) {
+    queryObj["etat"] = state;
+  }
 
   if (startDate && endDate) {
     const dateS = new Date(req.query.startDate);
@@ -1462,36 +1473,45 @@ router.get("/count/all-period", (req, res) => {
     endMonth = dateE.getMonth();
     endDay = dateE.getDate();
 
-    console.log(startDay);
+    queryObj["createdAt"] = {
+      $gte: new Date(startYear, startMonth, startDay),
+      $lte: new Date(endYear, endMonth, endDay + 1),
+    };
   }
 
-  if (startDate && endDate) {
-    if (state) {
-      query = Package.find({
-        etat: state,
-        createdAt: {
-          $gte: new Date(startYear, startMonth, startDay),
-          $lte: new Date(endYear, endMonth, endDay + 1),
-        },
-      });
-    } else {
-      query = Package.find({
-        createdAt: {
-          $gte: new Date(startYear, startMonth, startDay),
-          $lte: new Date(endYear, endMonth, endDay + 1),
-        },
-      });
-    }
-  } else {
-    if (state) {
-      console.log(state);
-      query = Package.find({
-        etat: state,
-      });
-    } else {
-      query = Package.find({});
-    }
+  if (driverId) {
+    queryObj["userId"] = driverId;
   }
+
+  // if (startDate && endDate) {
+  //   if (state) {
+  //     query = Package.find({
+  //       etat: state,
+  //       createdAt: {
+  //         $gte: new Date(startYear, startMonth, startDay),
+  //         $lte: new Date(endYear, endMonth, endDay + 1),
+  //       },
+  //     });
+  //   } else {
+  //     query = Package.find({
+  //       createdAt: {
+  //         $gte: new Date(startYear, startMonth, startDay),
+  //         $lte: new Date(endYear, endMonth, endDay + 1),
+  //       },
+  //     });
+  //   }
+  // } else {
+  //   if (state) {
+  //     console.log(state);
+  //     query = Package.find({
+  //       etat: state,
+  //     });
+  //   } else {
+  //     query = Package.find({});
+  //   }
+  // }
+
+  query = Package.find(queryObj);
 
   query.count((err, count) => {
     if (!err) {

@@ -9,6 +9,7 @@ const { User } = require("../models/users");
 
 // get roadmaps
 router.get("/", (req, res) => {
+  const noLimit = req.query.noLimit || null;
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
 
@@ -94,9 +95,13 @@ router.get("/", (req, res) => {
         nbPackages: { $size: "$packages" },
         createdAt: 1,
         updatedAt: 1,
+        // snomd: { $toLower: "$nomd" },
+        // sroadmapNb: { $toString: "$roadmapNb" },
+        // snbPackages: { $toString: "$nbPackages" },
         createdAtSearch: {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
         },
+        // screatedAtSearch: { $toString: "$createdAtSearch" },
       },
     },
   ];
@@ -112,17 +117,51 @@ router.get("/", (req, res) => {
     });
   }
 
-  data.push(
-    {
-      $sort: sort,
-    },
-    {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
-    }
-  );
+  if (req.query.driver) {
+    data.push({
+      $match: {
+        nomd: req.query.driver,
+      },
+    });
+  }
+
+  if (noLimit !== null) {
+    data.push(
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+      {
+        $sort: sort,
+      }
+    );
+  }
+
+  // if (req.query.search) {
+  //   data.push({
+  //     $match: {
+  //       $or: [
+  //         {
+  //           snomd: new RegExp(
+  //             `.*${req.query.search.toLocaleLowerCase()}.*`,
+  //             "gi"
+  //           ),
+  //         },
+  //         {
+  //           sroadmapNb: new RegExp(`.*${req.query.search}.*`, "gi"),
+  //         },
+  //         {
+  //           snbPackages: new RegExp(`.*${req.query.search}.*`, "gi"),
+  //         },
+  //         {
+  //           screatedAtSearch: new RegExp(`.*${req.query.search}.*`, "gi"),
+  //         },
+  //       ],
+  //     },
+  //   });
+  // }
 
   Roadmap.aggregate(data).exec((err, roadmaps) => {
     if (!err) {
@@ -380,8 +419,8 @@ router.get("/count/all", (req, res) => {
   var endDay = null;
 
   const queryObj = {};
-  if (req.query.isAllocated) {
-    queryObj["isAllocated"] = req.query.isAllocated;
+  if (req.query.driverId) {
+    queryObj["driverId"] = req.query.driverId;
   }
 
   if (startDate && endDate) {
@@ -423,6 +462,7 @@ router.get("count-colis/:id", (req, res) => {
     }
   );
 });
+
 /********************** STATISTICS **********************/
 
 module.exports = router;

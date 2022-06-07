@@ -42,6 +42,14 @@ export class PackageService {
       .pipe(catchError(this.errorMgmt));
   }
 
+  //upload package and client details as excel
+  uploadExcel(id: any, data: any): Observable<any> {
+    const url = `http://localhost:3000/api/excel-upload/${id}`;
+    return this.http
+      .post(url, data)
+      .pipe(catchError(this.errorMgmt));
+  }
+
   // Get all packages
   getPackages(): Observable<any> {
     const url = `${this.baseUri}`;
@@ -62,8 +70,8 @@ export class PackageService {
     sort?: any,
     search?: any,
     etat?: any,
-    startDate?:any,
-    endDate?:any,
+    startDate?: any,
+    endDate?: any
   ) {
     const url = `${this.baseUri}/all-info/${this.userId}`;
     var queryParams = new HttpParams();
@@ -119,7 +127,15 @@ export class PackageService {
   }
 
   // Count packages
-  countAllPackages(etat?: any, startYear?:any, startMonth?:any, startDay?:any, endYear?:any, endMonth?:any, endDay?: any): Observable<any> {
+  countAllPackages(
+    etat?: any,
+    startYear?: any,
+    startMonth?: any,
+    startDay?: any,
+    endYear?: any,
+    endMonth?: any,
+    endDay?: any
+  ): Observable<any> {
     let url = `${this.baseUri}/count-for-provider/${this.userId}`;
     var queryParams = new HttpParams();
     if (etat) {
@@ -144,12 +160,14 @@ export class PackageService {
       queryParams = queryParams.append("endDay", endDay || "");
     }
 
-    return this.http.get(url, { headers: this.headers, params: queryParams }).pipe(
-      map((res: any) => {
-        return res || {};
-      }),
-      catchError(this.errorMgmt)
-    );
+    return this.http
+      .get(url, { headers: this.headers, params: queryParams })
+      .pipe(
+        map((res: any) => {
+          return res || {};
+        }),
+        catchError(this.errorMgmt)
+      );
   }
   // Count packages for a client
   // not working
@@ -165,13 +183,13 @@ export class PackageService {
 
   // Error handling
   errorMgmt(error: HttpErrorResponse) {
-    let errorMessage = "";
+    let errorMessage;
     if (error.error instanceof ErrorEvent) {
       // Get client-side error
-      errorMessage = error.error.message;
+      errorMessage = { message: error.message };
     } else {
       // Get server-side error
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      errorMessage = { code: error.status, message: error.error };
     }
     console.log(errorMessage);
     return throwError(errorMessage);

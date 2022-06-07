@@ -23,6 +23,7 @@ var ClientSchema = new Schema(
       minlength: 8,
       maxlength: 8,
       unique: true,
+      index: true,
     },
     tel2: {
       type: Number,

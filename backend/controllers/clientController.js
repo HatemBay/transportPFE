@@ -236,7 +236,7 @@ router.post("/", (req, res) => {
     (client.tel2 = req.body.tel2),
     (client.fournisseurId = req.body.fournisseurId);
   client.delegationId = req.body.delegationId;
-  return client.save(client).then(
+  return client.save().then(
     (doc) => {
       return Fournisseur.findByIdAndUpdate(
         client.fournisseurId,
@@ -264,7 +264,8 @@ router.post("/", (req, res) => {
     },
     (err) => {
       console.log("Erreur lors de l'enregistrement du client: " + err);
-      res.status(400).send(err.message);
+      const error = err.message;
+      res.status(400).send({ error: error, object: client });
     }
   );
 });
@@ -309,7 +310,6 @@ router.put("/:id", (req, res) => {
             { new: true, useFindAndModify: false }
           ).then(
             () => {
-              
               Delegation.findByIdAndUpdate(
                 req.body.delegationId,
                 {

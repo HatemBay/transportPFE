@@ -18,6 +18,7 @@ var delegationController = require("./backend/controllers/delegationController")
 var pickupController = require("./backend/controllers/pickupController");
 var historiqueController = require("./backend/controllers/historiqueController");
 var roadmapController = require("./backend/controllers/roadmapController");
+var feuilleRetourController = require("./backend/controllers/feuilleRetourController");
 var {
   register,
   loginUser,
@@ -75,11 +76,12 @@ app.use("/api/delegations", auth, delegationController);
 app.use("/api/pickups", auth, pickupController);
 app.use("/api/historiques", auth, historiqueController);
 app.use("/api/roadmaps", auth, roadmapController);
+app.use("/api/feuille-retour", auth, feuilleRetourController);
 app.use("/api/register", auth, register);
 app.use("/api/login-user", loginUser);
 app.use("/api/login-provider", loginProvider);
 app.use("/api/user/verify/:id/:token", auth, verify);
-app.use("/api/excel-upload", auth, upload);
+app.use("/api/excel-upload", upload);
 
 // app.use("/api/count", packageController);
 

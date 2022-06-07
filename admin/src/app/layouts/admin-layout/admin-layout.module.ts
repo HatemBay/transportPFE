@@ -32,6 +32,8 @@ import { CbFeuilleRetourComponent } from '../../pages/cb-feuille-retour/cb-feuil
 import { NgxBarcodeModule } from "ngx-barcode";
 import { CbDebriefComponent } from '../../pages/cb-debrief/cb-debrief.component';
 import { ModifierColisComponent } from '../../pages/modifier-colis/modifier-colis.component';
+import { FinanceClientComponent } from '../../pages/finance-client/finance-client.component';
+import { FinanceDebriefGlobalComponent } from '../../pages/finance-debrief-global/finance-debrief-global.component';
 
 
 // import { NgxPrintModule } from 'ngx-print';
@@ -73,6 +75,8 @@ import { ModifierColisComponent } from '../../pages/modifier-colis/modifier-coli
     CbFeuilleRetourComponent,
     CbDebriefComponent,
     ModifierColisComponent,
+    FinanceClientComponent,
+    FinanceDebriefGlobalComponent,
   ],
   providers: [NgbActiveModal],
 })

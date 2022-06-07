@@ -18,6 +18,7 @@ import { NgxDatatableModule } from "@swimlane/ngx-datatable";
 import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
 import { NgxBarcodeModule } from "ngx-barcode";
 import { ImprimerRoadmapComponent } from './pages/imprimer-roadmap/imprimer-roadmap.component';
+import { ImprimerFeuilleRetourComponent } from './pages/imprimer-feuille-retour/imprimer-feuille-retour.component';
 
 @NgModule({
   imports: [
@@ -39,6 +40,7 @@ import { ImprimerRoadmapComponent } from './pages/imprimer-roadmap/imprimer-road
     LoginComponent,
     ImprimerComponent,
     ImprimerRoadmapComponent,
+    ImprimerFeuilleRetourComponent,
   ],
   providers: [DatePipe, NgbActiveModal],
   bootstrap: [AppComponent],

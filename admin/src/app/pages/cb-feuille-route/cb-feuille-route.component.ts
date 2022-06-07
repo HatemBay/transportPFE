@@ -159,51 +159,53 @@ export class CbFeuilleRouteComponent implements OnInit {
 
     // *testing phase
     for (let [index, element] of this.refs.entries()) {
-      if (!isNaN(element) && element.length === 10) {
-        const data = await this.checkPackage(element);
-        if (data.value === true) {
-          if (this.references.indexOf(parseInt(element)) !== -1) {
+      if (element.length > 0) {
+        if (!isNaN(element) && element.length === 10) {
+          const data = await this.checkPackage(element);
+          if (data.value === true) {
+            if (this.references.indexOf(parseInt(element)) !== -1) {
+              this.index.push({
+                index: index,
+                error: "duplicateError",
+                value: element,
+                state: "",
+              });
+            }
+            //TODO: to be changed to all states representing steps after 'en cours'
+            else if (
+              [
+                "en cours",
+                "livré (espèce)",
+                "livré (chèque)",
+                "annulé",
+                "reporté",
+              ].indexOf(data.etat) !== -1
+            ) {
+              this.index.push({
+                index: index,
+                error: "absurdError",
+                value: element,
+                state: data.etat,
+              });
+            } else {
+              this.references.push(parseInt(element));
+            }
+          } else {
             this.index.push({
               index: index,
-              error: "duplicateError",
+              error: "nonExistantError",
               value: element,
               state: "",
             });
           }
-          //TODO: to be changed to all states representing steps after 'en cours'
-          else if (
-            [
-              "en cours",
-              "livré (espèce)",
-              "livré (chèque)",
-              "annulé",
-              "reporté",
-            ].indexOf(data.etat) !== -1
-          ) {
-            this.index.push({
-              index: index,
-              error: "absurdError",
-              value: element,
-              state: data.etat,
-            });
-          } else {
-            this.references.push(parseInt(element));
-          }
         } else {
           this.index.push({
             index: index,
-            error: "nonExistantError",
+            error: "falseError",
             value: element,
             state: "",
           });
         }
-      } else {
-        this.index.push({
-          index: index,
-          error: "falseError",
-          value: element,
-          state: "",
-        });
       }
     }
 
@@ -238,7 +240,7 @@ export class CbFeuilleRouteComponent implements OnInit {
       "left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0"
     );
 
-    WindowPrt.setTimeout(function () {
+    WindowPrt.setTimeout(() => {
       WindowPrt.focus();
       WindowPrt.print();
       if (this.index.length === 0) {

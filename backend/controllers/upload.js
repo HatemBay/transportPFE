@@ -42,88 +42,139 @@ router.post("/:fid", (req, res) => {
             // console.log(result[0]["nom & prénom"]);
 
             // res.json({ error_code: 0, err_desc: null, data: result });
-
+            var resultHandler = {};
             // saving excel json data in database
-            for (el of result) {
-              var client = new Client();
-              var package = new Package();
+            for (let el of result) {
+              var index = result.indexOf(el) + 1;
+              if (el.tél != "") {
+                var client = new Client();
+                var package = new Package();
 
-              client.tel = el.tél;
-              client.nom = el["nom & prénom"];
-              client.ville = el.ville;
-              client.adresse = el.adresse;
-              client.delegation = el.délegation;
-              client.fournisseurId.push(fournisseurId);
+                var CAB = () => {
+                  min = Math.ceil(1000000000);
+                  max = Math.floor(9999999999);
+                  return Math.floor(Math.random() * (max - min + 1)) + min;
+                };
 
-              package.CAB = el["code à barre"];
-              package.etat = el.etat;
-              package.c_remboursement = el.cod;
-              package.libelle = el.libelle;
-              package.fournisseurId.push(fournisseurId);
+                var checkCAB = () => {
+                  var x = CAB();
+                  Package.find({ CAB: x }, (res, err) => {
+                    if (err) {
+                      console.log(err);
+                    }
+                    if (res != null) {
+                      checkCAB();
+                    }
+                    console.log("check");
+                  });
+                  return x;
+                };
 
-              // Package.findOne({ CAB: package.CAB }, (req, res) => {
-              //   if (res.length == 0)
-              //     return "code à barre existant";
-              // });
+                var check = checkCAB();
 
-              // to change once client duplication issue is solved
-              // Client.findOne({ tel: client.tel }, (req, res) => {
-              //   if (res != null) return "code à barre existant";
-              // });
+                client.tel = el.tél;
+                client.nom = el["nom & prénom"];
+                client.ville = el.ville;
+                client.adresse = el.adresse;
+                client.delegation = el.délegation;
+                client.fournisseurId = fournisseurId;
 
-              if (package.CAB != "" && client.tel != "") {
-                await client.save().then(
-                  async (doc) => {
-                    package.clientId.push(doc._id);
-                    await package.save().then(
-                      async (doc2) => {
-                        await Fournisseur.findByIdAndUpdate(
-                          fournisseurId,
-                          { $push: { clients: doc._id } },
-                          { new: true, useFindAndModify: false }
-                        ).then(async () => {
+                package.CAB = check;
+                package.etat = el.etat;
+                package.c_remboursement = el.cod;
+                package.libelle = el.libelle;
+                package.fournisseurId = fournisseurId;
+
+                console.log(client.tel);
+
+                // Package.findOne({ CAB: package.CAB }, (req, res) => {
+                //   if (res.length == 0)
+                //     return "code à barre existant";
+                // });
+
+                // to change once client duplication issue is solved
+                // Client.findOne({ tel: client.tel }, (req, res) => {
+                //   if (res != null) return "code à barre existant";
+                // });
+
+                if (client.tel.toString().length == 8 && !(isNaN(client.tel))) {
+                  var errors = 0;
+                  await client.save().then(
+                    async (doc) => {
+                      package.clientId = doc._id;
+                      await package.save().then(
+                        async (doc2) => {
                           await Fournisseur.findByIdAndUpdate(
                             fournisseurId,
-                            { $push: { packages: doc2._id } },
+                            { $push: { clients: doc._id } },
                             { new: true, useFindAndModify: false }
-                          ).then(
-                            async () => {
-                              await Client.findByIdAndUpdate(
-                                doc._id,
-                                { $push: { packages: doc2._id } },
-                                { new: true, useFindAndModify: false }
-                              ).then(
-                                () => console.log("succès"),
-                                (err4) => {
-                                  console.log(
-                                    "Erreur lors du mis à jour du client: " +
-                                      err4
-                                  );
-                                }
-                              );
-                            },
-                            (err3) =>
-                              console.log(
-                                "Erreur lors du mis à jour du fournisseur: " +
-                                  err3
-                              )
+                          ).then(async () => {
+                            await Fournisseur.findByIdAndUpdate(
+                              fournisseurId,
+                              { $push: { packages: doc2._id } },
+                              { new: true, useFindAndModify: false }
+                            ).then(
+                              async () => {
+                                await Client.findByIdAndUpdate(
+                                  doc._id,
+                                  { $push: { packages: doc2._id } },
+                                  { new: true, useFindAndModify: false }
+                                ).then(
+                                  () => {
+                                    resultHandler["ligne" + index] = "success";
+                                    return console.log("succès");
+                                  },
+                                  (err4) => {
+                                    resultHandler["ligne" + index] =
+                                      err4.message;
+                                    errors++;
+                                    return console.log(
+                                      "Erreur lors du mis à jour du client: " +
+                                        err4
+                                    );
+                                    // return res.status(400).send(err4.message);
+                                  }
+                                );
+                              },
+                              (err3) => {
+                                resultHandler["ligne" + index] = err3.message;
+                                errors++;
+                                return console.log(
+                                  "Erreur lors du mis à jour du fournisseur: " +
+                                    err3
+                                );
+                                // return res.status(400).send(err3.message);
+                              }
+                            );
+                          });
+                        },
+                        (err2) => {
+                          resultHandler["ligne" + index] = err2.message;
+                          errors++;
+                          Client.findByIdAndDelete(doc._id).exec();
+                          return console.log(
+                            "Erreur lors de l'enregistrement du colis: " + err2
                           );
-                        });
-                      },
-                      (err2) => {
-                        Client.findByIdAndDelete(doc._id).exec();
-                        console.log(
-                          "Erreur lors de l'enregistrement du colis: " + err2
-                        );
-                      }
-                    );
-                  },
-                  (err) => {
-                    console.log(
-                      "Erreur lors de l'enregistrement du client: " + err
-                    );
-                  }
-                );
+                          // return res.status(400).send(err2.message);
+                        }
+                      );
+                    },
+                    (err) => {
+                      resultHandler["ligne" + index] = err.message;
+                      console.log(resultHandler);
+                      errors++;
+                      return console.log(
+                        "Erreur lors de l'enregistrement du client: " + err
+                      );
+                      // return res.status(400).send(err.message);
+                    }
+                  );
+                } else {
+                  resultHandler["ligne" + index] = "numéro de téléphone incorrect";
+                  errors++;
+                }
+              } else {
+                break;
               }
             }
 
@@ -132,6 +183,13 @@ router.post("/:fid", (req, res) => {
               fs.unlinkSync("uploads/" + file.name);
             } catch (e) {
               //error deleting the file
+              console.log("err");
+            }
+            // console.log(resultHandler);
+            if (errors > 0) {
+              return res.status(400).send(resultHandler);
+            } else {
+              return res.status(200).send(resultHandler);
             }
           }
         );

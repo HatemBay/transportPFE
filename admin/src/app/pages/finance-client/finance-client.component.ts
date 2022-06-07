@@ -66,7 +66,7 @@ export class FinanceClientComponent implements OnInit {
       fournisseurs: ["", Validators.required],
     });
 
-    this.setDates();
+    this.initiateData();
 
     this.dateForm = this.fb.group({
       today: this.today,
@@ -76,6 +76,22 @@ export class FinanceClientComponent implements OnInit {
     this.dateForm.valueChanges.subscribe((data) =>
       this.onDateFormValueChange(data)
     );
+  }
+
+  async initiateData() {
+    this.setDates();
+    this.fournisseurs = await this.getProviders();
+    // this.getPackagesByProvider(
+    //   this.fournisseurs[0]._id,
+    //   this.currentPageLimit,
+    //   1,
+    //   null,
+    //   null,
+    //   null
+    // );
+  }
+  async getProviders() {
+    return await this.fournisseurService.getFournisseurs().toPromise();
   }
 
   //get packages from selected provider

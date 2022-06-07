@@ -53,7 +53,9 @@ export class PackageService {
     page?: any,
     sortBy?: any,
     sort?: any,
-    search?: any
+    search?: any,
+    startDate?: any,
+    endDate?: any
   ) {
     const url = `${this.baseUri}/all-info/${id}`;
     var queryParams = new HttpParams();
@@ -70,6 +72,12 @@ export class PackageService {
     }
     if (search) {
       queryParams = queryParams.append("search", search);
+    }
+    if (startDate) {
+      queryParams = queryParams.append("startDate", startDate);
+    }
+    if (endDate) {
+      queryParams = queryParams.append("endDate", endDate);
     }
     return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
   }
@@ -233,18 +241,22 @@ export class PackageService {
   countAllPackagesAdmin(
     etat?: any,
     startDate?: any,
-    endDate?: any
+    endDate?: any,
+    driverId?: any
   ): Observable<any> {
     let url = `${this.baseUri}/count/all-period`;
     var queryParams = new HttpParams();
     if (etat) {
-      queryParams = queryParams.append("etat", etat || "");
+      queryParams = queryParams.append("etat", etat);
     }
     if (startDate) {
-      queryParams = queryParams.append("startDate", startDate || "");
+      queryParams = queryParams.append("startDate", startDate);
     }
     if (endDate) {
-      queryParams = queryParams.append("endDate", endDate || "");
+      queryParams = queryParams.append("endDate", endDate);
+    }
+    if (driverId) {
+      queryParams = queryParams.append("driverId", driverId);
     }
 
     return this.http

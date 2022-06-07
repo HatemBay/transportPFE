@@ -3,14 +3,14 @@ const { parse } = require("path");
 const { Fournisseur } = require("../models/fournisseur");
 const { Package } = require("../models/package");
 
-var retourr = express.Router();
+var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
 
 var { FeuilleRetour } = require("../models/feuille-retour");
 const { User } = require("../models/users");
 
 // get return sheets
-retourr.get("/", (req, res) => {
+router.get("/", (req, res) => {
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
 
@@ -127,7 +127,7 @@ retourr.get("/", (req, res) => {
     if (!err) {
       if (req.query.search) {
         res.send(
-            feuilleRetours.filter(
+          feuilleRetours.filter(
             (item) =>
               item.feuilleRetourNb.toString().includes(req.query.search) ||
               item.nbPackages.toString().includes(req.query.search) ||
@@ -145,7 +145,7 @@ retourr.get("/", (req, res) => {
 });
 
 // get return sheet
-retourr.get("/:id", (req, res) => {
+router.get("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
   var data = [
@@ -211,12 +211,14 @@ retourr.get("/:id", (req, res) => {
   FeuilleRetour.aggregate(data).exec((err, feuilleRetour) => {
     if (!err) res.send(feuilleRetour);
     else
-      console.log("Erreur lors de la récupération du feuille de retour: " + err);
+      console.log(
+        "Erreur lors de la récupération du feuille de retour: " + err
+      );
   });
 });
 
 // create return sheet
-retourr.post("/", (req, res) => {
+router.post("/", (req, res) => {
   FeuilleRetour.find()
     .sort({ feuilleRetourNb: -1 })
     .limit(1)
@@ -238,7 +240,7 @@ retourr.post("/", (req, res) => {
       var packages = [];
 
       for (const package of req.body.packages) {
-        packages.push(await Package.findOne({ CAB: package }));
+        packages.push(await Package.findOne({ CAB: package.CAB }));
       }
       var packageIds = [];
       packages.forEach((element) => {
@@ -276,7 +278,9 @@ retourr.post("/", (req, res) => {
           );
         },
         (err) => {
-          console.log("Erreur lors de la création du feuille de retour: " + err);
+          console.log(
+            "Erreur lors de la création du feuille de retour: " + err
+          );
           return res.status(400).send(err.message);
         }
       );
@@ -285,7 +289,7 @@ retourr.post("/", (req, res) => {
 });
 
 // modify feuilleRetour
-retourr.put("/:id", (req, res) => {
+router.put("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
 
@@ -328,9 +332,27 @@ retourr.put("/:id", (req, res) => {
   );
 });
 
+router.get("/nb/last", (req, res) => {
+  FeuilleRetour.find()
+    .sort({ feuilleRetourNb: -1 })
+    .limit(1)
+    .exec(async (err, feuilles) => {
+      if (err) {
+        console.log(
+          "Erreur dans la récupération du nombre du feuille de retour"
+        );
+        return res
+          .status(404)
+          .send("Erreur dans la récupération du nombre du feuille de retour");
+      }
+
+      return res.status(200).send(feuilles[0].feuilleRetourNb.toString());
+    });
+});
+
 // delete return sheet
 // *** technically return sheet can't be deleted ***
-// retourr.delete("/:id", (req, res) => {
+// router.delete("/:id", (req, res) => {
 //   if (!ObjectId.isValid(req.params.id))
 //     return res.status(400).send(`no record with given id ${req.params.id}`);
 //   FeuilleRetour.findByIdAndRemove(req.params.id, (err, doc) => {
@@ -347,7 +369,7 @@ retourr.put("/:id", (req, res) => {
 // });
 
 /********************** STATISTICS **********************/
-retourr.get("/count/all", (req, res) => {
+router.get("/count/all", (req, res) => {
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
 
@@ -392,7 +414,7 @@ retourr.get("/count/all", (req, res) => {
   });
 });
 
-retourr.get("count-colis/:id", (req, res) => {
+router.get("count-colis/:id", (req, res) => {
   FeuilleRetour.find({ _id: req.params.id }).then(
     (res) => {
       res.send({ count: res.packages.length });
@@ -405,4 +427,4 @@ retourr.get("count-colis/:id", (req, res) => {
 });
 /********************** STATISTICS **********************/
 
-module.exports = retourr;
+module.exports = router;
