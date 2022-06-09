@@ -31,6 +31,7 @@ export class ImprimerFeuilleRetourComponent implements OnInit {
     // if (typeof packageCABs === "string") {
     packageCABs.forEach((element) => {
       this.getPackageData(element);
+      // TODO: change state after feuille-retour allocation
       // this.changeState(element);
     });
     this.getLastFeuilleRetourNb();

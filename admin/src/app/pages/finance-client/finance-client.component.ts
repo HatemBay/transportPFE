@@ -1,11 +1,12 @@
 import { DatePipe } from "@angular/common";
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { map } from "rxjs";
 import { FeuilleRetourService } from "src/app/services/feuille-retour.service";
 import { FournisseurService } from "src/app/services/fournisseur.service";
 import { PackageService } from "src/app/services/package.service";
-import { UserService } from "src/app/services/user.service";
 import { VehiculeService } from "src/app/services/vehicule.service";
 
 @Component({
@@ -29,13 +30,17 @@ export class FinanceClientComponent implements OnInit {
 
   temp: any = [];
   rows: any = [];
+  rows2: any = [];
   public columns: Array<object>;
   count: any;
   chauffeurs: any = [];
   fournisseurs: any = [];
   vehicules: any = [];
   fournisseur: any = [];
+  fourn: any = [];
+  packages: any = [];
   success: boolean = false;
+  toPrint: boolean = false;
 
   public currentPageLimit: number = 10;
   public currentPage: number = 1;
@@ -54,10 +59,14 @@ export class FinanceClientComponent implements OnInit {
     private fournisseurService: FournisseurService,
     private datePipe: DatePipe,
     private vehiculeService: VehiculeService,
-    private userService: UserService,
+    private router: Router,
+    private route: ActivatedRoute,
     private packageService: PackageService,
     private feuilleRetourService: FeuilleRetourService
-  ) {}
+  ) {
+    this.fourn = this.route.snapshot.queryParamMap.get("fournisseur") || null;
+    // console.log(JSON.parse(this.fourn));
+  }
 
   ngOnInit(): void {
     this.columns = [{ prop: "createdAtSearch", name: "Date" }];
@@ -78,9 +87,46 @@ export class FinanceClientComponent implements OnInit {
     );
   }
 
+  get f() {
+    return this.fournisseursForm.controls;
+  }
+
   async initiateData() {
     this.setDates();
     this.fournisseurs = await this.getProviders();
+    if (this.fourn !== null) {
+      this.packages = await this.getPackagesByProvider(
+        this.fourn,
+        50,
+        1,
+        null,
+        null,
+        null
+      );
+      this.fournisseur = await this.getProvider(this.fourn);
+      console.log("slm");
+
+      console.log(this.packages);
+
+      var livré = [];
+      var annulé = [];
+      for (let pack of this.packages) {
+        if (pack.etat === "livré (espèce)" || pack.etat === "livré (chèque)") {
+          livré = [...livré, pack];
+        } else if (
+          pack.etat === "annulé" //TODO: to be changed to 'retourné à l'expéditeur
+        ) {
+          annulé = [...annulé, pack];
+        }
+      }
+      this.rows = livré;
+      this.rows2 = annulé;
+      // console.log(this.rows);
+      // console.log(this.rows2);
+
+      this.fournisseursForm.patchValue({ fournisseurs: this.fourn });
+      this.toPrint = true;
+    }
     // this.getPackagesByProvider(
     //   this.fournisseurs[0]._id,
     //   this.currentPageLimit,
@@ -90,21 +136,26 @@ export class FinanceClientComponent implements OnInit {
     //   null
     // );
   }
+  async getProvider(dournisseurId: string) {
+    return await this.fournisseurService
+      .getFournisseur(dournisseurId)
+      .toPromise();
+  }
   async getProviders() {
     return await this.fournisseurService.getFournisseurs().toPromise();
   }
 
   //get packages from selected provider
   async getPackages() {
-    this.display = "block";
-    this.getPackagesByProvider(
-      this.fournisseursForm.value.fournisseurs,
-      this.currentPageLimit,
-      1,
-      null,
-      null,
-      null
-    );
+    this.toPrint = true;
+    var navigationExtras: NavigationExtras = {
+      queryParams: {
+        fournisseur: this.fournisseursForm.value.fournisseurs,
+      },
+    };
+    this.router.navigateByUrl("/", { skipLocationChange: true }).then(() => {
+      this.router.navigate(["/finance-client"], navigationExtras);
+    });
   }
 
   async getPackagesByProvider(
@@ -117,7 +168,7 @@ export class FinanceClientComponent implements OnInit {
     startDate?: any,
     endDate?: any
   ) {
-    this.packageService
+    return await this.packageService
       .getPackageByProvider(
         "finance-client",
         id,
@@ -129,21 +180,24 @@ export class FinanceClientComponent implements OnInit {
         startDate,
         endDate
       )
-      .subscribe(async (data) => {
-        var result: any = [];
-        var packages: any = [];
-        packages = data;
-        for (let item of packages) {
-          if (
-            item.etat === "livré (espèce)" ||
-            item.etat === "livré (chèque)"
-          ) {
-            result = [...result, item];
+      .pipe(
+        map(async (data) => {
+          var result: any = [];
+          var packages: any = [];
+          packages = data;
+          for (let item of packages) {
+            if (
+              item.etat === "livré (espèce)" ||
+              item.etat === "livré (chèque)" ||
+              item.etat === "annulé" //TODO: to be changed to 'retourné à l'expéditeur
+            ) {
+              result = [...result, item];
+            }
           }
-        }
-
-        this.rows = this.temp = result;
-      });
+          return result;
+        })
+      )
+      .toPromise();
   }
 
   // initiate our dates
@@ -155,6 +209,30 @@ export class FinanceClientComponent implements OnInit {
     this.myDate.setDate(thisDate);
 
     this.startDate = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
+  }
+
+  print() {
+    var navigationExtras: NavigationExtras = {
+      queryParams: {
+        fournisseur: this.fourn,
+      },
+    };
+
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(["/imprimer-finance"], navigationExtras)
+    );
+
+    const WindowPrt = window.open(
+      url,
+      "_blank",
+      "left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0"
+    );
+
+    WindowPrt.setTimeout(function () {
+      WindowPrt.focus();
+      WindowPrt.print();
+      // WindowPrt.close();
+    }, 1000);
   }
 
   // save changes in credentials
@@ -212,18 +290,6 @@ export class FinanceClientComponent implements OnInit {
       event.sorts[0].prop,
       event.newValue
     );
-  }
-
-  // checkbox selection
-  onSelect(event) {
-    // console.log("Select Event", event);
-    // this.selected = event.selected;
-    // if (this.selected.length > 0) {
-    //   this.printable = true;
-    // } else {
-    //   this.printable = false;
-    // }
-    // console.log(this.selected[0]._id);
   }
 
   // When page changes
