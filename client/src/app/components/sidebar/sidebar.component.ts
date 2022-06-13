@@ -57,6 +57,12 @@ export const ROUTES: RouteInfo[] = [
     icon: "ni-circle-08 text-pink",
     class: "",
   },
+  {
+    path: "/decharge",
+    title: "Décharge",
+    icon: "ni-circle-08 text-pink",
+    class: "",
+  },
 ];
 
 @Component({

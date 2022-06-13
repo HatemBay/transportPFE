@@ -103,13 +103,13 @@ router.get("/", (req, res) => {
   ];
   data.push(
     {
+      $sort: sort,
+    },
+    {
       $skip: skip,
     },
     {
       $limit: limit,
-    },
-    {
-      $sort: sort,
     }
   );
 

@@ -1,3 +1,4 @@
+import { ImprimerFinanceComponent } from './pages/imprimer-finance/imprimer-finance.component';
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { BrowserModule } from "@angular/platform-browser";
@@ -48,6 +49,11 @@ const routes: Routes = [
     path: "imprimer-feuille-retour",
     canActivate: [AuthGuard],
     component: ImprimerFeuilleRetourComponent,
+  },
+  {
+    path: "imprimer-finance",
+    canActivate: [AuthGuard],
+    component: ImprimerFinanceComponent,
   },
   {
     path: "**",

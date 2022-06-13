@@ -97,14 +97,14 @@ router.get("/", (req, res) => {
       },
     },
     {
+      $sort: sort,
+    },
+    {
       $skip: skip,
     },
     {
       $limit: limit,
-    },
-    {
-      $sort: sort,
-    },
+    }
   ];
   Fournisseur.aggregate(data).exec((err, fournisseurs) => {
     if (!err) {

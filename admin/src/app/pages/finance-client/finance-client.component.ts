@@ -261,8 +261,7 @@ export class FinanceClientComponent implements OnInit {
     this.table.limit = this.currentPageLimit;
     this.getPackagesByProvider(
       this.fournisseursForm.value.fournisseurs,
-      limit,
-      this.currentPage
+      limit
     );
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {

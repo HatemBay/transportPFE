@@ -124,7 +124,8 @@
                 </ng-container>
               </ng-template>
             </ng-container>
-            <ul #collapseF="ngbCollapse" #collapseG="ngbCollapse" [(ngbCollapse)]="isFCollapsed" [(ngbCollapse)]="isGCollapsed" class="navbar-nav ml-4 mr-4 bg-secondary">
+            <ul #collapseF="ngbCollapse" #collapseG="ngbCollapse" [(ngbCollapse)]="isFCollapsed"
+              [(ngbCollapse)]="isGCollapsed" class="navbar-nav ml-4 mr-4 bg-secondary">
               <li *ngFor="let menuItem2 of menuItems; let index = index;" class="nav-item">
                 <ng-container *ngIf="menuItem2.parent === menuItem.title">
                   <a class="nav-link" [routerLink]="[menuItem2.path]">{{menuItem2.title}}</a>
@@ -145,7 +146,7 @@
       <ul class="navbar-nav mb-md-3">
         <li class="nav-item">
           <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard-angular/documentation/tutorial">
-            <i class="ni ni-spaceship"></i> Getting started
+            <i class="ni ni-spaceship"></i> Getting started {{packageCount}}
           </a>
         </li>
         <li class="nav-item">

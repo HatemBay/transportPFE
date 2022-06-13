@@ -1,0 +1,113 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <div class="header-body">
+      <!-- Card stats -->
+      <div class="row">
+        <div class="container-fluid" id="container-wrapper">
+          <div class="row">
+            <div class="col-lg-12 mb-4">
+              <div class="card mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h2 class="m-0 font-weight-bold">Demander un pick-up</h2>
+                  <button class="btn btn-primary btn-sm" id="imprimer_tous" [disabled]="!printable" (click)="print()">
+                    <i class="fas fa-check"></i> Imprimer la décharge
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <!-- Table -->
+  <div class="row">
+    <div class="col">
+      <div class="card shadow">
+        <div>
+          <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
+            [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
+            [selectionType]="'checkbox'" (select)="onSelect($event)" (sort)="onSort($event)">
+
+            <ngx-datatable-column name="" [width]="30" [sortable]="false" [draggable]="false" [resizeable]="false"
+              [canAutoResize]="false" [checkboxable]="true" [headerCheckboxable]="true" prop="selected">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Code à barre">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.CAB}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Tél/Tél2" prop="tel">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.telc}} / {{row.tel2c}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column *ngFor="let column of columns;
+        let i = index;" name="{{column.name}}" prop="{{column.prop}}">
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="COD" prop="c_remboursement">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.c_remboursement}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Date" prop="createdAtSearch">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.createdAtSearch}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
+                <span>
+                  <a *ngIf="row.etat =='nouveau' " [routerLink]="" (click)="modify(row)"
+                    class="btn btn-sm rounded-circle text-white" style="background: blue">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <button [routerLink]="" (click)="delete(row)" class="btn btn-sm btn-danger rounded-circle">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                  <a [routerLink]="" (click)="view(row)" class="btn btn-sm btn-warning rounded-circle">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-footer>
+              <ng-template ngx-datatable-footer-template let-rowCount="count" let-pageSize="pageSize"
+                let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
+                <div class="pl-2">
+                  Elements: {{ count }} | Taille: {{ pageSize }} | Page:
+                  {{ curPage }}
+                </div>
+                <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'"
+                  [pagerRightArrowIcon]="'datatable-icon-right'" [pagerPreviousIcon]="'datatable-icon-prev'"
+                  [pagerNextIcon]="'datatable-icon-skip'" [page]="curPage" [size]="pageSize" [count]="count"
+                  [hidden]="!((count / pageSize) > 1)" (change)="onFooterPage($event)">
+                </datatable-pager>
+              </ng-template>
+            </ngx-datatable-footer>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

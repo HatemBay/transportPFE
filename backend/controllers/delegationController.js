@@ -47,14 +47,14 @@ router.get("/", (req, res) => {
       },
     },
     {
+      $sort: sort,
+    },
+    {
       $skip: skip,
     },
     {
       $limit: limit,
-    },
-    {
-      $sort: sort,
-    },
+    }
   ];
   Delegation.aggregate(data)
     .sort(sort)

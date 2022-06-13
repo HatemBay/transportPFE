@@ -366,7 +366,7 @@ export class FinanceDebriefGlobalComponent implements OnInit {
     this.table.limit = this.currentPageLimit + 1;
     await this.update(
       limit,
-      this.currentPage,
+      1,
       null,
       null,
       this.val,

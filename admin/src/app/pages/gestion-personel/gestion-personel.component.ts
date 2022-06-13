@@ -166,7 +166,7 @@ export class GestionPersonelComponent implements OnInit {
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit, this.currentPage);
+    this.getDataJson(limit);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -215,7 +215,7 @@ export class GestionPersonelComponent implements OnInit {
     console.log(this.userForm.value);
 
     this.userService.createUser(this.userForm.value).subscribe(
-      (res) => {
+      () => {
         this.error = "none";
         this.userForm.reset();
         this.getDataJson();

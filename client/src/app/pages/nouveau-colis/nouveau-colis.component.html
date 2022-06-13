@@ -17,7 +17,14 @@
                 <h3 class="card-title">Coordonnées du client</h3>
                 <div class="form-group">
                   <label class="form-label">Téléphone (*)</label>
-                  <input formControlName="tel" id="tel" class="form-control" type="number" autocomplete="off">
+                  <input list="phones" name="phones" formControlName="tel" id="tel" class="form-control" type="number"
+                    autocomplete="off" (keyup)="searchPhones($event)" (change)="importClient($event)" >
+                  <datalist id="phones">
+                    <option *ngFor="let client of clients" [value]="client.tel">
+                      {{ client.tel }}
+                    </option>
+                  </datalist>
+
                   <ng-container
                     *ngIf="packageForm.controls['tel'].invalid && (packageForm.controls['tel'].dirty || packageForm.controls['tel'].touched)">
                     <ng-container *ngIf="packageForm.controls['tel'].errors?.['required']">
@@ -54,6 +61,45 @@
                     </ng-container>
                   </ng-container>
                 </div>
+                <div class="form-group">
+                  <label class="form-label">Ville (*)</label>
+                  <select formControlName="villeId" class="form-control">
+                    <option hidden="" value="">-- Choisir --</option>
+                    <!-- <option value="sousse">Sousse </option>
+                    <option value="monastir">Monastir </option> -->
+                    <option *ngFor="let ville of villes" [value]="ville._id">
+                      {{ ville.nom | titlecase }} </option>
+                  </select>
+                  <ng-container
+                    *ngIf="packageForm.controls['villeId'].invalid && (packageForm.controls['villeId'].dirty || packageForm.controls['villeId'].touched)">
+                    <ng-container *ngIf="packageForm.controls['villeId'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Ville est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Delegation (*)</label>
+                  <select formControlName="delegationId" class="form-control">
+                    <option hidden="" value="">-- Choisir --</option>
+                    <!-- <option value="sousse">Sousse</option>
+                    <option value="ben arous">Ben Arous</option> -->
+                    <option *ngFor="let delegation of delegations" [value]="delegation._id">
+                      {{ delegation.nom | titlecase }} </option>
+                  </select>
+                  <ng-container
+                    *ngIf="packageForm.controls['delegationId'].invalid && (packageForm.controls['delegationId'].dirty || packageForm.controls['delegationId'].touched)">
+                    <ng-container *ngIf="packageForm.controls['delegationId'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Delegation est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+<!--
                 <div class="form-group">
                   <label class="form-label">Ville (*)</label>
                   <select formControlName="ville" [value]="packageForm.ville" class="form-control" name="ville_cl"
@@ -97,7 +143,8 @@
                       </small>
                     </ng-container>
                   </ng-container>
-                </div>
+                </div> -->
+
                 <div class="form-group">
                   <label class="form-label">Adresse (*)</label>
                   <input formControlName="adresse" [value]="packageForm.adresse" name="adresse_cl" id="adresse_cl"
@@ -205,10 +252,10 @@
               </div>
             </div>
             <div class="form-footer text-right">
-              <button *ngIf="!checkData() || (checkData() && !checkIds)" [disabled] (click)="onNextClick()" name="add"
+              <button *ngIf="!checkData() || (checkData() && !checkIds)" (click)="onNextClick()"
                 class="btn btn-primary px-5" [disabled]="packageForm.invalid">Créer nouveau</button>
-              <button *ngIf="checkData() && checkIds" (click)="onPreviousClick()" name="add"
-                class="btn btn-primary px-5" [disabled]="packageForm.invalid">Modifier</button>
+              <button *ngIf="checkData() && checkIds" (click)="onPreviousClick()" class="btn btn-primary px-5"
+                [disabled]="packageForm.invalid">Modifier</button>
             </div>
           </form>
         </div>

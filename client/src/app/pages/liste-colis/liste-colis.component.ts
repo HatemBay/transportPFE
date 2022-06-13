@@ -40,13 +40,12 @@ export class ListeColisComponent implements OnInit {
     private packageService: PackageService,
     private clientService: ClientService,
     private router: Router,
-    private route: ActivatedRoute,
+    private route: ActivatedRoute
   ) {
     this.added = Boolean(this.route.snapshot.queryParamMap.get("added"));
     this.edited = Boolean(this.route.snapshot.queryParamMap.get("edited"));
     // TODO: remove
     console.log(localStorage.getItem("mean-token"));
-
   }
   ngOnInit(): void {
     // Initial columns, can be used for data list which is will be filtered
@@ -63,16 +62,15 @@ export class ListeColisComponent implements OnInit {
     this.getDataJson(null, null, null, null, null);
     // this.findAll();
     console.log(this.temp[0]);
-
   }
 
   // get data from backend
   getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
     this.packageService
-      .getFullPackages(limit, page, sortBy, sort, search)
+      .getFullPackages(null, limit, page, sortBy, sort, search)
       .subscribe((data) => {
         this.rows = this.temp = data;
-        console.log('data');
+        console.log("data");
 
         console.log(data);
         // console.log(this.temp);
@@ -107,7 +105,7 @@ export class ListeColisComponent implements OnInit {
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit, this.currentPage);
+    this.getDataJson(limit);
   }
 
   // changes number of elements to display
@@ -191,7 +189,7 @@ export class ListeColisComponent implements OnInit {
   onSelect(event) {
     // console.log("Select Event", event);
 
-    this.selected = event.selected
+    this.selected = event.selected;
     if (this.selected.length > 0) {
       this.printable = true;
     } else {

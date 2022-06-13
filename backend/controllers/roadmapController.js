@@ -128,13 +128,13 @@ router.get("/", (req, res) => {
   if (noLimit !== null) {
     data.push(
       {
+        $sort: sort,
+      },
+      {
         $skip: skip,
       },
       {
         $limit: limit,
-      },
-      {
-        $sort: sort,
       }
     );
   }

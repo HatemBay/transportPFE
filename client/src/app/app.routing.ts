@@ -8,6 +8,7 @@ import { AuthLayoutComponent } from "./layouts/auth-layout/auth-layout.component
 import { LoginComponent } from "./pages/login/login.component";
 import { AuthGuard } from "./services/auth.guard";
 import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
+import { ImprimerPickupComponent } from "./pages/imprimer-pickup/imprimer-pickup.component";
 
 const routes: Routes = [
   {
@@ -35,6 +36,7 @@ const routes: Routes = [
   },
   { path: "imprimer-colis-gestion", canActivate: [AuthGuard], component: ImprimerComponent },
   { path: "imprimer-colis", canActivate: [AuthGuard], component: ImprimerComponent },
+  { path: "imprimer-pickup", canActivate: [AuthGuard], component: ImprimerPickupComponent },
   {
     path: "**",
     redirectTo: "dashboard",

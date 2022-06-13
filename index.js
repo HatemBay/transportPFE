@@ -25,7 +25,6 @@ var {
   loginProvider,
   verify,
   auth,
-  authRole,
 } = require("./backend/controllers/authentication");
 var upload = require("./backend/controllers/upload");
 // const _ = require("lodash");
@@ -43,12 +42,28 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(fileUpload());
-// app.use(express.urlencoded({ extended: true }));
 
 // Listen for requests
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Listening on port ${port}...`));
-
+const server = app.listen(port, () =>
+  console.log(`Listening on port ${port}...`)
+);
+// Socket Layer over Http Server
+// const io = require("./backend/socket.js").init(server);
+// TODO: change method probably
+global.socket = require("socket.io")(server);
+// require("./backend/controllers/pickupController")(io);
+// On every Client Connection
+socket.on("connection", (socket) => {
+  console.log("Socket: client connected");
+});
+// socket.on("connection", (socket) => {
+//   console.log("Connection success", socket.id);
+//   socket.on("disconnect", () => {
+//     console.log("Connection disconnected", socket.id);
+//   });
+// });
+// app.use(express.urlencoded({ extended: true }));
 // Middleware
 app.use(logger("dev")); /* logging events */
 app.use(passport.initialize());
@@ -86,3 +101,11 @@ app.use("/api/excel-upload", upload);
 // app.use("/api/count", packageController);
 
 // router.get('/profile', auth, ctrlp);
+
+//*testing method
+// Send Notification API
+app.post("/api/send-notification", (req, res) => {
+  const notify = { count: 2 };
+  socket.emit("notification", notify); // Updates Live Notification
+  res.send(notify);
+});

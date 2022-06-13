@@ -299,6 +299,17 @@ export class PackageService {
     );
   }
 
+  // Count packages for a client
+  countToday(): Observable<any> {
+    let url = `${this.baseUri}/count/today`;
+    return this.http.get(url, { headers: this.headers }).pipe(
+      map((res: any) => {
+        return res || {};
+      }),
+      catchError(this.errorMgmt)
+    );
+  }
+
   // Error handling
   errorMgmt(error: HttpErrorResponse) {
     let errorMessage = "";

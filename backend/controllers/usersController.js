@@ -56,14 +56,14 @@ router.get("/", (req, res) => {
       },
     },
     {
+      $sort: sort,
+    },
+    {
       $skip: skip,
     },
     {
       $limit: limit,
-    },
-    {
-      $sort: sort,
-    },
+    }
   ];
   User.aggregate(data).exec((err, users) => {
     if (!err) {

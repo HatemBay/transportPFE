@@ -97,7 +97,7 @@ router.post("/:fid", (req, res) => {
                 //   if (res != null) return "code à barre existant";
                 // });
 
-                if (client.tel.toString().length == 8 && !(isNaN(client.tel))) {
+                if (client.tel.toString().length == 8 && !isNaN(client.tel)) {
                   var errors = 0;
                   await client.save().then(
                     async (doc) => {
@@ -160,17 +160,24 @@ router.post("/:fid", (req, res) => {
                       );
                     },
                     (err) => {
+                      if (err.message.indexOf("tel_1") !== -1) {
+                        
+                      }
                       resultHandler["ligne" + index] = err.message;
                       console.log(resultHandler);
                       errors++;
+                      
                       return console.log(
                         "Erreur lors de l'enregistrement du client: " + err
                       );
+                      
+
                       // return res.status(400).send(err.message);
                     }
                   );
                 } else {
-                  resultHandler["ligne" + index] = "numéro de téléphone incorrect";
+                  resultHandler["ligne" + index] =
+                    "numéro de téléphone incorrect";
                   errors++;
                 }
               } else {

@@ -117,8 +117,17 @@ router.get("/all-info/:fid", (req, res) => {
     { $unwind: "$fournisseurs" },
     {
       $lookup: {
+        from: "delegations",
+        localField: "fournisseurs.delegationId",
+        foreignField: "_id",
+        as: "delegations",
+      },
+    },
+    { $unwind: "$delegations" },
+    {
+      $lookup: {
         from: "villes",
-        localField: "fournisseurs.villeId",
+        localField: "delegations.villeId",
         foreignField: "_id",
         as: "villes",
       },
@@ -127,12 +136,21 @@ router.get("/all-info/:fid", (req, res) => {
     {
       $lookup: {
         from: "delegations",
-        localField: "fournisseurs.delegationId",
+        localField: "clients.delegationId",
         foreignField: "_id",
-        as: "delegations",
+        as: "delegationsClient",
       },
     },
-    { $unwind: "$delegations" },
+    { $unwind: "$delegationsClient" },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegationsClient.villeId",
+        foreignField: "_id",
+        as: "villesClient",
+      },
+    },
+    { $unwind: "$villesClient" },
     {
       $project: {
         _id: 1,
@@ -146,8 +164,8 @@ router.get("/all-info/:fid", (req, res) => {
         etat: 1,
         clientId: "$clients._id",
         nomc: "$clients.nom",
-        villec: "$clients.ville",
-        delegationc: "$clients.delegation",
+        villec: "$villesClient.nom",
+        delegationc: "$delegationsClient.nom",
         adressec: "$clients.adresse",
         codePostalec: "$clients.codePostale",
         telc: "$clients.tel",
@@ -160,10 +178,6 @@ router.get("/all-info/:fid", (req, res) => {
         updatedAt: {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
         },
-      },
-    },
-    {
-      $addFields: {
         createdAtSearch: {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
         },
@@ -173,6 +187,14 @@ router.get("/all-info/:fid", (req, res) => {
       $match: { fournisseurId: id },
     },
   ];
+  console.log(state);
+  if (state) {
+    data.push({
+      $match: {
+        etat: state,
+      },
+    });
+  }
 
   if (startDate && endDate) {
     data.push({
@@ -191,29 +213,39 @@ router.get("/all-info/:fid", (req, res) => {
         etat: "annulé",
       },
     });
-  } else if (req.query.type == "finance-client") {
+  }
+
+  if (req.query.type == "pickup") {
     data.push({
       $match: {
-        etat: { $in: ["livré (espèce)", "livré (chèque)"] },
+        etat: "nouveau",
+      },
+    });
+  }
+
+  if (req.query.type == "finance-client") {
+    data.push({
+      $match: {
+        etat: { $in: ["livré (espèce)", "livré (chèque)", "annulé"] },
       },
     });
   }
 
   data.push(
     {
+      $sort: sort,
+    },
+    {
       $skip: skip,
     },
     {
       $limit: limit,
-    },
-    {
-      $sort: sort,
     }
   );
 
   Package.aggregate(data).exec((err, doc) => {
     if (!err) {
-      if (req.query.search) {
+      if (req.query.search && req.query.search.length > 2) {
         if (startDate && endDate) {
           if (state) {
             res.send(
@@ -316,7 +348,7 @@ router.get("/all-info/:fid", (req, res) => {
                   item.telc.toString().includes(req.query.search) ||
                   item.tel2c?.toString().includes(req.query.search) ||
                   item.c_remboursement.toString().includes(req.query.search) ||
-                  item.codePostalec.toString().includes(req.query.search) ||
+                  item.codePostalec?.toString().includes(req.query.search) ||
                   item.createdAtSearch.toString().includes(req.query.search) ||
                   item.nomc
                     .toLowerCase()
@@ -334,7 +366,7 @@ router.get("/all-info/:fid", (req, res) => {
             );
           }
         }
-      } else if (!(req.query.search && req.query.search.length > 2)) {
+      } else if (!req.query.search) {
         if (startDate && endDate) {
           if (state) {
             res.send(
@@ -607,13 +639,13 @@ router.get("/all-info-period/admin", (req, res) => {
       },
     },
     {
+      $sort: sort,
+    },
+    {
       $skip: skip,
     },
     {
       $limit: limit,
-    },
-    {
-      $sort: sort,
     },
   ];
 
@@ -1443,7 +1475,6 @@ router.get("/count/all-daily", (req, res) => {
 router.get("/count/all-period", (req, res) => {
   var state = req.query.etat || null;
   var driverId = req.query.driverId || null;
-  var debrief = req.query.debrief || null;
   var query;
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
@@ -1479,9 +1510,9 @@ router.get("/count/all-period", (req, res) => {
     };
   }
 
-  if (driverId) {
-    queryObj["userId"] = driverId;
-  }
+  // if (driverId) {
+  //   queryObj["userId"] = driverId;
+  // }
 
   // if (startDate && endDate) {
   //   if (state) {
@@ -1513,6 +1544,32 @@ router.get("/count/all-period", (req, res) => {
 
   query = Package.find(queryObj);
 
+  query.count((err, count) => {
+    if (!err) {
+      res.send({ count: count });
+    } else {
+      console.log(err);
+      res.status(400).send(err.message);
+    }
+  });
+});
+
+router.get("/count/today", (req, res) => {
+  const queryObj = {};
+
+  const dateS = new Date();
+  console.log(dateS);
+
+  startYear = dateS.getFullYear();
+  startMonth = dateS.getMonth();
+  startDay = dateS.getDate();
+
+  queryObj["updatedAt"] = {
+    $gte: new Date(startYear, startMonth, startDay, 0, 0, 0, 0),
+    $lte: new Date(startYear, startMonth, startDay, 23, 59, 59, 999),
+  };
+  queryObj["etat"] = "pret";
+  var query = Package.find(queryObj);
   query.count((err, count) => {
     if (!err) {
       res.send({ count: count });

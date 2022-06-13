@@ -1,6 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { AuthenticationService } from "src/app/services/authentication.service";
+import { io } from "socket.io-client";
+import { PackageService } from "src/app/services/package.service";
+import { map } from "rxjs/internal/operators/map";
 
 declare interface RouteInfo {
   path: string;
@@ -217,16 +220,45 @@ export class SidebarComponent implements OnInit {
   public isGCollapsed = false;
   public isFCollapsed = false;
   public isCollapsed = false;
-  role: any;
 
-  constructor(private router: Router, private auth: AuthenticationService) {
+  private socket: any;
+  public data: any;
+
+  role: any;
+  packageCount: any;
+
+  constructor(
+    private router: Router,
+    private auth: AuthenticationService,
+    private packageService: PackageService
+  ) {
+    // role management
     this.role = this.auth.getUserDetails().role;
+    // Connect Socket with server URL
+    this.socket = io("http://localhost:3000", { transports: ["websocket"] });
   }
 
-  ngOnInit() {
+  async ngOnInit(): Promise<void> {
     this.menuItems = ROUTES.filter((menuItem) => menuItem);
     this.router.events.subscribe((event) => {
       this.isCollapsed = true;
     });
+    this.packageCount = await this.countTodayPackages();
+    console.log(this.packageCount);
+    this.socket.on("notification", (data) => {
+      this.packageCount = data.count;
+      console.log(data.count);
+    });
+  }
+
+  async countTodayPackages() {
+    return await this.packageService
+      .countToday()
+      .pipe(
+        map((data) => {
+          return data.count;
+        })
+      )
+      .toPromise();
   }
 }

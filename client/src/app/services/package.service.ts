@@ -45,9 +45,7 @@ export class PackageService {
   //upload package and client details as excel
   uploadExcel(id: any, data: any): Observable<any> {
     const url = `http://localhost:3000/api/excel-upload/${id}`;
-    return this.http
-      .post(url, data)
-      .pipe(catchError(this.errorMgmt));
+    return this.http.post(url, data).pipe(catchError(this.errorMgmt));
   }
 
   // Get all packages
@@ -64,6 +62,7 @@ export class PackageService {
 
   // Get all packages with all foreign info
   getFullPackages(
+    type: any,
     limit?: any,
     page?: any,
     sortBy?: any,
@@ -71,29 +70,32 @@ export class PackageService {
     search?: any,
     etat?: any,
     startDate?: any,
-    endDate?: any
+    endDate?: any,
   ) {
     const url = `${this.baseUri}/all-info/${this.userId}`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);
+    if (type) {
+      queryParams = queryParams.append("type", type);
+    }
     if (sortBy) {
-      queryParams = queryParams.append("sortBy", sortBy || "");
+      queryParams = queryParams.append("sortBy", sortBy);
     }
     if (sort) {
-      queryParams = queryParams.append("sort", sort || "");
+      queryParams = queryParams.append("sort", sort);
     }
     if (search) {
-      queryParams = queryParams.append("search", search || "");
+      queryParams = queryParams.append("search", search);
     }
     if (etat) {
-      queryParams = queryParams.append("etat", etat || "");
+      queryParams = queryParams.append("etat", etat);
     }
     if (startDate) {
-      queryParams = queryParams.append("startDate", startDate || "");
+      queryParams = queryParams.append("startDate", startDate);
     }
     if (endDate) {
-      queryParams = queryParams.append("endDate", endDate || "");
+      queryParams = queryParams.append("endDate", endDate);
     }
     return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
   }

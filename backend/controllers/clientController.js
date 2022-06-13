@@ -1,3 +1,4 @@
+const { query } = require("express");
 const express = require("express");
 
 var router = express.Router();
@@ -69,16 +70,21 @@ router.get("/all", (req, res) => {
         },
       },
     },
-    {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
-    },
-    {
-      $sort: sort,
-    },
   ];
+  if (!req.query.tels) {
+    data.push(
+      {
+        $sort: sort,
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      }
+    );
+  }
+
   if (fid) {
     data.push({
       $match: { fournisseurId: fid },
@@ -88,25 +94,35 @@ router.get("/all", (req, res) => {
   Client.aggregate(data).exec((err, docs) => {
     if (!err) {
       if (req.query.search && req.query.search.length > 2) {
-        res.send(
-          docs.filter(
-            (item) =>
-              item.tel.toString().includes(req.query.search) ||
-              item.tel2?.toString().includes(req.query.search) ||
-              item.codePostale?.toString().includes(req.query.search) ||
-              item.createdAtSearch.toString().includes(req.query.search) ||
-              item.nom.toLowerCase().includes(req.query.search.toLowerCase()) ||
-              item.ville
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.delegation
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.adresse
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase())
-          )
-        );
+        if (req.query.tels) {
+          res.send(
+            docs.filter((item) =>
+              item.tel.toString().includes(req.query.search)
+            )
+          );
+        } else {
+          res.send(
+            docs.filter(
+              (item) =>
+                item.tel.toString().includes(req.query.search) ||
+                item.tel2?.toString().includes(req.query.search) ||
+                item.codePostale?.toString().includes(req.query.search) ||
+                item.createdAtSearch.toString().includes(req.query.search) ||
+                item.nom
+                  .toLowerCase()
+                  .includes(req.query.search.toLowerCase()) ||
+                item.ville
+                  .toLowerCase()
+                  .includes(req.query.search.toLowerCase()) ||
+                item.delegation
+                  .toLowerCase()
+                  .includes(req.query.search.toLowerCase()) ||
+                item.adresse
+                  .toLowerCase()
+                  .includes(req.query.search.toLowerCase())
+            )
+          );
+        }
       } else res.send(docs);
     } else {
       console.log(err);
@@ -280,7 +296,7 @@ router.put("/:id", (req, res) => {
   var oldDelegation = null;
   Client.findById(req.params.id, (err, doc) => {
     if (!err) {
-      oldDelegation = doc.delegation;
+      oldDelegation = doc.delegationId;
     } else {
       console.log("Erreur " + err);
     }

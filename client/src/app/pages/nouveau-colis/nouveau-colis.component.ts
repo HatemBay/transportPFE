@@ -16,6 +16,9 @@ import { async, firstValueFrom, lastValueFrom } from "rxjs";
 import { startWith, map } from "rxjs/operators";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { PackageService, IPackage } from "src/app/services/package.service";
+import { DelegationService } from "src/app/services/delegation.service";
+import { VilleService } from "src/app/services/ville.service";
+// import {  } from "@smarthtmlelements/smart-elements"
 
 @Component({
   selector: "app-nouveau-colis",
@@ -24,20 +27,26 @@ import { PackageService, IPackage } from "src/app/services/package.service";
 })
 export class NouveauColisComponent implements OnInit {
   packageForm: FormGroup;
+  clients: any = [];
   modifData: any;
   packageId: any;
   clientId: any;
+  packageState: any;
   routePath: any;
   nextClicked = false;
   checkIds: boolean = false;
   error: string = "none";
   package: any = [];
   submit: boolean = false;
+  villes: Object;
+  delegations: Object;
 
   constructor(
     private fb: FormBuilder,
     public clientService: ClientService,
     private packageService: PackageService,
+    private delegationService: DelegationService,
+    private villeService: VilleService,
     private auth: AuthenticationService,
     private route: ActivatedRoute,
     private router: Router
@@ -53,6 +62,7 @@ export class NouveauColisComponent implements OnInit {
       this.routePath == "nouveau-colis" ||
       this.routePath == "modifier-colis"
     ) {
+      this.getVilles();
       this.packageForm = this.fb.group({
         tel: [
           "",
@@ -63,8 +73,8 @@ export class NouveauColisComponent implements OnInit {
           ],
         ],
         nom: ["", Validators.required],
-        ville: ["", Validators.required],
-        delegation: ["", Validators.required],
+        villeId: ["", Validators.required],
+        delegationId: ["", Validators.required],
         adresse: ["", Validators.required],
         codePostale: "",
         tel2: "",
@@ -78,11 +88,15 @@ export class NouveauColisComponent implements OnInit {
         remarque: "",
       });
 
-      if (this.checkData() && this.routePath == "modifier-colis") {
-        console.log("in");
+      this.onChanges();
+      if (this.routePath == "modifier-colis") {
+        this.checkPackage();
+        if (this.checkData()) {
+          console.log("in");
 
-        this.getActors();
-        // this.clientData = this.datacl[0]
+          this.getActors();
+          // this.clientData = this.datacl[0]
+        }
       }
     }
     if (this.routePath == "details-colis") {
@@ -93,6 +107,23 @@ export class NouveauColisComponent implements OnInit {
     return this.packageForm.controls;
   }
 
+  onChanges(): void {
+    this.packageForm.get("villeId").valueChanges.subscribe((val) => {
+      this.getDelegations(val);
+    });
+  }
+
+  getDelegations(villeId: any) {
+    this.delegationService.getDelegationsByVille(villeId).subscribe((data) => {
+      this.delegations = data;
+    });
+  }
+  getVilles() {
+    this.villeService.getVilles().subscribe((data) => {
+      this.villes = data;
+    });
+  }
+
   //************************ PATH = NOUVEAU-COLIS / MODIFIER-COLIS ************************
   getActors() {
     this.packageService.getFullPackage(this.packageId).subscribe((data) => {
@@ -100,11 +131,13 @@ export class NouveauColisComponent implements OnInit {
         data[0].clientId == this.clientId &&
         data[0].fournisseurId == this.auth.getUserDetails()._id
       ) {
+        console.log(data);
+
         this.packageForm.patchValue({
           tel: data[0].telc,
           nom: data[0].nomc,
-          ville: data[0].villec,
-          delegation: data[0].delegationc,
+          villeId: data[0].villec,
+          delegationId: data[0].delegationc,
           adresse: data[0].adressec,
           codePostale: data[0].codepostalc,
           tel2: data[0].tel2c,
@@ -248,8 +281,19 @@ export class NouveauColisComponent implements OnInit {
   public onNextClick(): void {
     this.nextClicked = false;
   }
+  async checkPackage() {
+    this.packageState = await this.packageService
+      .getPackage(this.packageId)
+      .pipe(
+        map((data) => {
+          return data.etat;
+        })
+      )
+      .toPromise();
+    console.log(this.packageState);
+  }
 
-  checkData(): boolean {
+  async checkData(): Promise<boolean> {
     return this.packageId && this.clientId;
   }
 
@@ -269,7 +313,51 @@ export class NouveauColisComponent implements OnInit {
   //************************ PATH = DETAILS-COLIS ************************
 
   //*test
-  logg(data) {
-    console.log(data);
+  searchPhones(event) {
+    if (event.target.value.length > 2) {
+      this.clientService
+        .getClients(null, null, null, null, event.target.value, "tels")
+        .subscribe((data) => {
+          console.log(data);
+
+          this.clients = data;
+        });
+    }
+  }
+
+  importClient(event) {
+    console.log("event");
+    console.log(event.target.value);
+    var id;
+    this.clients.forEach((element) => {
+      if (element.tel == event.target.value) {
+        id = element._id;
+        console.log(element);
+
+        this.packageForm.patchValue({
+          tel: element.tel,
+          nom: element.nom,
+          villeId: element.ville,
+          delegationId: element.delegation,
+          adresse: element.adresse,
+          codePostale: element.codepostal,
+          tel2: element.tel2,
+        });
+      }
+    });
+    // this.clientService.getClient(id).subscribe((data) => {
+    //   console.log("data");
+    //   console.log(data[0]);
+
+    //   this.packageForm.patchValue({
+    //     tel: data[0].telc,
+    //     nom: data[0].nomc,
+    //     ville: data[0].villec,
+    //     delegation: data[0].delegationc,
+    //     adresse: data[0].adressec,
+    //     codePostale: data[0].codepostalc,
+    //     tel2: data[0].tel2c,
+    //   });
+    // });
   }
 }

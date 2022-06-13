@@ -185,7 +185,7 @@ export class GestionColisComponent implements OnInit {
     this.table.limit = this.currentPageLimit;
     this.getDataJson(
       limit,
-      this.currentPage,
+      1,
       null,
       null,
       null,

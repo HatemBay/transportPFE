@@ -99,6 +99,7 @@ export class GestionColisComponent implements OnInit {
     if (this.init === true) {
       this.packageService
         .getFullPackages(
+          null,
           limit,
           page,
           sortBy,
@@ -119,7 +120,7 @@ export class GestionColisComponent implements OnInit {
         });
     } else {
       this.packageService
-        .getFullPackages(limit, page, sortBy, sort, search, etat)
+        .getFullPackages(null, limit, page, sortBy, sort, search, etat)
         .subscribe((data) => {
           this.rows = this.temp = data;
           for (const item of this.rows) {
@@ -149,7 +150,7 @@ export class GestionColisComponent implements OnInit {
   }
 
   // count packages depending on package state
-  private countPackages(startDate?:any, endDate?:any) {
+  private countPackages(startDate?: any, endDate?: any) {
     var state = null;
 
     for (const element of this.etat) {
@@ -157,9 +158,11 @@ export class GestionColisComponent implements OnInit {
         state = element.value;
       }
     }
-    this.packageService.countAllPackages(state, startDate, endDate).subscribe((res) => {
-      this.count = res.count;
-    });
+    this.packageService
+      .countAllPackages(state, startDate, endDate)
+      .subscribe((res) => {
+        this.count = res.count;
+      });
   }
 
   // dynamic search (triggers after inserting 3 characters)
@@ -210,7 +213,7 @@ export class GestionColisComponent implements OnInit {
     this.table.limit = this.currentPageLimit;
     this.getDataJson(
       limit,
-      this.currentPage,
+      1,
       null,
       null,
       null,
@@ -277,20 +280,6 @@ export class GestionColisComponent implements OnInit {
     this.currentPage = parseInt(page, 10);
   }
 
-  // updates package
-  modify(data) {
-    console.log(data.clientId);
-    var navigationExtras: NavigationExtras = {
-      queryParams: {
-        packageId: data._id,
-        clientId: data.clientId,
-      },
-    };
-    console.log(navigationExtras.queryParams);
-
-    this.router.navigate(["/modifier-colis"], navigationExtras);
-  }
-
   // delete package
   delete(data) {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce colis?")) {
@@ -313,7 +302,7 @@ export class GestionColisComponent implements OnInit {
 
   // view more information
   view(data) {
-    // console.log(data.clientId);
+    console.log(data.clientId);
     var navigationExtras: NavigationExtras = {
       queryParams: {
         packageId: data._id,
@@ -321,7 +310,7 @@ export class GestionColisComponent implements OnInit {
     };
     console.log(navigationExtras.queryParams);
 
-    this.router.navigate(["/modifier-colis"], navigationExtras);
+    this.router.navigate(["/details-colis"], navigationExtras);
   }
 
   // redirect to a printable page
@@ -396,7 +385,6 @@ export class GestionColisComponent implements OnInit {
       this.today
     );
 
-    this.countPackages(this.startDate, this.today)
-
+    this.countPackages(this.startDate, this.today);
   }
 }

@@ -1,11 +1,11 @@
 const express = require("express");
-const { parse } = require("path");
 const { Fournisseur } = require("../models/fournisseur");
 
 var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
 
-var { Pickup } = require("../models/pickup");
+const { Pickup } = require("../models/pickup");
+const { Package } = require("../models/package");
 const { User } = require("../models/users");
 
 // get pickups
@@ -127,13 +127,13 @@ router.get("/", (req, res) => {
   ];
   data.push(
     {
+      $sort: sort,
+    },
+    {
       $skip: skip,
     },
     {
       $limit: limit,
-    },
-    {
-      $sort: sort,
     }
   );
   if (req.query.isAllocated) {
@@ -277,7 +277,18 @@ router.post("/", (req, res) => {
             { new: true, useFindAndModify: false }
           ).then(
             () => {
-              return res.status(201).send(pickup);
+              const date = new Date();
+              console.log(date);
+              Package.find({ createdAt: date }).count((err, count) => {
+                if (!err) {
+                  const notify = { count: count };
+                  socket.emit("notification", notify); // Updates Live Notification
+                  return res.status(201).send(notify);
+                } else {
+                  console.log(err);
+                  res.status(400).send(err.message);
+                }
+              });
             },
             (err2) => {
               console.log(
@@ -427,5 +438,7 @@ router.get("count-colis/:id", (req, res) => {
   );
 });
 /********************** STATISTICS **********************/
+
+
 
 module.exports = router;

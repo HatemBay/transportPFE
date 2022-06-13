@@ -219,7 +219,7 @@ export class CbDebriefComponent implements OnInit {
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getRoadmaps(limit, this.currentPage, null, null, this.val, this.date, this.date);
+    this.getRoadmaps(limit, 1, null, null, this.val, this.date, this.date);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
