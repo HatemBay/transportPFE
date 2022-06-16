@@ -115,7 +115,8 @@
 
             <div class="col-8">Liste des colis: </div>
             <div class="col-4 text-right">
-              <button class="btn btn-primary" [disabled]="!printable" [routerLink]="" (click)="print()">Imprimer la liste sélectionnée</button>
+              <button class="btn btn-primary" [disabled]="!printable" [routerLink]="" (click)="print()">Imprimer la
+                liste sélectionnée</button>
             </div>
 
           </div>
@@ -199,8 +200,8 @@
             <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
                 <span>
-                    <a [routerLink]="" (click)="modify(row)" class="btn btn-sm rounded-circle text-white"
-                    style="background: blue">
+                  <a [routerLink]="" *ngIf="row.etat === 'nouveau'" (click)="modify(row)"
+                    class="btn btn-sm rounded-circle text-white" style="background: blue">
                     <i class="fas fa-edit"></i>
                   </a>
                   <button [routerLink]="" (click)="delete(row)" class="btn btn-sm btn-danger rounded-circle">

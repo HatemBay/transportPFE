@@ -31,7 +31,7 @@ export class NouveauColisComponent implements OnInit {
   modifData: any;
   packageId: any;
   clientId: any;
-  packageState: any;
+  packageState: string;
   routePath: any;
   nextClicked = false;
   checkIds: boolean = false;
@@ -57,7 +57,7 @@ export class NouveauColisComponent implements OnInit {
     this.clientId = this.route.snapshot.queryParamMap.get("clientId");
   }
 
-  ngOnInit() {
+  async ngOnInit(): Promise<void> {
     if (
       this.routePath == "nouveau-colis" ||
       this.routePath == "modifier-colis"
@@ -90,8 +90,9 @@ export class NouveauColisComponent implements OnInit {
 
       this.onChanges();
       if (this.routePath == "modifier-colis") {
-        this.checkPackage();
-        if (this.checkData()) {
+        await this.checkPackage();
+
+        if (this.checkData() && this.packageState == "nouveau") {
           console.log("in");
 
           this.getActors();
@@ -131,13 +132,14 @@ export class NouveauColisComponent implements OnInit {
         data[0].clientId == this.clientId &&
         data[0].fournisseurId == this.auth.getUserDetails()._id
       ) {
-        console.log(data);
+        console.log("data3");
+        console.log(data[0]);
 
         this.packageForm.patchValue({
           tel: data[0].telc,
           nom: data[0].nomc,
-          villeId: data[0].villec,
-          delegationId: data[0].delegationc,
+          villeId: data[0].villeId,
+          delegationId: data[0].delegationId,
           adresse: data[0].adressec,
           codePostale: data[0].codepostalc,
           tel2: data[0].tel2c,
@@ -166,67 +168,149 @@ export class NouveauColisComponent implements OnInit {
     this.submit = true;
     this.packageForm.value.fournisseurId = this.auth.getUserDetails()._id;
 
+    //TODO: improve code by using promises (should significantly shorten the code)
     this.clientService
-      .createClient(JSON.stringify(this.packageForm.value))
-      .subscribe(
-        (res) => {
-          this.clientService.getClientByPhone(res.tel).subscribe((result) => {
-            this.packageForm.value.clientId = result[0]._id;
-            this.packageService
-              .createPackage(JSON.stringify(this.packageForm.value))
-              .subscribe(() => {
-                var added: boolean = true;
-                console.log("created");
-                var navigationExtras: NavigationExtras = {
-                  queryParams: {
-                    added,
-                  },
-                };
-                this.router.navigate(["/liste-colis"], navigationExtras);
-              });
-          });
-        },
-        (err) => {
-          this.error = err.message.error;
-          const client = err.message.object;
-          console.log(this.error);
-          console.log(err.message.object);
+      .getClientByPhone(this.packageForm.value.tel)
+      .subscribe((result) => {
+        console.log("result");
+        console.log(result[0]._id);
+        if (result == []) {
+          this.clientService
+            .createClient(JSON.stringify(this.packageForm.value))
+            .subscribe(
+              (res) => {
+                this.clientService
+                  .getClientByPhone(res.tel)
+                  .subscribe((result2) => {
+                    this.packageForm.value.clientId = result2[0]._id;
+                    this.packageService
+                      .createPackage(JSON.stringify(this.packageForm.value))
+                      .subscribe(() => {
+                        var added: boolean = true;
+                        console.log("created");
+                        var navigationExtras: NavigationExtras = {
+                          queryParams: {
+                            added,
+                          },
+                        };
+                        this.router.navigate(
+                          ["/liste-colis"],
+                          navigationExtras
+                        );
+                      });
+                  });
+              },
+              (err) => {
+                this.error = err.message.error;
+                const client = err.message.object;
+                console.log(this.error);
+                console.log(err.message.object);
 
-          if (this.error.indexOf("tel_1") !== -1) {
-            this.clientService
-              .getClientByPhone(client.tel)
-              .subscribe((result) => {
-                // *if we're gonna test the other fields while we entered the phone number
-                console.log("ehe");
-                if (
-                  //*add ville & delegation tests after settling them
-                  this.packageForm.value.nom == result[0].nom &&
-                  this.packageForm.value.adresse == result[0].adresse &&
-                  this.packageForm.value.codePostale == result[0].codepostal &&
-                  this.packageForm.value.tel2 == result[0].tel2
-                ) {
-                  this.packageForm.value.clientId = result[0]._id;
-                  this.packageService
-                    .createPackage(JSON.stringify(this.packageForm.value))
-                    .subscribe(() => {
-                      var added: boolean = true;
-                      console.log("created");
-                      var navigationExtras: NavigationExtras = {
-                        queryParams: {
-                          added,
-                        },
-                      };
-                      this.router.navigate(["/liste-colis"], navigationExtras);
+                if (this.error.indexOf("tel_1") !== -1) {
+                  this.clientService
+                    .getClientByPhone(client.tel)
+                    .subscribe((result) => {
+                      // *if we're gonna test the other fields while we entered the phone number
+                      console.log("ehe");
+                      if (
+                        //*add ville & delegation tests after settling them
+                        this.packageForm.value.nom == result[0].nom &&
+                        this.packageForm.value.adresse == result[0].adresse &&
+                        this.packageForm.value.codePostale ==
+                          result[0].codepostal &&
+                        this.packageForm.value.tel2 == result[0].tel2
+                      ) {
+                        this.packageForm.value.clientId = result[0]._id;
+                        this.packageService
+                          .createPackage(JSON.stringify(this.packageForm.value))
+                          .subscribe(() => {
+                            var added: boolean = true;
+                            console.log("created");
+                            var navigationExtras: NavigationExtras = {
+                              queryParams: {
+                                added,
+                              },
+                            };
+                            this.router.navigate(
+                              ["/liste-colis"],
+                              navigationExtras
+                            );
+                          });
+                      } else {
+                        this.error =
+                          "les autres champs ne sont pas identiques avec ce client";
+                        console.log(this.error);
+                      }
                     });
-                } else {
-                  this.error =
-                    "les autres champs ne sont pas identiques avec ce client";
-                  console.log(this.error);
                 }
-              });
-          }
+              }
+            );
+        } else {
+          this.clientService
+            .createClient(JSON.stringify(this.packageForm.value))
+            .subscribe(
+              (res) => {
+                this.packageForm.value.clientId = result[0]._id;
+                this.packageService
+                  .createPackage(JSON.stringify(this.packageForm.value))
+                  .subscribe(() => {
+                    var added: boolean = true;
+                    console.log("created");
+                    var navigationExtras: NavigationExtras = {
+                      queryParams: {
+                        added,
+                      },
+                    };
+                    this.router.navigate(["/liste-colis"], navigationExtras);
+                  });
+              },
+              (err) => {
+                this.error = err.message.error;
+                const client = err.message.object;
+                console.log(this.error);
+                console.log(err.message.object);
+
+                if (this.error.indexOf("tel_1") !== -1) {
+                  this.clientService
+                    .getClientByPhone(client.tel)
+                    .subscribe((result) => {
+                      // *if we're gonna test the other fields while we entered the phone number
+                      console.log("ehe");
+                      if (
+                        //*add ville & delegation tests after settling them
+                        this.packageForm.value.nom == result[0].nom &&
+                        this.packageForm.value.adresse == result[0].adresse &&
+                        this.packageForm.value.codePostale ==
+                          result[0].codepostal &&
+                        this.packageForm.value.tel2 == result[0].tel2
+                      ) {
+                        this.packageForm.value.clientId = result[0]._id;
+                        this.packageService
+                          .createPackage(JSON.stringify(this.packageForm.value))
+                          .subscribe(() => {
+                            var added: boolean = true;
+                            console.log("created");
+                            var navigationExtras: NavigationExtras = {
+                              queryParams: {
+                                added,
+                              },
+                            };
+                            this.router.navigate(
+                              ["/liste-colis"],
+                              navigationExtras
+                            );
+                          });
+                      } else {
+                        this.error =
+                          "les autres champs ne sont pas identiques avec ce client";
+                        console.log(this.error);
+                      }
+                    });
+                }
+              }
+            );
         }
-      );
+      });
   }
 
   update() {
@@ -337,8 +421,8 @@ export class NouveauColisComponent implements OnInit {
         this.packageForm.patchValue({
           tel: element.tel,
           nom: element.nom,
-          villeId: element.ville,
-          delegationId: element.delegation,
+          villeId: element.villeId,
+          delegationId: element.delegationId,
           adresse: element.adresse,
           codePostale: element.codepostal,
           tel2: element.tel2,

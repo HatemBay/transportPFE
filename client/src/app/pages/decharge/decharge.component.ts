@@ -29,6 +29,7 @@ export class DechargeComponent implements OnInit {
   selected: any = [];
   public columns: Array<object>;
   printable: boolean = false;
+  val: string;
   constructor(private packageService: PackageService, private router: Router) {}
 
   ngOnInit(): void {
@@ -36,7 +37,7 @@ export class DechargeComponent implements OnInit {
   }
 
   async initiateData() {
-    this.rows = await this.getPackages(null, null, null, null, null);
+    this.rows = await this.getPackages();
     console.log(this.rows);
   }
 
@@ -85,8 +86,8 @@ export class DechargeComponent implements OnInit {
   // dynamic search (triggers after inserting 3 characters)
   updateFilter(event) {
     if (event.target.value.length > 2) {
-      const val = event.target.value.toLowerCase();
-      this.getPackages(this.currentPageLimit, 1, null, null, val);
+      this.val = event.target.value.toLowerCase();
+      this.getPackages(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getPackages(this.currentPageLimit, 1);
     }
@@ -96,7 +97,7 @@ export class DechargeComponent implements OnInit {
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getPackages(limit);
+    this.getPackages(limit, null, null, null, this.val);
   }
 
   // changes number of elements to display
@@ -112,14 +113,15 @@ export class DechargeComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 
   // change data based on page selected
   onFooterPage(event) {
     this.changePage(event.page);
-    this.getPackages(this.currentPageLimit, event.page);
+    this.getPackages(this.currentPageLimit, event.page, null, null, this.val);
   }
 
   // change pages in footer

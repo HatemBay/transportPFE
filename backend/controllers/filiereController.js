@@ -16,23 +16,18 @@ router.get("/", (req, res) => {
   sort[sortBy] = n;
   Filiere.find()
     .sort(sort)
-    .skip(skip)
-    .limit(limit)
     .exec((err, filieres) => {
       if (!err) {
         if (req.query.search) {
-          res.send(
-            filieres.filter(
-              (item) =>
-                item.nom
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.adresse
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase())
-            )
+          filieres = filieres.filter(
+            (item) =>
+              item.nom.toLowerCase().includes(req.query.search.toLowerCase()) ||
+              item.adresse
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase())
           );
-        } else res.send(filieres);
+        }
+        return res.send(filieres.slice(skip).slice(0, limit));
       } else {
         res
           .status(400)

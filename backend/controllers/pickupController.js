@@ -125,17 +125,10 @@ router.get("/", (req, res) => {
       },
     },
   ];
-  data.push(
-    {
-      $sort: sort,
-    },
-    {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
-    }
-  );
+  data.push({
+    $sort: sort,
+  });
+
   if (req.query.isAllocated) {
     var isAllocated = req.query.isAllocated === "true";
     data.push({
@@ -157,21 +150,19 @@ router.get("/", (req, res) => {
   Pickup.aggregate(data).exec((err, pickups) => {
     if (!err) {
       if (req.query.search) {
-        res.send(
-          pickups.filter(
-            (item) =>
-              item.nomf
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.villef
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.delegationf
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase())
-          )
+        pickups = pickups.filter(
+          (item) =>
+            item.nbPackages.toString().includes(req.query.search) ||
+            item.nomf?.toLowerCase().includes(req.query.search.toLowerCase()) ||
+            item.villef
+              ?.toLowerCase()
+              .includes(req.query.search.toLowerCase()) ||
+            item.delegationf
+              ?.toLowerCase()
+              .includes(req.query.search.toLowerCase())
         );
-      } else res.send(pickups);
+      }
+      return res.send(pickups.slice(skip).slice(0, limit));
     } else {
       res
         .status(400)
@@ -438,7 +429,5 @@ router.get("count-colis/:id", (req, res) => {
   );
 });
 /********************** STATISTICS **********************/
-
-
 
 module.exports = router;

@@ -47,6 +47,7 @@ export class CbFeuilleRetourComponent implements OnInit {
   selected: any = [];
   printable: boolean = false;
   success: boolean = false;
+  val: string;
 
   constructor(
     private fb: FormBuilder,
@@ -113,8 +114,7 @@ export class CbFeuilleRetourComponent implements OnInit {
   }
 
   updateFilter(event) {
-    const val = event.target.value.toLowerCase();
-    console.log(val);
+    this.val = event.target.value.toLowerCase();
 
     this.getPackagesByProvider(
       this.fournisseursForm.value.fournisseurs,
@@ -122,7 +122,7 @@ export class CbFeuilleRetourComponent implements OnInit {
       1,
       null,
       null,
-      val
+      this.val
     );
   }
 
@@ -132,7 +132,11 @@ export class CbFeuilleRetourComponent implements OnInit {
     this.table.limit = this.currentPageLimit;
     this.getPackagesByProvider(
       this.fournisseursForm.value.fournisseurs,
-      limit
+      limit,
+      null,
+      null,
+      null,
+      this.val
     );
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -158,7 +162,8 @@ export class CbFeuilleRetourComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 
@@ -168,7 +173,10 @@ export class CbFeuilleRetourComponent implements OnInit {
     this.getPackagesByProvider(
       this.fournisseursForm.value.fournisseurs,
       this.currentPageLimit,
-      event.page
+      event.page,
+      null,
+      null,
+      this.val
     );
   }
 

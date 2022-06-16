@@ -7,7 +7,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import {  Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { ClientService } from "src/app/services/client.service";
 import { PackageService } from "src/app/services/package.service";
@@ -43,6 +43,7 @@ export class ColisJourComponent implements OnInit {
   count: any;
   dateForm: FormGroup;
   date: string;
+  val: string;
 
   constructor(
     private fb: FormBuilder,
@@ -79,13 +80,7 @@ export class ColisJourComponent implements OnInit {
   }
 
   // get data from backend
-  getDataJson(
-    limit?: any,
-    page?: any,
-    sortBy?: any,
-    sort?: any,
-    search?: any,
-  ) {
+  getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
     this.packageService
       .getDailyPackages(limit, page, sortBy, sort, search, this.date)
       .subscribe((data) => {
@@ -104,15 +99,17 @@ export class ColisJourComponent implements OnInit {
   }
 
   private countPackages() {
-    this.packageService.countAllPackagesAdminDaily(this.date).subscribe((res) => {
-      this.count = res.count;
-    });
+    this.packageService
+      .countAllPackagesAdminDaily(this.date)
+      .subscribe((res) => {
+        this.count = res.count;
+      });
   }
 
   updateFilter(event) {
     if (event.target.value.length > 2) {
-      const val = event.target.value.toLowerCase();
-      this.getDataJson(this.currentPageLimit, 1, null, null, val);
+      this.val = event.target.value.toLowerCase();
+      this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getDataJson(this.currentPageLimit, 1);
     }
@@ -122,7 +119,7 @@ export class ColisJourComponent implements OnInit {
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit);
+    this.getDataJson(limit, null, null, null, this.val);
     // this.table.recalculate();
     // setTimeout(() => {
     //   if (this.table.bodyComponent.temp.length <= 0) {
@@ -154,13 +151,14 @@ export class ColisJourComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 
   onFooterPage(event) {
     this.changePage(event.page);
-    this.getDataJson(this.currentPageLimit, event.page);
+    this.getDataJson(this.currentPageLimit, event.page, null, null, this.val);
   }
 
   changePage(page: any) {

@@ -61,35 +61,32 @@ router.get("/", (req, res) => {
   ];
   Vehicule.aggregate(data)
     .sort(sort)
-    .skip(skip)
-    .limit(limit)
     .exec((err, vehicules) => {
       if (!err) {
         if (req.query.search && req.query.search.length > 2) {
-          res.send(
-            vehicules.filter(
-              (item) =>
-                item.createdAtSearch.toString().includes(req.query.search) ||
-                item.dateCirculation.toString().includes(req.query.search) ||
-                item.dateVisite.toString().includes(req.query.search) ||
-                item.serie
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.nomc
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.modele
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.assurance
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.kilometrage
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase())
-            )
+          vehicules = vehicules.filter(
+            (item) =>
+              item.createdAtSearch.toString().includes(req.query.search) ||
+              item.dateCirculation.toString().includes(req.query.search) ||
+              item.dateVisite.toString().includes(req.query.search) ||
+              item.serie
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.nomc
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.modele
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.assurance
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.kilometrage
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase())
           );
-        } else res.send(vehicules);
+        }
+        return res.send(vehicules.slice(skip).slice(0, limit));
       } else {
         console.log("Erreur lors de la récupération des véhicules: " + err);
         res

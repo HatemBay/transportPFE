@@ -2,17 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
-import {
-  map,
-  of,
-  ReplaySubject,
-  Subject,
-  switchMap,
-  tap,
-  lastValueFrom,
-  delay,
-  forkJoin,
-} from "rxjs";
+import { map } from "rxjs";
 import { PackageService } from "src/app/services/package.service";
 import { RoadmapService } from "src/app/services/roadmap.service";
 import { UserService } from "src/app/services/user.service";
@@ -55,6 +45,8 @@ export class CbFeuilleRouteComponent implements OnInit {
   rows: any = [];
   public columns: Array<object>;
   count: any;
+  val: string;
+
   constructor(
     private userService: UserService,
     private fb: FormBuilder,
@@ -251,16 +243,19 @@ export class CbFeuilleRouteComponent implements OnInit {
   }
 
   updateFilter(event) {
-    var val = null;
-    if (event.target.value.length > 2) val = event.target.value.toLowerCase();
-    this.getRoadmapData(this.currentPageLimit, 1, null, null, val);
+    if (event.target.value.length > 2) {
+      this.val = event.target.value.toLowerCase();
+      this.getRoadmapData(this.currentPageLimit, 1, null, null, this.val);
+    } else {
+      this.getRoadmapData(this.currentPageLimit, 1);
+    }
   }
 
   // When number of displayed elements changes
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getRoadmapData(limit);
+    this.getRoadmapData(limit, null, null, null, this.val);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -284,14 +279,21 @@ export class CbFeuilleRouteComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 
   // When page changes
   onFooterPage(event) {
     this.changePage(event.page);
-    this.getRoadmapData(this.currentPageLimit, event.page, null, null, null);
+    this.getRoadmapData(
+      this.currentPageLimit,
+      event.page,
+      null,
+      null,
+      this.val
+    );
   }
 
   changePage(page: any) {

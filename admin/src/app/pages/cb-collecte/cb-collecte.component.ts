@@ -35,6 +35,7 @@ export class CbCollecteComponent implements OnInit {
   count: any;
   init: boolean = false;
   referenceForm: any;
+  val: string;
 
   constructor(
     private fb: FormBuilder,
@@ -97,15 +98,15 @@ export class CbCollecteComponent implements OnInit {
   }
 
   updateFilter(event) {
-    const val = event.target.value.toLowerCase();
-    this.getDataJson(this.currentPageLimit, 1, null, null, val);
+    this.val = event.target.value.toLowerCase();
+    this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
   }
 
   // When number of displayed elements changes
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit, 1, null, null, null);
+    this.getDataJson(limit, 1, null, null, this.val);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -132,7 +133,7 @@ export class CbCollecteComponent implements OnInit {
         return this.f.reference.setValue("");
       }
       this.references.push(this.f.reference.value);
-      this.getDataJson(null, null, null, null, null, this.references);
+      this.getDataJson(null, null, null, null, this.val, this.references);
       this.f.reference.setValue("");
     }
   }

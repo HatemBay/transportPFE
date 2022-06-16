@@ -49,39 +49,24 @@ router.get("/", (req, res) => {
     {
       $sort: sort,
     },
-    {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
-    }
   ];
-  Delegation.aggregate(data)
-    .sort(sort)
-    .skip(skip)
-    .limit(limit)
-    .exec((err, delegations) => {
-      if (!err) {
-        if (req.query.search && req.query.search.length > 2) {
-          res.send(
-            delegations.filter(
-              (item) =>
-                item.nom
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.ville
-                  ?.toLowerCase()
-                  .includes(req.query.search.toLowerCase())
-            )
-          );
-        } else res.send(delegations);
-      } else {
-        console.log("Erreur lors de la récupération des delegations: " + err);
-        res
-          .status(400)
-          .send("Erreur lors de la récupération des delegations: " + err);
+  Delegation.aggregate(data).exec((err, delegations) => {
+    if (!err) {
+      if (req.query.search && req.query.search.length > 2) {
+        delegations = delegations.filter(
+          (item) =>
+            item.nom.toLowerCase().includes(req.query.search.toLowerCase()) ||
+            item.ville?.toLowerCase().includes(req.query.search.toLowerCase())
+        );
       }
-    });
+      return res.send(delegations.slice(skip).slice(0, limit));
+    } else {
+      console.log("Erreur lors de la récupération des delegations: " + err);
+      res
+        .status(400)
+        .send("Erreur lors de la récupération des delegations: " + err);
+    }
+  });
 });
 
 // get delegations by ville id

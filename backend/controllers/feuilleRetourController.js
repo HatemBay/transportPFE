@@ -101,17 +101,9 @@ router.get("/", (req, res) => {
       },
     },
   ];
-  data.push(
-    {
-      $sort: sort,
-    },
-    {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
-    }
-  );
+  data.push({
+    $sort: sort,
+  });
 
   if (startDate && endDate) {
     data.push({
@@ -126,16 +118,15 @@ router.get("/", (req, res) => {
   FeuilleRetour.aggregate(data).exec((err, feuilleRetours) => {
     if (!err) {
       if (req.query.search) {
-        res.send(
-          feuilleRetours.filter(
-            (item) =>
-              item.feuilleRetourNb.toString().includes(req.query.search) ||
-              item.nbPackages.toString().includes(req.query.search) ||
-              item.createdAtSearch.toString().includes(req.query.search) ||
-              item.nomd?.toLowerCase().includes(req.query.search.toLowerCase())
-          )
+        feuilleRetours = feuilleRetours.filter(
+          (item) =>
+            item.feuilleRetourNb.toString().includes(req.query.search) ||
+            item.nbPackages.toString().includes(req.query.search) ||
+            item.createdAtSearch.toString().includes(req.query.search) ||
+            item.nomd?.toLowerCase().includes(req.query.search.toLowerCase())
         );
-      } else res.send(feuilleRetours);
+      }
+      return res.send(feuilleRetours.slice(skip).slice(0, limit));
     } else {
       res
         .status(400)

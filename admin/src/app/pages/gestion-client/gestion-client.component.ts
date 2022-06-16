@@ -45,6 +45,7 @@ export class GestionClientComponent implements OnInit {
   villeId: any;
   villes: Object;
   delegations: Object;
+  val: string;
 
   constructor(
     private fournisseurService: FournisseurService,
@@ -173,8 +174,8 @@ export class GestionClientComponent implements OnInit {
 
   updateFilter(event) {
     if (event.target.value.length > 2) {
-      const val = event.target.value.toLowerCase();
-      this.getDataJson(this.currentPageLimit, 1, null, null, val);
+      this.val = event.target.value.toLowerCase();
+      this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getDataJson(this.currentPageLimit, 1, null, null, null);
     }
@@ -184,7 +185,7 @@ export class GestionClientComponent implements OnInit {
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit);
+    this.getDataJson(limit, null, null, null, this.val);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -211,7 +212,7 @@ export class GestionClientComponent implements OnInit {
 
   onFooterPage(event) {
     this.changePage(event.page);
-    this.getDataJson(this.currentPageLimit, event.page);
+    this.getDataJson(this.currentPageLimit, event.page, null, null, this.val);
   }
 
   changePage(page: any) {
@@ -231,7 +232,8 @@ export class GestionClientComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 
@@ -283,7 +285,7 @@ export class GestionClientComponent implements OnInit {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce client?")) {
       this.fournisseurService.deleteFournisseur(data._id).subscribe(() => {
         console.log("utilisateur supprimé");
-        this.getDataJson();
+        this.getDataJson(null, null, null, null, this.val);
       });
     }
   }

@@ -42,6 +42,8 @@ export class GestionVilleComponent implements OnInit {
   count: any;
   villeForm: any;
   error: string = "none";
+  val: string;
+
   constructor(
     private fb: FormBuilder,
     private villeService: VilleService,
@@ -57,7 +59,7 @@ export class GestionVilleComponent implements OnInit {
       { prop: "etat", name: "Etat" },
     ];
     this.villeForm = this.fb.group({
-      nom: ["", Validators.required]
+      nom: ["", Validators.required],
     });
 
     this.countVilles();
@@ -87,15 +89,15 @@ export class GestionVilleComponent implements OnInit {
   }
 
   updateFilter(event) {
-    const val = event.target.value.toLowerCase();
-    this.getDataJson(this.currentPageLimit, 1, null, null, val);
+    this.val = event.target.value.toLowerCase();
+    this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
   }
 
   // When number of displayed elements changes
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit);
+    this.getDataJson(limit, null, null, null, this.val);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -119,14 +121,15 @@ export class GestionVilleComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 
   // When page changes
   onFooterPage(event) {
     this.changePage(event.page);
-    this.getDataJson(this.currentPageLimit, event.page);
+    this.getDataJson(this.currentPageLimit, event.page, null, null, this.val);
   }
 
   changePage(page: any) {

@@ -58,6 +58,7 @@ router.get("/all", (req, res) => {
         villeId: "$villes._id",
         ville: "$villes.nom",
         villeEtat: "$villes.etat",
+        nbPackages: { $size: "$packages" },
         updatedAt: {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
         },
@@ -287,7 +288,7 @@ router.post("/", (req, res) => {
 });
 
 // update client
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   if (!ObjectId.isValid(req.params.id)) {
     console.log(err);
     return res.status(400).send(`no record with given id: ${req.params.id}`);
@@ -300,6 +301,77 @@ router.put("/:id", (req, res) => {
     } else {
       console.log("Erreur " + err);
     }
+  });
+
+  Client.findByIdAndUpdate(
+    req.params.id,
+    {
+      $set: {
+        nom: req.body.nom,
+        adresse: req.body.adresse,
+        codePostale: req.body.codePostale,
+        tel: req.body.tel,
+        tel2: req.body.tel2,
+        delegationId: req.body.delegationId,
+      },
+    },
+    { new: true },
+    (err, doc) => {
+      if (!err) {
+        if (oldDelegation == req.body.delegationId)
+          return res.status(200).send(doc);
+
+        Delegation.findByIdAndUpdate(
+          oldDelegation,
+          {
+            $pull: { clients: doc._id },
+          },
+          { new: true, useFindAndModify: false }
+        ).then(
+          () => {
+            Delegation.findByIdAndUpdate(
+              req.body.delegationId,
+              {
+                $push: { clients: doc._id },
+              },
+              { new: true, useFindAndModify: false }
+            ).exec((err3) => {
+              if (!err3) {
+                return res.status(200).send(doc);
+              } else {
+                console.log(
+                  "Erreur lors de la mise à jour de la délégation: " + err3
+                );
+                return res.status(400).send(err3.message);
+              }
+            });
+          },
+          (err2) => {
+            console.log("Erreur lors de mis à jour de la délégation: " + err2);
+            return res
+              .status(400)
+              .send("Erreur lors du mis à jour de la délégation: " + err2);
+          }
+        );
+      } else {
+        console.log("Erreur lors de mis à jour du client: " + err);
+        return res
+          .status(400)
+          .send("Erreur lors de mis à jour du client: " + err);
+      }
+    }
+  );
+});
+
+// update client
+router.put("/:tel", async (req, res) => {
+  if (!ObjectId.isValid(req.params.id)) {
+    console.log(err);
+    return res.status(400).send(`no record with given id: ${req.params.id}`);
+  }
+
+  const oldDelegation = await Client.findById(req.params.id).then((res) => {
+    return res.delegationId;
   });
 
   Client.findByIdAndUpdate(

@@ -17,21 +17,16 @@ router.get("/", (req, res) => {
   sort[sortBy] = n;
   Ville.find()
     .sort(sort)
-    .skip(skip)
-    .limit(limit)
     .exec((err, villes) => {
       if (!err) {
         if (req.query.search) {
-          res.send(
-            villes.filter(
-              (item) =>
-                item.nom
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.etat.toLowerCase().includes(req.query.search.toLowerCase())
-            )
+          villes = villes.filter(
+            (item) =>
+              item.nom.toLowerCase().includes(req.query.search.toLowerCase()) ||
+              item.etat.toLowerCase().includes(req.query.search.toLowerCase())
           );
-        } else res.send(villes);
+        }
+        return res.send(villes.slice(skip).slice(0, limit));
       } else {
         res
           .status(400)

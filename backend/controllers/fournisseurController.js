@@ -99,35 +99,26 @@ router.get("/", (req, res) => {
     {
       $sort: sort,
     },
-    {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
-    }
   ];
   Fournisseur.aggregate(data).exec((err, fournisseurs) => {
     if (!err) {
       if (req.query.search && req.query.search.length > 2) {
-        res.send(
-          fournisseurs.filter(
-            (item) =>
-              item.codePostale?.toString().includes(req.query.search) ||
-              item.tel?.toString().includes(req.query.search) ||
-              item.createdAtSearch.toString().includes(req.query.search) ||
-              item.nom.toLowerCase().includes(req.query.search.toLowerCase()) ||
-              item.ville
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.delegation
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.adresse
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase())
-          )
+        fournisseurs = fournisseurs.filter(
+          (item) =>
+            item.codePostale?.toString().includes(req.query.search) ||
+            item.tel?.toString().includes(req.query.search) ||
+            item.createdAtSearch.toString().includes(req.query.search) ||
+            item.nom.toLowerCase().includes(req.query.search.toLowerCase()) ||
+            item.ville
+              ?.toLowerCase()
+              .includes(req.query.search.toLowerCase()) ||
+            item.delegation
+              ?.toLowerCase()
+              .includes(req.query.search.toLowerCase()) ||
+            item.adresse?.toLowerCase().includes(req.query.search.toLowerCase())
         );
-      } else res.send(fournisseurs);
+      }
+      return res.send(fournisseurs.slice(skip).slice(0, limit));
     } else {
       console.log("Erreur lors de la récupération des fournisseurs: " + err);
       res

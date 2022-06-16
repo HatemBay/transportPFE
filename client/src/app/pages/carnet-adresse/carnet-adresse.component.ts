@@ -20,6 +20,7 @@ export class CarnetAdresseComponent implements OnInit {
   rows: any = [];
   public columns: Array<object>;
   count: any;
+  val: string;
 
   public currentPageLimit: number = 10;
   public currentPage: number = 1;
@@ -33,10 +34,7 @@ export class CarnetAdresseComponent implements OnInit {
   ];
   selected: any = [];
 
-  constructor(
-    private clientService: ClientService,
-    private router: Router
-  ) {}
+  constructor(private clientService: ClientService, private router: Router) {}
 
   ngOnInit(): void {
     // Initial columns, can be used for data list which is will be filtered
@@ -46,6 +44,7 @@ export class CarnetAdresseComponent implements OnInit {
       { prop: "delegation", name: "Délégation" },
       { prop: "adresse", name: "Adresse" },
       { prop: "codePostale", name: "CodePostale" },
+      { prop: "nbPackages", name: "Nb. colis" },
     ];
 
     this.countClients();
@@ -54,7 +53,7 @@ export class CarnetAdresseComponent implements OnInit {
     // this.findAll();
   }
 
-  getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?:any) {
+  getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
     this.clientService
       .getClients(limit, page, sortBy, sort, search)
       .subscribe((data) => {
@@ -64,22 +63,10 @@ export class CarnetAdresseComponent implements OnInit {
 
   updateFilter(event) {
     if (event.target.value.length > 2) {
-      const val = event.target.value.toLowerCase();
-      this.getDataJson(
-        this.currentPageLimit,
-        1,
-        null,
-        null,
-        val
-      );
+      this.val = event.target.value.toLowerCase();
+      this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
-      this.getDataJson(
-        this.currentPageLimit,
-        1,
-        null,
-        null,
-        null,
-      );
+      this.getDataJson(this.currentPageLimit, 1, null, null, null);
     }
   }
 
@@ -87,7 +74,7 @@ export class CarnetAdresseComponent implements OnInit {
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit);
+    this.getDataJson(limit, null, null, null, this.val);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -109,13 +96,12 @@ export class CarnetAdresseComponent implements OnInit {
     this.clientService.countAllClients().subscribe((res) => {
       this.count = res.count;
       console.log(this.count);
-
     });
   }
 
   onFooterPage(event) {
     this.changePage(event.page);
-    this.getDataJson(this.currentPageLimit, event.page);
+    this.getDataJson(this.currentPageLimit, event.page, null, null, this.val);
   }
 
   changePage(page: any) {
@@ -146,7 +132,8 @@ export class CarnetAdresseComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 

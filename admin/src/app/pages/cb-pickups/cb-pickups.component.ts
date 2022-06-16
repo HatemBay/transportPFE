@@ -52,6 +52,8 @@ export class CbPickupsComponent implements OnInit {
   init: boolean = false;
   isAllocated: string = "false";
   routePath: string;
+  val: string;
+
   constructor(
     private fb: FormBuilder,
     private pickupService: PickupService,
@@ -149,16 +151,18 @@ export class CbPickupsComponent implements OnInit {
 
   // get drivers
   getChauffeurs() {
-    this.userService.getUsersByRole('chauffeur').subscribe((data) => {
+    this.userService.getUsersByRole("chauffeur").subscribe((data) => {
       this.chauffeurs = data;
     });
   }
 
   // count pickups
   countPickups(isAllocated?, startDate?, endDate?) {
-    this.pickupService.countPickups(isAllocated, startDate, endDate).subscribe((data) => {
-      this.count = data.count;
-    });
+    this.pickupService
+      .countPickups(isAllocated, startDate, endDate)
+      .subscribe((data) => {
+        this.count = data.count;
+      });
   }
 
   updateFilter(event) {
@@ -168,25 +172,37 @@ export class CbPickupsComponent implements OnInit {
       startDate = this.startDate;
       endDate = this.today;
     }
-    var val = null;
-    if (event.target.value.length > 2) val = event.target.value.toLowerCase();
-    this.getDataJson(
-      this.isAllocated,
-      this.currentPageLimit,
-      1,
-      null,
-      null,
-      val,
-      startDate,
-      endDate
-    );
+    if (event.target.value.length > 2) {
+      this.val = event.target.value.toLowerCase();
+      this.getDataJson(
+        this.isAllocated,
+        this.currentPageLimit,
+        1,
+        null,
+        null,
+        this.val,
+        startDate,
+        endDate
+      );
+    } else {
+      this.getDataJson(
+        this.isAllocated,
+        this.currentPageLimit,
+        1,
+        null,
+        null,
+        null,
+        startDate,
+        endDate
+      );
+    }
   }
 
   // When number of displayed elements changes
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(this.isAllocated, limit);
+    this.getDataJson(this.isAllocated, limit, null, null, null, this.val);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -211,7 +227,8 @@ export class CbPickupsComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 
@@ -230,7 +247,7 @@ export class CbPickupsComponent implements OnInit {
       event.page,
       null,
       null,
-      null,
+      this.val,
       startDate,
       endDate
     );
@@ -246,7 +263,7 @@ export class CbPickupsComponent implements OnInit {
     this.pickupService
       .updatePickup(row._id, this.pickupForm.value)
       .subscribe((data) => {
-        this.getDataJson(this.isAllocated);
+        this.getDataJson(this.isAllocated, null, null, null, null, this.val);
         this.success = true;
       });
   }

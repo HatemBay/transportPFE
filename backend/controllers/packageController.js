@@ -6,17 +6,6 @@ var ObjectId = require("mongoose").Types.ObjectId;
 
 const { access } = require("../middlewares");
 
-//pdf
-var multer = require("multer");
-var upload = multer({
-  dest: "uploads/",
-  fileFilter: function (req, file, cb) {
-    console.log("file is", file);
-    cb(null, true);
-  },
-});
-var importExcelData2MongoDB = require("../utils/excel");
-
 const { Package } = require("../models/package");
 const { Historique } = require("../models/historique");
 const { User } = require("../models/users");
@@ -57,7 +46,7 @@ router.get("/cab/:cab", (req, res) => {
 });
 
 // Read all with all client and provider data (provider restricted)
-router.get("/all-info/:fid", (req, res) => {
+router.get("/all-info/:fid", async (req, res) => {
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
   const state = req.query.etat || null;
@@ -141,7 +130,9 @@ router.get("/all-info/:fid", (req, res) => {
         as: "delegationsClient",
       },
     },
-    { $unwind: "$delegationsClient" },
+    {
+      $unwind: { path: "$delegationsClient", preserveNullAndEmptyArrays: true },
+    },
     {
       $lookup: {
         from: "villes",
@@ -150,7 +141,7 @@ router.get("/all-info/:fid", (req, res) => {
         as: "villesClient",
       },
     },
-    { $unwind: "$villesClient" },
+    { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
     {
       $project: {
         _id: 1,
@@ -231,173 +222,75 @@ router.get("/all-info/:fid", (req, res) => {
     });
   }
 
-  data.push(
-    {
-      $sort: sort,
-    },
-    {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
-    }
-  );
+  data.push({
+    $sort: sort,
+  });
 
   Package.aggregate(data).exec((err, doc) => {
     if (!err) {
+      var slm;
+      if (startDate && endDate) {
+        doc = doc.filter(
+          (item) =>
+            item.createdAt >= new Date(startYear, startMonth, startDay) &&
+            item.createdAt <= new Date(endYear, endMonth, endDay + 1)
+        );
+      }
+      if (state) {
+        doc = doc.filter((item) =>
+          item.etat.toLowerCase().includes(state.toLowerCase())
+        );
+      }
       if (req.query.search && req.query.search.length > 2) {
-        if (startDate && endDate) {
-          if (state) {
-            res.send(
-              doc.filter(
-                (item) =>
-                  (item.CAB.toString().includes(req.query.search) ||
-                    item.telc.toString().includes(req.query.search) ||
-                    item.tel2c?.toString().includes(req.query.search) ||
-                    item.c_remboursement
-                      .toString()
-                      .includes(req.query.search) ||
-                    item.codePostalec.toString().includes(req.query.search) ||
-                    item.createdAtSearch
-                      .toString()
-                      .includes(req.query.search) ||
-                    item.nomc
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.nomf
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.villef
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.delegationf
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.villec
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.delegationc
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.adressec
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase())) &&
-                  item.etat.toLowerCase().includes(state.toLowerCase())
-              )
-            );
-          } else if (!state) {
-            res.send(
-              doc.filter(
-                (item) =>
-                  item.CAB.toString().includes(req.query.search) ||
-                  item.telc.toString().includes(req.query.search) ||
-                  item.tel2c?.toString().includes(req.query.search) ||
-                  item.c_remboursement.toString().includes(req.query.search) ||
-                  item.codePostalec.toString().includes(req.query.search) ||
-                  item.createdAtSearch.toString().includes(req.query.search) ||
-                  item.nomc
-                    .toLowerCase()
-                    .includes(req.query.search.toLowerCase()) ||
-                  item.villec
-                    .toLowerCase()
-                    .includes(req.query.search.toLowerCase()) ||
-                  item.delegationc
-                    .toLowerCase()
-                    .includes(req.query.search.toLowerCase()) ||
-                  item.adressec
-                    .toLowerCase()
-                    .includes(req.query.search.toLowerCase())
-              )
-            );
-          }
-        } else if (!(startDate && endDate)) {
-          if (state) {
-            res.send(
-              doc.filter(
-                (item) =>
-                  (item.CAB.toString().includes(req.query.search) ||
-                    item.telc.toString().includes(req.query.search) ||
-                    item.tel2c?.toString().includes(req.query.search) ||
-                    item.c_remboursement
-                      .toString()
-                      .includes(req.query.search) ||
-                    item.codePostalec.toString().includes(req.query.search) ||
-                    item.createdAtSearch
-                      .toString()
-                      .includes(req.query.search) ||
-                    item.nomc
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.villec
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.delegationc
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase()) ||
-                    item.adressec
-                      .toLowerCase()
-                      .includes(req.query.search.toLowerCase())) &&
-                  item.etat.toLowerCase().includes(state.toLowerCase())
-              )
-            );
-          } else if (!state) {
-            res.send(
-              doc.filter(
-                (item) =>
-                  item.CAB.toString().includes(req.query.search) ||
-                  item.telc.toString().includes(req.query.search) ||
-                  item.tel2c?.toString().includes(req.query.search) ||
-                  item.c_remboursement.toString().includes(req.query.search) ||
-                  item.codePostalec?.toString().includes(req.query.search) ||
-                  item.createdAtSearch.toString().includes(req.query.search) ||
-                  item.nomc
-                    .toLowerCase()
-                    .includes(req.query.search.toLowerCase()) ||
-                  item.villec
-                    .toLowerCase()
-                    .includes(req.query.search.toLowerCase()) ||
-                  item.delegationc
-                    .toLowerCase()
-                    .includes(req.query.search.toLowerCase()) ||
-                  item.adressec
-                    .toLowerCase()
-                    .includes(req.query.search.toLowerCase())
-              )
-            );
-          }
-        }
-      } else if (!req.query.search) {
-        if (startDate && endDate) {
-          if (state) {
-            res.send(
-              doc.filter(
-                (item) =>
-                  item.etat.toLowerCase().includes(state.toLowerCase()) &&
-                  item.createdAt >= new Date(startYear, startMonth, startDay) &&
-                  item.createdAt <= new Date(endYear, endMonth, endDay + 1)
-              )
-            );
-          } else if (!state) {
-            res.send(
-              doc.filter(
-                (item) =>
-                  item.createdAt >= new Date(startYear, startMonth, startDay) &&
-                  item.createdAt <= new Date(endYear, endMonth, endDay + 1)
-              )
-            );
-          }
-        } else if (!(startDate && endDate)) {
-          if (state) {
-            res.send(
-              doc.filter((item) =>
-                item.etat.toLowerCase().includes(state.toLowerCase())
-              )
-            );
-          } else if (!state) {
-            res.send(doc);
-          }
+        //* Searching criterias differ between client and admin side,
+        //* since we're using the 'type' query parameter only in admin we're putting different search criterias in this condition
+        if (req.query.type != "") {
+          doc = doc.filter(
+            (item) =>
+              item.createdAtSearch.toString().includes(req.query.search) ||
+              item.nomf
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.villef
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.delegationf
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase())
+          );
+        } else {
+          doc = doc.filter(
+            (item) =>
+              item.telc.toString().includes(req.query.search) ||
+              item.tel2c?.toString().includes(req.query.search) ||
+              item.c_remboursement.toString().includes(req.query.search) ||
+              item.codePostalec?.toString().includes(req.query.search) ||
+              item.createdAtSearch.toString().includes(req.query.search) ||
+              item.nomc
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.nomf
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.villef
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.delegationf
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.villec
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.delegationc
+                ?.toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.adressec
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase())
+          );
         }
       }
+      return res.send(doc.slice(skip).slice(0, limit));
     } else console.log("Erreur lors de la récupération des colis: " + err);
   });
 });
@@ -442,6 +335,24 @@ router.get("/all-info-daily/admin", (req, res) => {
     },
     { $unwind: "$fournisseurs" },
     {
+      $lookup: {
+        from: "delegations",
+        localField: "clients.delegationId",
+        foreignField: "_id",
+        as: "delegationsClient",
+      },
+    },
+    { $unwind: "$delegationsClient" },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegationsClient.villeId",
+        foreignField: "_id",
+        as: "villesClient",
+      },
+    },
+    { $unwind: "$villesClient" },
+    {
       $project: {
         _id: 1,
         CAB: 1,
@@ -454,8 +365,8 @@ router.get("/all-info-daily/admin", (req, res) => {
         etat: 1,
         clientId: "$clients._id",
         nomc: "$clients.nom",
-        villec: "$clients.ville",
-        delegationc: "$clients.delegation",
+        villec: "$villesClient.nom",
+        delegationc: "$delegationsClient.nom",
         adressec: "$clients.adresse",
         codePostalec: "$clients.codePostale",
         telc: "$clients.tel",
@@ -490,38 +401,26 @@ router.get("/all-info-daily/admin", (req, res) => {
   ]).exec((err, doc) => {
     if (!err) {
       if (req.query.search && req.query.search.length > 2) {
-        res
-          .send(
-            doc.filter(
-              (item) =>
-                item.CAB.toString().includes(req.query.search) ||
-                item.telc.toString().includes(req.query.search) ||
-                item.tel2c?.toString().includes(req.query.search) ||
-                item.telf.toString().includes(req.query.search) ||
-                item.c_remboursement.toString().includes(req.query.search) ||
-                item.createdAtSearch.toString().includes(req.query.search) ||
-                item.nomc
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.nomf
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.villec
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.delegationc
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.adressec
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase())
-            )
-          )
-          .limit(limit)
-          .skip(skip);
-      } else {
-        res.send(doc.limit(limit).skip(skip));
+        doc = doc.filter(
+          (item) =>
+            item.CAB.toString().includes(req.query.search) ||
+            item.telc.toString().includes(req.query.search) ||
+            item.tel2c?.toString().includes(req.query.search) ||
+            item.telf.toString().includes(req.query.search) ||
+            item.c_remboursement.toString().includes(req.query.search) ||
+            item.createdAtSearch.toString().includes(req.query.search) ||
+            item.nomc.toLowerCase().includes(req.query.search.toLowerCase()) ||
+            item.nomf.toLowerCase().includes(req.query.search.toLowerCase()) ||
+            item.villec
+              ?.toLowerCase()
+              .includes(req.query.search.toLowerCase()) ||
+            item.delegationc
+              ?.toLowerCase()
+              .includes(req.query.search.toLowerCase()) ||
+            item.adressec.toLowerCase().includes(req.query.search.toLowerCase())
+        );
       }
+      return res.send(doc.slice(skip).slice(0, limit));
     } else console.log("Erreur lors de la récupération des colis: " + err);
   });
 });
@@ -581,6 +480,7 @@ router.get("/all-info-period/admin", (req, res) => {
         as: "fournisseurs",
       },
     },
+    { $unwind: "$fournisseurs" },
     {
       $lookup: {
         from: "users",
@@ -599,7 +499,24 @@ router.get("/all-info-period/admin", (req, res) => {
       },
     },
     { $unwind: { path: "$filieres", preserveNullAndEmptyArrays: true } },
-    { $unwind: "$fournisseurs" },
+    {
+      $lookup: {
+        from: "delegations",
+        localField: "clients.delegationId",
+        foreignField: "_id",
+        as: "delegationsClient",
+      },
+    },
+    { $unwind: "$delegationsClient" },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegationsClient.villeId",
+        foreignField: "_id",
+        as: "villesClient",
+      },
+    },
+    { $unwind: "$villesClient" },
     {
       $project: {
         _id: 1,
@@ -613,8 +530,8 @@ router.get("/all-info-period/admin", (req, res) => {
         etat: 1,
         clientId: "$clients._id",
         nomc: "$clients.nom",
-        villec: "$clients.ville",
-        delegationc: "$clients.delegation",
+        villec: "$villesClient.nom",
+        delegationc: "$delegationsClient.nom",
         adressec: "$clients.adresse",
         codePostalec: "$clients.codePostale",
         telc: "$clients.tel",
@@ -640,12 +557,6 @@ router.get("/all-info-period/admin", (req, res) => {
     },
     {
       $sort: sort,
-    },
-    {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
     },
   ];
 
@@ -681,36 +592,27 @@ router.get("/all-info-period/admin", (req, res) => {
   Package.aggregate(data).exec((err, doc) => {
     if (!err) {
       if (req.query.search && req.query.search.length > 2) {
-        res.send(
-          doc.filter(
-            (item) =>
-              item.CAB.toString().includes(req.query.search) ||
-              item.telc.toString().includes(req.query.search) ||
-              item.tel2c?.toString().includes(req.query.search) ||
-              item.telf.toString().includes(req.query.search) ||
-              item.c_remboursement.toString().includes(req.query.search) ||
-              item.etat?.toString().includes(req.query.search) ||
-              item.createdAtSearch.toString().includes(req.query.search) ||
-              item.nomc
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.nomf
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.villec
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.delegationc
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.adressec
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase())
-          )
+        doc = doc.filter(
+          (item) =>
+            item.CAB.toString().includes(req.query.search) ||
+            item.telc.toString().includes(req.query.search) ||
+            item.tel2c?.toString().includes(req.query.search) ||
+            item.telf.toString().includes(req.query.search) ||
+            item.c_remboursement.toString().includes(req.query.search) ||
+            item.etat?.toString().includes(req.query.search) ||
+            item.createdAtSearch.toString().includes(req.query.search) ||
+            item.nomc.toLowerCase().includes(req.query.search.toLowerCase()) ||
+            item.nomf.toLowerCase().includes(req.query.search.toLowerCase()) ||
+            item.villec
+              ?.toLowerCase()
+              .includes(req.query.search.toLowerCase()) ||
+            item.delegationc
+              ?.toLowerCase()
+              .includes(req.query.search.toLowerCase()) ||
+            item.adressec.toLowerCase().includes(req.query.search.toLowerCase())
         );
-      } else {
-        res.send(doc);
       }
+      return res.send(doc.slice(skip).slice(0, limit));
     } else console.log("Erreur lors de la récupération des colis: " + err);
   });
 });
@@ -741,6 +643,26 @@ router.get("/all-info/:id/:fid", (req, res) => {
     },
     { $unwind: "$fournisseurs" },
     {
+      $lookup: {
+        from: "delegations",
+        localField: "clients.delegationId",
+        foreignField: "_id",
+        as: "delegationsClient",
+      },
+    },
+    {
+      $unwind: { path: "$delegationsClient", preserveNullAndEmptyArrays: true },
+    },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegationsClient.villeId",
+        foreignField: "_id",
+        as: "villesClient",
+      },
+    },
+    { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
+    {
       $project: {
         _id: 1,
         CAB: 1,
@@ -753,8 +675,10 @@ router.get("/all-info/:id/:fid", (req, res) => {
         etat: 1,
         clientId: "$clients._id",
         nomc: "$clients.nom",
-        villec: "$clients.ville",
-        delegationc: "$clients.delegation",
+        villeId: "$villesClient._id",
+        villec: "$villesClient.nom",
+        delegationId: "$delegationsClient._id",
+        delegationc: "$delegationsClient.nom",
         adressec: "$clients.adresse",
         codePostalec: "$clients.codePostale",
         telc: "$clients.tel",
@@ -795,6 +719,24 @@ router.get("/all-info-admin/:id", (req, res) => {
     { $unwind: "$clients" },
     {
       $lookup: {
+        from: "delegations",
+        localField: "clients.delegationId",
+        foreignField: "_id",
+        as: "delegationsClient",
+      },
+    },
+    { $unwind: "$delegationsClient" },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegationsClient.villeId",
+        foreignField: "_id",
+        as: "villesClient",
+      },
+    },
+    { $unwind: "$villesClient" },
+    {
+      $lookup: {
         from: "users",
         localField: "userId",
         foreignField: "_id",
@@ -833,8 +775,8 @@ router.get("/all-info-admin/:id", (req, res) => {
         etat: 1,
         clientId: "$clients._id",
         nomc: "$clients.nom",
-        villec: "$clients.ville",
-        delegationc: "$clients.delegation",
+        villec: "$villesClient.nom",
+        delegationc: "$delegationsClient.nom",
         adressec: "$clients.adresse",
         codePostalec: "$clients.codePostale",
         telc: "$clients.tel",
@@ -901,6 +843,24 @@ router.get("/all-info-admin-cab/:cab", (req, res) => {
     },
     { $unwind: "$fournisseurs" },
     {
+      $lookup: {
+        from: "delegations",
+        localField: "clients.delegationId",
+        foreignField: "_id",
+        as: "delegationsClient",
+      },
+    },
+    { $unwind: "$delegationsClient" },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegationsClient.villeId",
+        foreignField: "_id",
+        as: "villesClient",
+      },
+    },
+    { $unwind: "$villesClient" },
+    {
       $project: {
         _id: 1,
         CAB: 1,
@@ -914,8 +874,8 @@ router.get("/all-info-admin-cab/:cab", (req, res) => {
         remarque: 1,
         clientId: "$clients._id",
         nomc: "$clients.nom",
-        villec: "$clients.ville",
-        delegationc: "$clients.delegation",
+        villec: "$villesClient.nom",
+        delegationc: "$delegationsClient.nom",
         adressec: "$clients.adresse",
         codePostalec: "$clients.codePostale",
         telc: "$clients.tel",
@@ -942,7 +902,7 @@ router.get("/all-info-admin-cab/:cab", (req, res) => {
   });
 });
 
-// Read one with all client and provider data (for admin)
+// Read all with all client and provider data (for admin)
 router.get("/all-info-search/admin", (req, res) => {
   var CAB = parseInt(req.query.CAB) || null;
   var tel = parseInt(req.query.tel) || null;
@@ -960,6 +920,24 @@ router.get("/all-info-search/admin", (req, res) => {
       },
     },
     { $unwind: "$clients" },
+    {
+      $lookup: {
+        from: "delegations",
+        localField: "clients.delegationId",
+        foreignField: "_id",
+        as: "delegationsClient",
+      },
+    },
+    { $unwind: "$delegationsClient" },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegationsClient.villeId",
+        foreignField: "_id",
+        as: "villesClient",
+      },
+    },
+    { $unwind: "$villesClient" },
     {
       $lookup: {
         from: "fournisseurs",
@@ -1020,8 +998,8 @@ router.get("/all-info-search/admin", (req, res) => {
         etat: 1,
         clientId: "$clients._id",
         nomc: "$clients.nom",
-        villec: "$clients.ville",
-        delegationc: "$clients.delegation",
+        villec: "$villesClient.nom",
+        delegationc: "$delegationsClient.nom",
         adressec: "$clients.adresse",
         codePostalec: "$clients.codePostale",
         telc: "$clients.tel",
@@ -1069,22 +1047,12 @@ router.get("/all-info-search/admin", (req, res) => {
 
   Package.aggregate(data).exec((err, doc) => {
     if (!err) {
-      if (tel && CAB) {
-        // console.dir(res.headersSent);
-        res.send(
-          doc.filter(
-            (item) =>
-              item.CAB.toString().includes(CAB) &&
-              item.telc.toString().includes(tel)
-          )
-        );
-      } else if (CAB) {
-        res.send(doc.filter((item) => item.CAB.toString().includes(CAB)));
+      if (CAB) {
+        doc = doc.filter((item) => item.CAB.toString().includes(CAB));
       } else if (tel) {
-        res.send(doc.filter((item) => item.telc.toString().includes(tel)));
-      } else {
-        res.send(doc);
+        doc = doc.filter((item) => item.telc.toString().includes(tel));
       }
+      return res.send(doc.slice(skip).slice(0, limit));
     } else console.log("Erreur lors de la récupération du colis: " + err);
   });
 });

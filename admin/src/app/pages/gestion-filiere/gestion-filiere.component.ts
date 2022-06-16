@@ -5,19 +5,13 @@ import {
   TemplateRef,
   ViewChild,
 } from "@angular/core";
-import { Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { FiliereService } from "src/app/services/filiere.service";
 import { NgbActiveModal, NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import {
-  AbstractControl,
   FormBuilder,
-  FormControl,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { HttpErrorResponse } from "@angular/common/http";
 
 @Component({
   selector: "app-gestion-filiere",
@@ -51,6 +45,8 @@ export class GestionFiliereComponent implements OnInit {
   count: any;
   filiereForm: any;
   error: string = "none";
+  val: string;
+
   constructor(
     private fb: FormBuilder,
     private filiereService: FiliereService,
@@ -95,15 +91,15 @@ export class GestionFiliereComponent implements OnInit {
   }
 
   updateFilter(event) {
-    const val = event.target.value.toLowerCase();
-    this.getDataJson(this.currentPageLimit, 1, null, null, val);
+    this.val = event.target.value.toLowerCase();
+    this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
   }
 
   // When number of displayed elements changes
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit);
+    this.getDataJson(limit, null, null, null, this.val);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -127,14 +123,15 @@ export class GestionFiliereComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 
   // When page changes
   onFooterPage(event) {
     this.changePage(event.page);
-    this.getDataJson(this.currentPageLimit, event.page);
+    this.getDataJson(this.currentPageLimit, event.page, null, null, this.val);
   }
 
   changePage(page: any) {
@@ -173,7 +170,7 @@ export class GestionFiliereComponent implements OnInit {
     if (confirm("Êtes-vous sûr de vouloir supprimer cette filière?")) {
       this.filiereService.deleteFiliere(data._id).subscribe(() => {
         console.log("filiere supprimée");
-        this.getDataJson();
+        this.getDataJson(null, null, null, null, this.val);
       });
     }
   }

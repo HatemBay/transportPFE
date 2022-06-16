@@ -61,6 +61,7 @@ export class GestionVehiculeComponent implements OnInit {
   fileName: string;
   changed: boolean = false;
   regExSerie: any;
+  val: string;
 
   constructor(
     private fb: FormBuilder,
@@ -70,7 +71,6 @@ export class GestionVehiculeComponent implements OnInit {
     public activeModal: NgbActiveModal,
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient,
     private sanitizer: DomSanitizer,
     private datePipe: DatePipe
   ) {
@@ -218,15 +218,15 @@ export class GestionVehiculeComponent implements OnInit {
   }
 
   updateFilter(event) {
-    const val = event.target.value.toLowerCase();
-    this.getDataJson(this.currentPageLimit, 1, null, null, val);
+    this.val = event.target.value.toLowerCase();
+    this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
   }
 
   // When number of displayed elements changes
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit);
+    this.getDataJson(limit, null, null, null, this.val);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -250,14 +250,15 @@ export class GestionVehiculeComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 
   // When page changes
   onFooterPage(event) {
     this.changePage(event.page);
-    this.getDataJson(this.currentPageLimit, event.page);
+    this.getDataJson(this.currentPageLimit, event.page, null, null, this.val);
   }
 
   changePage(page: any) {
@@ -333,7 +334,7 @@ export class GestionVehiculeComponent implements OnInit {
     if (confirm("Êtes-vous sûr de vouloir supprimer cette véhicule?")) {
       this.vehiculeService.deleteVehicule(data._id).subscribe(() => {
         console.log("véhicule supprimée");
-        this.getDataJson();
+        this.getDataJson(null, null, null, null, this.val);
         this.getChauffeurs();
       });
     }

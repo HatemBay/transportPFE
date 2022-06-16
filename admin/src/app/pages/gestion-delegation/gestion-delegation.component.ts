@@ -44,6 +44,8 @@ export class GestionDelegationComponent implements OnInit {
   delegationForm: any;
   error: string = "none";
   villes: Object;
+  val: string;
+
   constructor(
     private fb: FormBuilder,
     private delegationService: DelegationService,
@@ -69,9 +71,9 @@ export class GestionDelegationComponent implements OnInit {
     console.log(this.error != "none");
   }
   getVilles() {
-    this.villeService.getVilles().subscribe(data => {
+    this.villeService.getVilles().subscribe((data) => {
       this.villes = data;
-    })
+    });
   }
 
   get f() {
@@ -95,15 +97,15 @@ export class GestionDelegationComponent implements OnInit {
   }
 
   updateFilter(event) {
-    const val = event.target.value.toLowerCase();
-    this.getDataJson(this.currentPageLimit, 1, null, null, val);
+    this.val = event.target.value.toLowerCase();
+    this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
   }
 
   // When number of displayed elements changes
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit);
+    this.getDataJson(limit, null, null, null, this.val);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -127,14 +129,15 @@ export class GestionDelegationComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 
   // When page changes
   onFooterPage(event) {
     this.changePage(event.page);
-    this.getDataJson(this.currentPageLimit, event.page);
+    this.getDataJson(this.currentPageLimit, event.page, null, null, this.val);
   }
 
   changePage(page: any) {
@@ -176,7 +179,7 @@ export class GestionDelegationComponent implements OnInit {
       this.delegationService.deleteDelegation(data._id).subscribe(() => {
         console.log("delegation supprimée");
         this.success = true;
-        this.getDataJson();
+        this.getDataJson(null, null, null, null, this.val);
       });
     }
   }

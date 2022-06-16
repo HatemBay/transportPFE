@@ -14,6 +14,9 @@ export class ExcelComponent implements OnInit {
   myFile: any;
   fileName = "";
   formData: FormData;
+  errors: any = [];
+  errors2: any = [];
+  errs: any;
   constructor(
     private auth: AuthenticationService,
     private packageService: PackageService,
@@ -36,26 +39,36 @@ export class ExcelComponent implements OnInit {
 
   upload() {
     // if (this.formData) {
-      this.packageService
-        .uploadExcel(this.auth.getUserDetails()._id, this.formData)
-        .subscribe(
-          (res) => {
-            console.log("slm");
+    this.packageService
+      .uploadExcel(this.auth.getUserDetails()._id, this.formData)
+      .subscribe(
+        (res) => {
+          console.log("slm");
 
-            var added: boolean = true;
-            var navigationExtras: NavigationExtras = {
-              queryParams: {
-                added,
-              },
-            };
-            this.router.navigate(["/liste-colis"], navigationExtras);
-          },
-          (err) => {
-            console.log("slmslm");
+          var added: boolean = true;
+          var navigationExtras: NavigationExtras = {
+            queryParams: {
+              added,
+            },
+          };
+          this.router.navigate(["/liste-colis"], navigationExtras);
+        },
+        (err) => {
+          console.log("slmslm");
+          this.errors = err.message;
 
-            console.log(err.message);
-          }
-        );
+          Object.keys(this.errors).forEach(element => {
+            console.log(element);
+            console.log(this.errors[element]);
+            console.log("sss");
+            this.errors2[element] = this.errors[element];
+          });
+          console.log(typeof this.errors);
+          this.errs = Object.keys(this.errors2)
+          console.log(typeof this.errs);
+          console.log(this.errs.length);
+        }
+      );
     // }
   }
 

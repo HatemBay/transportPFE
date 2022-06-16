@@ -23,6 +23,7 @@ export class GestionColisComponent implements OnInit {
   dateD: string;
   dateF: Date;
   dateForm: FormGroup;
+  val: string;
 
   success: boolean = false;
 
@@ -175,13 +176,13 @@ export class GestionColisComponent implements OnInit {
       }
     }
     if (event.target.value.length > 2) {
-      const val = event.target.value.toLowerCase();
+      this.val = event.target.value.toLowerCase();
       this.getDataJson(
         this.currentPageLimit,
         1,
         null,
         null,
-        val,
+        this.val,
         state,
         this.startDate,
         this.today
@@ -216,7 +217,7 @@ export class GestionColisComponent implements OnInit {
       1,
       null,
       null,
-      null,
+      this.val,
       state,
       this.startDate,
       this.today
@@ -244,7 +245,7 @@ export class GestionColisComponent implements OnInit {
       event.page,
       event.sorts[0].prop,
       event.newValue,
-      null,
+      this.val,
       state,
       this.startDate,
       this.today
@@ -268,7 +269,7 @@ export class GestionColisComponent implements OnInit {
       event.page,
       null,
       null,
-      null,
+      this.val,
       state,
       this.startDate,
       this.today
@@ -287,6 +288,7 @@ export class GestionColisComponent implements OnInit {
         console.log("package deleted");
       });
       this.clientService.deleteClient(data.clientId).subscribe(() => {
+        //TODO: compare the efficency of this method with making api calls (on large data)
         console.log("client deleted");
         var temp = this.temp.filter(
           (item) => item.CAB.indexOf(data.CAB) === -1
@@ -354,7 +356,7 @@ export class GestionColisComponent implements OnInit {
       1,
       null,
       null,
-      null,
+      this.val,
       data.value,
       this.startDate,
       this.today
@@ -379,7 +381,7 @@ export class GestionColisComponent implements OnInit {
       null,
       null,
       null,
-      null,
+      this.val,
       state,
       this.startDate,
       this.today

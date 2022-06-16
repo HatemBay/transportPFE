@@ -67,6 +67,7 @@ export class GestionColisComponent implements OnInit {
   public columns: Array<object>;
   count: any;
   init: boolean = false;
+  val: string;
 
   constructor(
     private fb: FormBuilder,
@@ -100,7 +101,6 @@ export class GestionColisComponent implements OnInit {
 
     this.getDataJson();
   }
-
 
   // get data from backend
   getDataJson(
@@ -146,10 +146,12 @@ export class GestionColisComponent implements OnInit {
     this.startDate = data.startDate;
   }
 
-  private countPackages(startDate?:any, endDate?:any) {
-    this.packageService.countAllPackagesAdmin(null, startDate, endDate).subscribe((res) => {
-      this.count = res.count;
-    });
+  private countPackages(startDate?: any, endDate?: any) {
+    this.packageService
+      .countAllPackagesAdmin(null, startDate, endDate)
+      .subscribe((res) => {
+        this.count = res.count;
+      });
   }
 
   // filter data
@@ -160,17 +162,28 @@ export class GestionColisComponent implements OnInit {
       startDate = this.startDate;
       endDate = this.today;
     }
-    var val = null;
-    if (event.target.value.length > 2) val = event.target.value.toLowerCase();
-    this.getDataJson(
-      this.currentPageLimit,
-      1,
-      null,
-      null,
-      val,
-      startDate,
-      endDate
-    );
+    if (event.target.value.length > 2) {
+      this.val = event.target.value.toLowerCase();
+      this.getDataJson(
+        this.currentPageLimit,
+        1,
+        null,
+        null,
+        this.val,
+        startDate,
+        endDate
+      );
+    } else {
+      this.getDataJson(
+        this.currentPageLimit,
+        1,
+        null,
+        null,
+        null,
+        startDate,
+        endDate
+      );
+    }
   }
 
   // When number of displayed elements changes
@@ -183,15 +196,7 @@ export class GestionColisComponent implements OnInit {
     }
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(
-      limit,
-      1,
-      null,
-      null,
-      null,
-      startDate,
-      endDate
-    );
+    this.getDataJson(limit, 1, null, null, this.val, startDate, endDate);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -229,7 +234,7 @@ export class GestionColisComponent implements OnInit {
       event.page,
       event.sorts[0].prop,
       event.newValue,
-      null,
+      this.val,
       startDate,
       endDate
     );
@@ -249,7 +254,7 @@ export class GestionColisComponent implements OnInit {
       event.page,
       null,
       null,
-      null,
+      this.val,
       startDate,
       endDate
     );
@@ -290,7 +295,6 @@ export class GestionColisComponent implements OnInit {
     }
   }
 
-  searchValue(data) {}
   copyToClipboard() {
     this.slice = this.rows.map((obj) => {
       return {
@@ -442,7 +446,15 @@ export class GestionColisComponent implements OnInit {
     console.log(this.startDate);
     console.log(this.today);
 
-    this.getDataJson(null, null, null, null, null, this.startDate, this.today);
-    this.countPackages(this.startDate, this.today)
+    this.getDataJson(
+      null,
+      null,
+      null,
+      null,
+      this.val,
+      this.startDate,
+      this.today
+    );
+    this.countPackages(this.startDate, this.today);
   }
 }

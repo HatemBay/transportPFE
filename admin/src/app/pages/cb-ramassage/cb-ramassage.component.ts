@@ -34,10 +34,11 @@ export class CbRamassageComponent implements OnInit {
   count: any;
   init: boolean = false;
   referenceForm: any;
+  val: string;
 
   constructor(
     private fb: FormBuilder,
-    private packageService: PackageService,
+    private packageService: PackageService
   ) {}
 
   ngOnInit(): void {
@@ -90,20 +91,20 @@ export class CbRamassageComponent implements OnInit {
       event.page,
       event.sorts[0].prop,
       event.newValue,
-      null
+      this.val
     );
   }
 
   updateFilter(event) {
-    const val = event.target.value.toLowerCase();
-    this.getDataJson(this.currentPageLimit, 1, null, null, val);
+    this.val = event.target.value.toLowerCase();
+    this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
   }
 
   // When number of displayed elements changes
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit, 1, null, null, null);
+    this.getDataJson(limit, 1, null, null, this.val);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -130,17 +131,19 @@ export class CbRamassageComponent implements OnInit {
         return this.f.reference.setValue("");
       }
       this.references.push(this.f.reference.value);
-      this.getDataJson(null, null, null, null, null, this.references);
+      this.getDataJson(null, null, null, null, this.val, this.references);
       this.f.reference.setValue("");
     }
   }
 
   public changeState() {
-    this.references.forEach(element => {
-      this.packageService.updatePackageByCAB(element, {etat: "ramassé par livreur"}).subscribe(() => {
-        this.references = [];
-        this.getDataJson(null, null, null, null, null, this.references);
-      });
+    this.references.forEach((element) => {
+      this.packageService
+        .updatePackageByCAB(element, { etat: "ramassé par livreur" })
+        .subscribe(() => {
+          this.references = [];
+          this.getDataJson(null, null, null, null, this.val, this.references);
+        });
     });
   }
 }

@@ -4,10 +4,8 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { map } from "rxjs";
-import { FeuilleRetourService } from "src/app/services/feuille-retour.service";
 import { FournisseurService } from "src/app/services/fournisseur.service";
 import { PackageService } from "src/app/services/package.service";
-import { VehiculeService } from "src/app/services/vehicule.service";
 
 @Component({
   selector: "app-finance-client",
@@ -54,15 +52,15 @@ export class FinanceClientComponent implements OnInit {
   ];
   display: string = "default";
   selected: any = [];
+  val: string;
+
   constructor(
     private fb: FormBuilder,
     private fournisseurService: FournisseurService,
     private datePipe: DatePipe,
-    private vehiculeService: VehiculeService,
     private router: Router,
     private route: ActivatedRoute,
-    private packageService: PackageService,
-    private feuilleRetourService: FeuilleRetourService
+    private packageService: PackageService
   ) {
     this.fourn = this.route.snapshot.queryParamMap.get("fournisseur") || null;
     // console.log(JSON.parse(this.fourn));
@@ -242,8 +240,7 @@ export class FinanceClientComponent implements OnInit {
   }
 
   updateFilter(event) {
-    const val = event.target.value.toLowerCase();
-    console.log(val);
+    this.val = event.target.value.toLowerCase();
 
     this.getPackagesByProvider(
       this.fournisseursForm.value.fournisseurs,
@@ -251,7 +248,7 @@ export class FinanceClientComponent implements OnInit {
       1,
       null,
       null,
-      val
+      this.val
     );
   }
 
@@ -261,7 +258,11 @@ export class FinanceClientComponent implements OnInit {
     this.table.limit = this.currentPageLimit;
     this.getPackagesByProvider(
       this.fournisseursForm.value.fournisseurs,
-      limit
+      limit,
+      null,
+      null,
+      null,
+      this.val
     );
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -315,7 +316,7 @@ export class FinanceClientComponent implements OnInit {
       null,
       null,
       null,
-      null,
+      this.val,
       this.startDate,
       this.today
     );

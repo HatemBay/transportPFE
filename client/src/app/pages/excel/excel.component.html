@@ -12,7 +12,8 @@
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h3 class="m-0 font-weight-bold">Importation</h3>
 
-          <a class="m-0 float-right btn btn-info btn-sm" (click)="download('../../../assets/img/importExcel.xls')" download="">
+          <a class="m-0 float-right btn btn-info btn-sm" (click)="download('../../../assets/img/importExcel.xls')"
+            download="">
             <i class="fas fa-download"></i> Télécharger l'exemple
           </a>
         </div>
@@ -20,7 +21,15 @@
         <form class="row" enctype="multipart/form-data">
           <div class="col-md-5 offset-md-2 mt-4 form-group">
             <input class="form-control" type="file" (change)="onFileSelected($event)" accept=".xls" />
-            {{fileName || "No file uploaded yet."}}
+            <ng-container *ngIf="errors.length !== 0">
+              <ng-container *ngFor="let error of errors | keyvalue">
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  {{error.key}}: {{error.value}}
+                </small>
+                <br>
+              </ng-container>
+            </ng-container>
             <!-- <input type="file" class="form-control" name="employee_file_excel" accept=".xlsx"> -->
           </div>
           <div class="col-md-3 mt-4 ml-5">

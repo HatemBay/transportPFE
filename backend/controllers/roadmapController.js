@@ -126,17 +126,9 @@ router.get("/", (req, res) => {
   }
 
   if (noLimit !== null) {
-    data.push(
-      {
-        $sort: sort,
-      },
-      {
-        $skip: skip,
-      },
-      {
-        $limit: limit,
-      }
-    );
+    data.push({
+      $sort: sort,
+    });
   }
 
   // if (req.query.search) {
@@ -166,16 +158,15 @@ router.get("/", (req, res) => {
   Roadmap.aggregate(data).exec((err, roadmaps) => {
     if (!err) {
       if (req.query.search) {
-        res.send(
-          roadmaps.filter(
-            (item) =>
-              item.roadmapNb.toString().includes(req.query.search) ||
-              item.nbPackages.toString().includes(req.query.search) ||
-              item.createdAtSearch.toString().includes(req.query.search) ||
-              item.nomd?.toLowerCase().includes(req.query.search.toLowerCase())
-          )
+        roadmaps = roadmaps.filter(
+          (item) =>
+            item.roadmapNb.toString().includes(req.query.search) ||
+            item.nbPackages.toString().includes(req.query.search) ||
+            item.createdAtSearch.toString().includes(req.query.search) ||
+            item.nomd?.toLowerCase().includes(req.query.search.toLowerCase())
         );
-      } else res.send(roadmaps);
+      }
+      return res.send(roadmaps.slice(skip).slice(0, limit));
     } else {
       res
         .status(400)

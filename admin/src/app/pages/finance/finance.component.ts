@@ -28,6 +28,7 @@ export class FinanceComponent implements OnInit {
   rows: any = [];
   public columns: Array<object>;
   count: any;
+  val: string;
 
   constructor(private packageService: PackageService, private router: Router) {}
 
@@ -98,8 +99,8 @@ export class FinanceComponent implements OnInit {
 
   updateFilter(event) {
     if (event.target.value.length > 2) {
-      const val = event.target.value.toLowerCase();
-      this.getDataJson(this.currentPageLimit, 1, null, null, val);
+      this.val = event.target.value.toLowerCase();
+      this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getDataJson(this.currentPageLimit, 1, null, null, null);
     }
@@ -117,7 +118,8 @@ export class FinanceComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 

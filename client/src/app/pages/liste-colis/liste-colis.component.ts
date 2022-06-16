@@ -35,6 +35,7 @@ export class ListeColisComponent implements OnInit {
   printable: boolean = false;
   added: boolean;
   edited: boolean;
+  val: string;
 
   constructor(
     private packageService: PackageService,
@@ -59,7 +60,7 @@ export class ListeColisComponent implements OnInit {
 
     this.countPackages();
 
-    this.getDataJson(null, null, null, null, null);
+    this.getDataJson();
     // this.findAll();
     console.log(this.temp[0]);
   }
@@ -94,8 +95,8 @@ export class ListeColisComponent implements OnInit {
   // dynamic search (triggers after inserting 3 characters)
   updateFilter(event) {
     if (event.target.value.length > 2) {
-      const val = event.target.value.toLowerCase();
-      this.getDataJson(this.currentPageLimit, 1, null, null, val);
+      this.val = event.target.value.toLowerCase();
+      this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getDataJson(this.currentPageLimit, 1);
     }
@@ -105,7 +106,7 @@ export class ListeColisComponent implements OnInit {
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit);
+    this.getDataJson(limit, null, null, null, this.val);
   }
 
   // changes number of elements to display
@@ -121,14 +122,15 @@ export class ListeColisComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 
   // change data based on page selected
   onFooterPage(event) {
     this.changePage(event.page);
-    this.getDataJson(this.currentPageLimit, event.page);
+    this.getDataJson(this.currentPageLimit, event.page, null, null, this.val);
   }
 
   // change pages in footer

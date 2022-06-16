@@ -51,6 +51,8 @@ export class GestionPersonelComponent implements OnInit {
   filieres: Object;
   routePath: any;
   userId: string;
+  val: string;
+
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
@@ -158,15 +160,15 @@ export class GestionPersonelComponent implements OnInit {
   }
 
   updateFilter(event) {
-    const val = event.target.value.toLowerCase();
-    this.getDataJson(this.currentPageLimit, 1, null, null, val);
+    this.val = event.target.value.toLowerCase();
+    this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
   }
 
   // When number of displayed elements changes
   public onLimitChange(limit: any): void {
     this.changePageLimit(limit);
     this.table.limit = this.currentPageLimit;
-    this.getDataJson(limit);
+    this.getDataJson(limit, null, null, null, this.val);
     // this.table.recalculate();
     setTimeout(() => {
       if (this.table.bodyComponent.temp.length <= 0) {
@@ -190,14 +192,15 @@ export class GestionPersonelComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue
+      event.newValue,
+      this.val
     );
   }
 
   // When page changes
   onFooterPage(event) {
     this.changePage(event.page);
-    this.getDataJson(this.currentPageLimit, event.page);
+    this.getDataJson(this.currentPageLimit, event.page, null, null, this.val);
   }
 
   changePage(page: any) {
@@ -240,7 +243,7 @@ export class GestionPersonelComponent implements OnInit {
     if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur?")) {
       this.userService.deleteUser(data._id).subscribe(() => {
         console.log("utilisateur supprimé");
-        this.getDataJson();
+        this.getDataJson(null, null, null, null, this.val);
       });
     }
   }
