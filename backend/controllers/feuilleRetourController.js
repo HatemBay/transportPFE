@@ -126,7 +126,10 @@ router.get("/", (req, res) => {
             item.nomd?.toLowerCase().includes(req.query.search.toLowerCase())
         );
       }
-      return res.send(feuilleRetours.slice(skip).slice(0, limit));
+      return res.send({
+        length: feuilleRetours.length,
+        data: feuilleRetours.slice(skip).slice(0, limit),
+      });
     } else {
       res
         .status(400)

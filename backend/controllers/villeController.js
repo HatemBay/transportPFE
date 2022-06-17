@@ -26,7 +26,10 @@ router.get("/", (req, res) => {
               item.etat.toLowerCase().includes(req.query.search.toLowerCase())
           );
         }
-        return res.send(villes.slice(skip).slice(0, limit));
+        return res.send({
+          length: villes.length,
+          data: villes.slice(skip).slice(0, limit),
+        });
       } else {
         res
           .status(400)

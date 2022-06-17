@@ -76,7 +76,6 @@ export class CbFeuilleRouteComponent implements OnInit {
         { prop: "createdAtSearch", name: "Date" },
       ];
 
-      this.countRoadmaps();
       this.getRoadmapData();
     }
   }
@@ -91,15 +90,9 @@ export class CbFeuilleRouteComponent implements OnInit {
     this.roadmapService
       .getRoadmaps(limit, page, sortBy, sort, search)
       .subscribe((data) => {
-        this.rows = this.temp = data;
+        this.rows = this.temp = data.data;
+        this.count = data.length;
       });
-  }
-
-  // count roadmaps
-  countRoadmaps() {
-    this.roadmapService.countRoadmaps().subscribe((data) => {
-      this.count = data.count;
-    });
   }
 
   // get references() {
@@ -243,8 +236,8 @@ export class CbFeuilleRouteComponent implements OnInit {
   }
 
   updateFilter(event) {
+    this.val = event.target.value.toLowerCase();
     if (event.target.value.length > 2) {
-      this.val = event.target.value.toLowerCase();
       this.getRoadmapData(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getRoadmapData(this.currentPageLimit, 1);

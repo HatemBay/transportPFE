@@ -76,7 +76,6 @@ export class CbPickupsComponent implements OnInit {
       driverId: ["", Validators.required],
     });
 
-    this.countPickups();
     this.getChauffeurs();
 
     if (this.routePath == "pickup") {
@@ -128,7 +127,8 @@ export class CbPickupsComponent implements OnInit {
         endDate
       )
       .subscribe((data) => {
-        this.rows = this.temp = data;
+        this.rows = this.temp = data.data;
+        this.count = data.length;
       });
   }
 
@@ -156,15 +156,6 @@ export class CbPickupsComponent implements OnInit {
     });
   }
 
-  // count pickups
-  countPickups(isAllocated?, startDate?, endDate?) {
-    this.pickupService
-      .countPickups(isAllocated, startDate, endDate)
-      .subscribe((data) => {
-        this.count = data.count;
-      });
-  }
-
   updateFilter(event) {
     var startDate = null;
     var endDate = null;
@@ -172,8 +163,8 @@ export class CbPickupsComponent implements OnInit {
       startDate = this.startDate;
       endDate = this.today;
     }
+    this.val = event.target.value.toLowerCase();
     if (event.target.value.length > 2) {
-      this.val = event.target.value.toLowerCase();
       this.getDataJson(
         this.isAllocated,
         this.currentPageLimit,
@@ -315,6 +306,5 @@ export class CbPickupsComponent implements OnInit {
       this.startDate,
       this.today
     );
-    this.countPickups(this.isAllocated, this.startDate, this.today);
   }
 }

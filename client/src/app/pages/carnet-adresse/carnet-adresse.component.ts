@@ -47,8 +47,6 @@ export class CarnetAdresseComponent implements OnInit {
       { prop: "nbPackages", name: "Nb. colis" },
     ];
 
-    this.countClients();
-
     this.getDataJson();
     // this.findAll();
   }
@@ -57,13 +55,14 @@ export class CarnetAdresseComponent implements OnInit {
     this.clientService
       .getClients(limit, page, sortBy, sort, search)
       .subscribe((data) => {
-        this.rows = this.temp = data;
+        this.rows = this.temp = data.data;
+        this.count = data.length;
       });
   }
 
   updateFilter(event) {
+    this.val = event.target.value.toLowerCase();
     if (event.target.value.length > 2) {
-      this.val = event.target.value.toLowerCase();
       this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getDataJson(this.currentPageLimit, 1, null, null, null);
@@ -90,13 +89,6 @@ export class CarnetAdresseComponent implements OnInit {
 
   private changePageLimit(limit: any): void {
     this.currentPageLimit = parseInt(limit, 10);
-  }
-
-  private countClients() {
-    this.clientService.countAllClients().subscribe((res) => {
-      this.count = res.count;
-      console.log(this.count);
-    });
   }
 
   onFooterPage(event) {

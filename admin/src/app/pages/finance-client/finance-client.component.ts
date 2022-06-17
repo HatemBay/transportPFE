@@ -140,7 +140,14 @@ export class FinanceClientComponent implements OnInit {
       .toPromise();
   }
   async getProviders() {
-    return await this.fournisseurService.getFournisseurs().toPromise();
+    return await this.fournisseurService
+      .getFournisseurs()
+      .pipe(
+        map((data) => {
+          return data.data;
+        })
+      )
+      .toPromise();
   }
 
   //get packages from selected provider

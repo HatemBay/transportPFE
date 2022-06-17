@@ -42,8 +42,6 @@ export class FinanceComponent implements OnInit {
       { prop: "codePostale", name: "CodePostale" },
     ];
 
-    this.countPackages();
-
     this.getDataJson();
   }
 
@@ -59,7 +57,8 @@ export class FinanceComponent implements OnInit {
     this.packageService
       .getFullPackages(limit, page, sortBy, sort, search, etat)
       .subscribe((data) => {
-        this.rows = this.temp = data;
+        this.rows = this.temp = data.data;
+        this.count = data.length;
         for (const item of this.rows) {
           item.c_remboursement = parseFloat(
             item.c_remboursement.toString()
@@ -67,12 +66,6 @@ export class FinanceComponent implements OnInit {
           console.log(item.c_remboursement);
         }
       });
-  }
-
-  private countPackages() {
-    this.packageService.countAllPackagesAdmin().subscribe((res) => {
-      this.count = res.count;
-    });
   }
 
   // change number of elements to display
@@ -98,8 +91,8 @@ export class FinanceComponent implements OnInit {
   }
 
   updateFilter(event) {
+    this.val = event.target.value.toLowerCase();
     if (event.target.value.length > 2) {
-      this.val = event.target.value.toLowerCase();
       this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getDataJson(this.currentPageLimit, 1, null, null, null);
@@ -126,8 +119,7 @@ export class FinanceComponent implements OnInit {
   view(data) {
     console.log(data);
     var navigationExtras: NavigationExtras = {
-      queryParams: {
-      },
+      queryParams: {},
     };
     console.log(navigationExtras.queryParams);
 

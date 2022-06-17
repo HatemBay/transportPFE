@@ -11,6 +11,7 @@ import { ClientService } from "src/app/services/client.service";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { FormGroup, FormBuilder } from "@angular/forms";
 import { HistoriqueService } from "src/app/services/historique.service";
+import { VilleService } from "src/app/services/ville.service";
 
 @Component({
   selector: "app-recherche",
@@ -33,6 +34,7 @@ export class RechercheComponent implements OnInit {
   nextClicked = false;
   checkIds: boolean = false;
   package: any = [];
+  villes: any = [];
   submit: boolean = false;
   historic: any = [
     { state: "nouveau", viewState: "Colis créé le " },
@@ -41,7 +43,8 @@ export class RechercheComponent implements OnInit {
     { state: "ramassé par livreur", viewState: "Rammasé par livreur le " },
     { state: "en cours", viewState: "En cours" },
     { state: "reporté", viewState: "Reporté" },
-    { state: "livré", viewState: "Livré le " },
+    { state: "livré (espèce)", viewState: "Livré le " },
+    { state: "livré (chèque)", viewState: "Livré le " },
     { state: "annulé", viewState: "Annulé le " },
     { state: "payé", viewState: "Payé le " },
   ];
@@ -51,6 +54,7 @@ export class RechercheComponent implements OnInit {
     public client: ClientService,
     private pack: PackageService,
     private historiqueService: HistoriqueService,
+    private villeService: VilleService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -79,12 +83,13 @@ export class RechercheComponent implements OnInit {
       );
     }
     if (this.routePath == "recherche-av") {
+      this.getVilles();
       this.searchForm = this.fb.group({
         CAB: "",
         tel: "",
         nom: "",
         adresse: "",
-        delegation: "",
+        villeId: "",
       });
     }
   }
@@ -101,6 +106,7 @@ export class RechercheComponent implements OnInit {
         this.packageData = data;
       });
   }
+
 
   public getIndex(historic, historique) {
     var index = historic.findIndex((p) => p.state == historique?.action);
@@ -130,12 +136,13 @@ export class RechercheComponent implements OnInit {
   public getPackage() {
     this.pack.getSearchPackages(this.packageCAB).subscribe((data) => {
       this.package = data[0];
-      console.log("data:");
-      console.log(data);
-
-      console.log("package:");
-      console.log(this.package);
     });
+  }
+
+  getVilles() {
+    this.villeService.getVilles().subscribe(data => {
+      this.villes = data.data;
+    })
   }
 
   onSearchFormValueChanges(data: any): void {
@@ -149,7 +156,7 @@ export class RechercheComponent implements OnInit {
         tel: this.searchForm.value.tel,
         nom: this.searchForm.value.nom,
         adresse: this.searchForm.value.adresse,
-        delegation: this.searchForm.value.delegation,
+        villeId: this.searchForm.value.villeId,
         action: true,
       },
     };

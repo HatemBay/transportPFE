@@ -58,8 +58,6 @@ export class ListeColisComponent implements OnInit {
       { prop: "codePostalec", name: "CodePostale" },
     ];
 
-    this.countPackages();
-
     this.getDataJson();
     // this.findAll();
     console.log(this.temp[0]);
@@ -70,32 +68,19 @@ export class ListeColisComponent implements OnInit {
     this.packageService
       .getFullPackages(null, limit, page, sortBy, sort, search)
       .subscribe((data) => {
-        this.rows = this.temp = data;
+        this.rows = this.temp = data.data;
+        this.count = data.length;
         console.log("data");
 
-        console.log(data);
+        console.log(data.data);
         // console.log(this.temp);
-
-        for (const item of this.rows) {
-          item.c_remboursement = parseFloat(
-            item.c_remboursement.toString()
-          ).toFixed(3);
-          console.log(item.c_remboursement);
-        }
       });
-  }
-
-  // count all packages
-  private countPackages() {
-    this.packageService.countAllPackages(null).subscribe((res) => {
-      this.count = res.count;
-    });
   }
 
   // dynamic search (triggers after inserting 3 characters)
   updateFilter(event) {
-    if (event.target.value.length > 2) {
       this.val = event.target.value.toLowerCase();
+    if (event.target.value.length > 2) {
       this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getDataJson(this.currentPageLimit, 1);

@@ -4,7 +4,7 @@ import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { RoadmapService } from "src/app/services/roadmap.service";
-import { bufferToggle, map } from "rxjs";
+import { map } from "rxjs";
 import { UserService } from "src/app/services/user.service";
 import { NavigationExtras, Router } from "@angular/router";
 
@@ -242,8 +242,6 @@ export class FinanceDebriefGlobalComponent implements OnInit {
 
     this.count = this.drivers.length + 1;
 
-    // this.countRoadmaps(this.startDate, this.today);
-
     for (let row of this.rows) {
       this.total.nbPackages += row.nbPackages;
       this.total.livréEspece += row.livréEspece;
@@ -296,14 +294,12 @@ export class FinanceDebriefGlobalComponent implements OnInit {
         driver,
         noLimit
       )
+      .pipe(
+        map((data) => {
+          return data.data;
+        })
+      )
       .toPromise();
-  }
-
-  // count roadmaps
-  countRoadmaps(startDate: any, today: any) {
-    this.roadmapService.countRoadmaps(startDate, today).subscribe((data) => {
-      this.count = data.count;
-    });
   }
 
   //get roadmap list

@@ -109,7 +109,7 @@
             <ngx-datatable-column name="Etat">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  {{row.etat}}
+                  {{row.etat |titlecase}}
                 </span>
               </ng-template>
             </ngx-datatable-column>
@@ -122,14 +122,26 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column *ngFor="let column of columns;
-        let i = index;" name="{{column.name}}" prop="{{column.prop}}">
+            <ngx-datatable-column name="COD" prop="c_remboursement">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.nomc |titlecase}}
+                </span>
+              </ng-template>
             </ngx-datatable-column>
 
             <ngx-datatable-column name="COD" prop="c_remboursement">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  {{row.c_remboursement}}
+                  {{row.villec |titlecase}}, {{row.delegationc |titlecase}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="COD" prop="c_remboursement">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.c_remboursement}}.000
                 </span>
               </ng-template>
             </ngx-datatable-column>

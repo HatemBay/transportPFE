@@ -62,8 +62,6 @@ export class GestionVilleComponent implements OnInit {
       nom: ["", Validators.required],
     });
 
-    this.countVilles();
-
     this.getDataJson();
     console.log(this.error != "none");
   }
@@ -77,15 +75,9 @@ export class GestionVilleComponent implements OnInit {
     this.villeService
       .getVilles(limit, page, sortBy, sort, search)
       .subscribe((data) => {
-        this.rows = this.temp = data;
+        this.rows = this.temp = data.data;
+        this.count = data.length;
       });
-  }
-
-  // count villes
-  countVilles() {
-    this.villeService.countVilles().subscribe((data) => {
-      this.count = data.count;
-    });
   }
 
   updateFilter(event) {

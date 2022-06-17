@@ -27,7 +27,7 @@ export class VilleService {
   }
 
   // Get all branches
-  getVilles(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
+  getVilles(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any): Observable<any> {
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);

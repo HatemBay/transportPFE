@@ -27,7 +27,7 @@ export class PickupService {
   }
 
   // Get pickup
-  getPickup(id: any) {
+  getPickup(id: any): Observable<any> {
     const url = `${this.baseUri}/${id}`;
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }
@@ -42,7 +42,7 @@ export class PickupService {
     search?: any,
     startDate?: any,
     endDate?: any
-  ) {
+  ): Observable<any> {
     const url = `${this.baseUri}`;
     var queryParams = new HttpParams();
     if (isAllocated) {

@@ -27,7 +27,13 @@ export class FiliereService {
   }
 
   // Get all branches
-  getFilieres(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
+  getFilieres(
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any
+  ): Observable<any> {
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);

@@ -72,19 +72,6 @@ router.get("/all", (req, res) => {
       },
     },
   ];
-  if (!req.query.tels) {
-    data.push(
-      {
-        $sort: sort,
-      },
-      {
-        $skip: skip,
-      },
-      {
-        $limit: limit,
-      }
-    );
-  }
 
   if (fid) {
     data.push({
@@ -92,39 +79,43 @@ router.get("/all", (req, res) => {
     });
   }
 
-  Client.aggregate(data).exec((err, docs) => {
+  if (!req.query.tels) {
+    data.push({
+      $sort: sort,
+    });
+  }
+
+  Client.aggregate(data).exec((err, client) => {
     if (!err) {
       if (req.query.search && req.query.search.length > 2) {
         if (req.query.tels) {
-          res.send(
-            docs.filter((item) =>
-              item.tel.toString().includes(req.query.search)
-            )
+          client = client.filter((item) =>
+            item.tel.toString().includes(req.query.search)
           );
         } else {
-          res.send(
-            docs.filter(
-              (item) =>
-                item.tel.toString().includes(req.query.search) ||
-                item.tel2?.toString().includes(req.query.search) ||
-                item.codePostale?.toString().includes(req.query.search) ||
-                item.createdAtSearch.toString().includes(req.query.search) ||
-                item.nom
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.ville
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.delegation
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase()) ||
-                item.adresse
-                  .toLowerCase()
-                  .includes(req.query.search.toLowerCase())
-            )
+          client = client.filter(
+            (item) =>
+              item.tel.toString().includes(req.query.search) ||
+              item.tel2?.toString().includes(req.query.search) ||
+              item.codePostale?.toString().includes(req.query.search) ||
+              item.createdAtSearch.toString().includes(req.query.search) ||
+              item.nom.toLowerCase().includes(req.query.search.toLowerCase()) ||
+              item.ville
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.delegation
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase()) ||
+              item.adresse
+                .toLowerCase()
+                .includes(req.query.search.toLowerCase())
           );
         }
-      } else res.send(docs);
+      }
+      return res.send({
+        length: client.length,
+        data: client.slice(skip).slice(0, limit),
+      });
     } else {
       console.log(err);
       res.status(400).send(err.message);

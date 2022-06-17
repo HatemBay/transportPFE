@@ -118,7 +118,10 @@ router.get("/", (req, res) => {
             item.adresse?.toLowerCase().includes(req.query.search.toLowerCase())
         );
       }
-      return res.send(fournisseurs.slice(skip).slice(0, limit));
+      return res.send({
+        length: fournisseurs.length,
+        data: fournisseurs.slice(skip).slice(0, limit),
+      });
     } else {
       console.log("Erreur lors de la récupération des fournisseurs: " + err);
       res

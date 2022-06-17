@@ -27,7 +27,10 @@ router.get("/", (req, res) => {
                 .includes(req.query.search.toLowerCase())
           );
         }
-        return res.send(filieres.slice(skip).slice(0, limit));
+        return res.send({
+          length: filieres.length,
+          data: filieres.slice(skip).slice(0, limit),
+        });
       } else {
         res
           .status(400)

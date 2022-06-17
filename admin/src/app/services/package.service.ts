@@ -40,7 +40,7 @@ export class PackageService {
   }
 
   // Get all packages
-  getPackages() {
+  getPackages(): Observable<any> {
     const url = `${this.baseUri}`;
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }
@@ -56,7 +56,7 @@ export class PackageService {
     search?: any,
     startDate?: any,
     endDate?: any
-  ) {
+  ): Observable<any> {
     const url = `${this.baseUri}/all-info/${id}`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
@@ -83,7 +83,7 @@ export class PackageService {
   }
 
   // get package with cab
-  getPackageByCAB(cab: any) {
+  getPackageByCAB(cab: any): Observable<any> {
     const url = `${this.baseUri}/cab/${cab}`;
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }
@@ -98,7 +98,7 @@ export class PackageService {
     startDate?: any,
     endDate?: any,
     reference?: any
-  ) {
+  ): Observable<any> {
     const url = `${this.baseUri}/all-info-period/admin`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
@@ -136,7 +136,7 @@ export class PackageService {
     sort?: any,
     search?: any,
     date?: any
-  ) {
+  ): Observable<any> {
     const url = `${this.baseUri}/all-info-daily/admin`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
@@ -163,7 +163,7 @@ export class PackageService {
     nom?: any,
     adresse?: any,
     delegation?: any
-  ) {
+  ): Observable<any> {
     const url = `${this.baseUri}/all-info-search/admin`;
     var queryParams = new HttpParams();
     if (CAB) {

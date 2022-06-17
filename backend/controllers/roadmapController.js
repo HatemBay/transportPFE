@@ -166,7 +166,10 @@ router.get("/", (req, res) => {
             item.nomd?.toLowerCase().includes(req.query.search.toLowerCase())
         );
       }
-      return res.send(roadmaps.slice(skip).slice(0, limit));
+      return res.send({
+        length: roadmaps.length,
+        data: roadmaps.slice(skip).slice(0, limit),
+      });
     } else {
       res
         .status(400)

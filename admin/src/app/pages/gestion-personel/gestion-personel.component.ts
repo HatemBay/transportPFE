@@ -93,8 +93,6 @@ export class GestionPersonelComponent implements OnInit {
         email: "",
       });
 
-      this.countUsers();
-
       this.getDataJson();
       this.getFilieres();
       // adding super admin control protection => && this.userId != this.auth.getUserDetails()._id
@@ -147,16 +145,9 @@ export class GestionPersonelComponent implements OnInit {
     this.userService
       .getUsers(limit, page, sortBy, sort, search)
       .subscribe((data) => {
-        this.rows = this.temp = data;
-        console.log(data);
+        this.rows = this.temp = data.data;
+        this.count = data.length;
       });
-  }
-
-  // count users
-  countUsers() {
-    this.userService.countUsers().subscribe((data) => {
-      this.count = data.count;
-    });
   }
 
   updateFilter(event) {

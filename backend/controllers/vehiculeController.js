@@ -86,7 +86,10 @@ router.get("/", (req, res) => {
                 .includes(req.query.search.toLowerCase())
           );
         }
-        return res.send(vehicules.slice(skip).slice(0, limit));
+        return res.send({
+          length: vehicules.length,
+          data: vehicules.slice(skip).slice(0, limit),
+        });
       } else {
         console.log("Erreur lors de la récupération des véhicules: " + err);
         res

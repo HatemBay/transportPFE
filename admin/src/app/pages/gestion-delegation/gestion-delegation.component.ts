@@ -64,7 +64,6 @@ export class GestionDelegationComponent implements OnInit {
       villeId: ["", Validators.required],
     });
 
-    this.countDelegations();
     this.getVilles();
 
     this.getDataJson();
@@ -72,7 +71,7 @@ export class GestionDelegationComponent implements OnInit {
   }
   getVilles() {
     this.villeService.getVilles().subscribe((data) => {
-      this.villes = data;
+      this.villes = data.data;
     });
   }
 
@@ -85,15 +84,9 @@ export class GestionDelegationComponent implements OnInit {
     this.delegationService
       .getDelegations(limit, page, sortBy, sort, search)
       .subscribe((data) => {
-        this.rows = this.temp = data;
+        this.rows = this.temp = data.data;
+        this.count = data.length;
       });
-  }
-
-  // count branches
-  countDelegations() {
-    this.delegationService.countDelegations().subscribe((data) => {
-      this.count = data.count;
-    });
   }
 
   updateFilter(event) {

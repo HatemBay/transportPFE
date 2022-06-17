@@ -73,7 +73,7 @@ export class CbRamassageComponent implements OnInit {
       .getFullPackages(limit, page, sortBy, sort, search, null, null, reference)
       .subscribe((data) => {
         const len = this.rows.length;
-        this.rows = this.temp = data;
+        this.rows = this.temp = data.data;
         if (this.rows.length === len) this.references.splice(-1);
         for (const item of this.rows) {
           item.c_remboursement = parseFloat(

@@ -4,15 +4,12 @@ var _ = require("underscore");
 var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
 
-const { access } = require("../middlewares");
-
 const { Package } = require("../models/package");
 const { Historique } = require("../models/historique");
 const { User } = require("../models/users");
 const { Client } = require("../models/client");
 const { Fournisseur } = require("../models/fournisseur");
 const { default: mongoose } = require("mongoose");
-const { query } = require("express");
 
 // Read all
 router.get("/", (req, res) => {
@@ -244,9 +241,10 @@ router.get("/all-info/:fid", async (req, res) => {
       if (req.query.search && req.query.search.length > 2) {
         //* Searching criterias differ between client and admin side,
         //* since we're using the 'type' query parameter only in admin we're putting different search criterias in this condition
-        if (req.query.type != "") {
+        if (req.query.type && req.query.type != "") {
           doc = doc.filter(
             (item) =>
+              item.CAB.toString().includes(req.query.search) ||
               item.createdAtSearch.toString().includes(req.query.search) ||
               item.nomf
                 .toLowerCase()
@@ -259,23 +257,16 @@ router.get("/all-info/:fid", async (req, res) => {
                 .includes(req.query.search.toLowerCase())
           );
         } else {
+          //* Client side filtering
           doc = doc.filter(
             (item) =>
+              item.CAB.toString().includes(req.query.search) ||
               item.telc.toString().includes(req.query.search) ||
               item.tel2c?.toString().includes(req.query.search) ||
               item.c_remboursement.toString().includes(req.query.search) ||
               item.codePostalec?.toString().includes(req.query.search) ||
               item.createdAtSearch.toString().includes(req.query.search) ||
               item.nomc
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.nomf
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.villef
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.delegationf
                 .toLowerCase()
                 .includes(req.query.search.toLowerCase()) ||
               item.villec
@@ -285,12 +276,15 @@ router.get("/all-info/:fid", async (req, res) => {
                 ?.toLowerCase()
                 .includes(req.query.search.toLowerCase()) ||
               item.adressec
-                .toLowerCase()
+                ?.toLowerCase()
                 .includes(req.query.search.toLowerCase())
           );
         }
       }
-      return res.send(doc.slice(skip).slice(0, limit));
+      return res.send({
+        length: doc.length,
+        data: doc.slice(skip).slice(0, limit),
+      });
     } else console.log("Erreur lors de la récupération des colis: " + err);
   });
 });
@@ -420,7 +414,10 @@ router.get("/all-info-daily/admin", (req, res) => {
             item.adressec.toLowerCase().includes(req.query.search.toLowerCase())
         );
       }
-      return res.send(doc.slice(skip).slice(0, limit));
+      return res.send({
+        length: doc.length,
+        data: doc.slice(skip).slice(0, limit),
+      });
     } else console.log("Erreur lors de la récupération des colis: " + err);
   });
 });
@@ -612,7 +609,10 @@ router.get("/all-info-period/admin", (req, res) => {
             item.adressec.toLowerCase().includes(req.query.search.toLowerCase())
         );
       }
-      return res.send(doc.slice(skip).slice(0, limit));
+      return res.send({
+        length: doc.length,
+        data: doc.slice(skip).slice(0, limit),
+      });
     } else console.log("Erreur lors de la récupération des colis: " + err);
   });
 });
@@ -1052,7 +1052,7 @@ router.get("/all-info-search/admin", (req, res) => {
       } else if (tel) {
         doc = doc.filter((item) => item.telc.toString().includes(tel));
       }
-      return res.send(doc.slice(skip).slice(0, limit));
+      return res.send(doc);
     } else console.log("Erreur lors de la récupération du colis: " + err);
   });
 });

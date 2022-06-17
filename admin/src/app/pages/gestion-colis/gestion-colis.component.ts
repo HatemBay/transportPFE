@@ -97,8 +97,6 @@ export class GestionColisComponent implements OnInit {
       this.onDateFormValueChange(data)
     );
 
-    this.countPackages();
-
     this.getDataJson();
   }
 
@@ -119,13 +117,8 @@ export class GestionColisComponent implements OnInit {
     this.packageService
       .getFullPackages(limit, page, sortBy, sort, search, startDate, endDate)
       .subscribe((data) => {
-        this.rows = this.temp = data;
-        for (const item of this.rows) {
-          item.c_remboursement = parseFloat(
-            item.c_remboursement.toString()
-          ).toFixed(3);
-          // console.log(item.c_remboursement);
-        }
+        this.rows = this.temp = data.data;
+        this.count = data.length;
       });
   }
 
@@ -146,14 +139,6 @@ export class GestionColisComponent implements OnInit {
     this.startDate = data.startDate;
   }
 
-  private countPackages(startDate?: any, endDate?: any) {
-    this.packageService
-      .countAllPackagesAdmin(null, startDate, endDate)
-      .subscribe((res) => {
-        this.count = res.count;
-      });
-  }
-
   // filter data
   updateFilter(event) {
     var startDate = null;
@@ -162,8 +147,8 @@ export class GestionColisComponent implements OnInit {
       startDate = this.startDate;
       endDate = this.today;
     }
+    this.val = event.target.value.toLowerCase();
     if (event.target.value.length > 2) {
-      this.val = event.target.value.toLowerCase();
       this.getDataJson(
         this.currentPageLimit,
         1,
@@ -443,8 +428,6 @@ export class GestionColisComponent implements OnInit {
     //dates are set when the view is initiated so when table search is implemented it will use those values regardless of initiating date periods search
     //so we need to use a variable that checks if the time periods search has been initiated at least once
     this.init = true;
-    console.log(this.startDate);
-    console.log(this.today);
 
     this.getDataJson(
       null,
@@ -455,6 +438,5 @@ export class GestionColisComponent implements OnInit {
       this.startDate,
       this.today
     );
-    this.countPackages(this.startDate, this.today);
   }
 }

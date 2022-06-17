@@ -71,7 +71,7 @@ export class PackageService {
     etat?: any,
     startDate?: any,
     endDate?: any,
-  ) {
+  ): Observable<any> {
     const url = `${this.baseUri}/all-info/${this.userId}`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);

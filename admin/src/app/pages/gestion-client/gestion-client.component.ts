@@ -94,8 +94,6 @@ export class GestionClientComponent implements OnInit {
       //detect changes in form controls
       this.onChanges();
 
-      this.countClients();
-
       this.getDataJson();
       // this.findAll();
     } else {
@@ -168,13 +166,14 @@ export class GestionClientComponent implements OnInit {
     this.fournisseurService
       .getFournisseurs(limit, page, sortBy, sort, search)
       .subscribe((data) => {
-        this.rows = this.temp = data;
+        this.rows = this.temp = data.data;
+        this.count = data.length;
       });
   }
 
   updateFilter(event) {
+    this.val = event.target.value.toLowerCase();
     if (event.target.value.length > 2) {
-      this.val = event.target.value.toLowerCase();
       this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getDataJson(this.currentPageLimit, 1, null, null, null);
@@ -201,13 +200,6 @@ export class GestionClientComponent implements OnInit {
 
   private changePageLimit(limit: any): void {
     this.currentPageLimit = parseInt(limit, 10);
-  }
-
-  private countClients() {
-    this.fournisseurService.countAllFournisseurs().subscribe((res) => {
-      this.count = res.count;
-      console.log(this.count);
-    });
   }
 
   onFooterPage(event) {

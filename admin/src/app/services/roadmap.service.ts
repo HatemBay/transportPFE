@@ -27,13 +27,13 @@ export class RoadmapService {
   }
 
   // Get roadmap
-  getRoadmap(id: any) {
+  getRoadmap(id: any): Observable<any> {
     const url = `${this.baseUri}/${id}`;
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }
 
   // Get last roadmap number
-  getLastRoadmapNb() {
+  getLastRoadmapNb(): Observable<any> {
     const url = `${this.baseUri}/nb/last`;
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }
@@ -49,7 +49,7 @@ export class RoadmapService {
     endDate?: any,
     driver?: any,
     noLimit?: any
-  ) {
+  ): Observable<any> {
     const url = `${this.baseUri}`;
     var queryParams = new HttpParams();
 

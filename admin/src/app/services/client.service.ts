@@ -42,7 +42,7 @@ export class ClientService {
       .pipe(catchError(this.errorMgmt));
   }
   // Get all clients
-  getClients(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
+  getClients(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any): Observable<any> {
     const url = `${this.baseUri}/all`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);

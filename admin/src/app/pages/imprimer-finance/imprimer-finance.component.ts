@@ -89,7 +89,7 @@ export class ImprimerFinanceComponent implements OnInit {
         map(async (data) => {
           var result: any = [];
           var packages: any = [];
-          packages = data;
+          packages = data.data;
           for (let item of packages) {
             if (
               item.etat === "livré (espèce)" ||

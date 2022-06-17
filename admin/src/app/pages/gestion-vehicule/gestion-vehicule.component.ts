@@ -106,8 +106,6 @@ export class GestionVehiculeComponent implements OnInit {
         kilometrage: ["", Validators.required],
       });
 
-      this.countUsers();
-
       this.getDataJson();
       // console.log(this.error != "none");
     } else {
@@ -171,7 +169,7 @@ export class GestionVehiculeComponent implements OnInit {
   }
 
   getChauffeurs() {
-    this.userService.getUsersByRole('chauffeur').subscribe((data) => {
+    this.userService.getUsersByRole("chauffeur").subscribe((data) => {
       this.chauffeurs = data;
     });
   }
@@ -191,7 +189,7 @@ export class GestionVehiculeComponent implements OnInit {
     this.vehiculeService
       .getVehicules(limit, page, sortBy, sort, search)
       .subscribe((data) => {
-        data.forEach((element) => {
+        data.data.forEach((element) => {
           // rendering image data into readable format
           this.images.push(
             this.sanitizer.bypassSecurityTrustResourceUrl(
@@ -203,18 +201,9 @@ export class GestionVehiculeComponent implements OnInit {
           );
         });
         // console.log(this.images);
-
-        this.rows = this.temp = data;
-
-        console.log(data);
+        this.rows = this.temp = data.data;
+        this.count = data.length;
       });
-  }
-
-  // count users
-  countUsers() {
-    this.vehiculeService.countVehicules().subscribe((data) => {
-      this.count = data.count;
-    });
   }
 
   updateFilter(event) {

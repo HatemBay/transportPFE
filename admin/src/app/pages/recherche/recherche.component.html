@@ -36,32 +36,10 @@
                   </div>
                   <div class="form-group row">
                     <label class="text-right my-auto col-md-4" for="inputEmail4">Gouvernorat</label>
-                    <select formControlName="delegation" name="ville_cl" class="form-control col-md-6" id="ville">
+                    <select formControlName="villeId" name="ville_cl" class="form-control col-md-6" id="ville">
                       <option hidden="" value="" selected="">-- Choisir --</option>
-                      <option data-value="1" value="Ariana">Ariana</option>
-                      <option data-value="2" value="Béja">Béja</option>
-                      <option data-value="3" value="Ben Arous">Ben Arous</option>
-                      <option data-value="4" value="Bizerte">Bizerte</option>
-                      <option data-value="5" value="Gabés">Gabés</option>
-                      <option data-value="6" value="Gafsa">Gafsa</option>
-                      <option data-value="7" value="Jendouba">Jendouba</option>
-                      <option data-value="8" value="Kairouan">Kairouan</option>
-                      <option data-value="9" value="Kasserine">Kasserine</option>
-                      <option data-value="10" value="Kébili">Kébili</option>
-                      <option data-value="11" value="Le Kef">Le Kef</option>
-                      <option data-value="12" value="Mahdia">Mahdia</option>
-                      <option data-value="13" value="La Manouba">La Manouba</option>
-                      <option data-value="14" value="Médenine">Médenine</option>
-                      <option data-value="15" value="Monastir">Monastir</option>
-                      <option data-value="16" value="Nabeul">Nabeul</option>
-                      <option data-value="17" value="Sfax">Sfax</option>
-                      <option data-value="18" value="Sidi Bouzid">Sidi Bouzid</option>
-                      <option data-value="19" value="Siliana">Siliana</option>
-                      <option data-value="20" value="Sousse">Sousse</option>
-                      <option data-value="21" value="Tataouine">Tataouine</option>
-                      <option data-value="22" value="Tozeur">Tozeur</option>
-                      <option data-value="23" value="Tunis">Tunis</option>
-                      <option data-value="24" value="Zaghouan">Zaghouan</option>
+                      <option *ngFor="let ville of villes" [value]="ville._id">
+                        {{ ville.nom | titlecase }} </option>
                     </select>
                   </div>
                 </div>

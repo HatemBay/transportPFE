@@ -85,8 +85,8 @@ export class DechargeComponent implements OnInit {
 
   // dynamic search (triggers after inserting 3 characters)
   updateFilter(event) {
-    if (event.target.value.length > 2) {
       this.val = event.target.value.toLowerCase();
+      if (event.target.value.length > 2) {
       this.getPackages(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getPackages(this.currentPageLimit, 1);

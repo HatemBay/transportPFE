@@ -8,10 +8,7 @@ import {
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { FiliereService } from "src/app/services/filiere.service";
 import { NgbActiveModal, NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import {
-  FormBuilder,
-  Validators,
-} from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 
 @Component({
   selector: "app-gestion-filiere",
@@ -64,8 +61,6 @@ export class GestionFiliereComponent implements OnInit {
       adresse: ["", Validators.required],
     });
 
-    this.countFilieres();
-
     this.getDataJson();
     console.log(this.error != "none");
   }
@@ -79,15 +74,9 @@ export class GestionFiliereComponent implements OnInit {
     this.filiereService
       .getFilieres(limit, page, sortBy, sort, search)
       .subscribe((data) => {
-        this.rows = this.temp = data;
+        this.rows = this.temp = data.data;
+        this.count = data.length;
       });
-  }
-
-  // count branches
-  countFilieres() {
-    this.filiereService.countFilieres().subscribe((data) => {
-      this.count = data.count;
-    });
   }
 
   updateFilter(event) {

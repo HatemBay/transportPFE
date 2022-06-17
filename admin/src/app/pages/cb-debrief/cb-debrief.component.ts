@@ -92,8 +92,6 @@ export class CbDebriefComponent implements OnInit {
         this.onDateFormValueChange(data)
       );
 
-      this.countRoadmaps(this.date, this.date);
-
       this.getRoadmaps(null, null, null, null, null, this.date, this.date);
     } else if (this.routePath == "debrief-detail") {
       this.columns = [
@@ -101,8 +99,6 @@ export class CbDebriefComponent implements OnInit {
         { prop: "nbPackages", name: "Tous" },
         { prop: "createdAtSearch", name: "Date" },
       ];
-      this.countRoadmaps(this.startDate, this.endDate, this.driverId);
-
       this.getRoadmaps(
         null,
         null,
@@ -113,7 +109,6 @@ export class CbDebriefComponent implements OnInit {
         this.endDate,
         this.driver
       );
-
     } else {
       this.initiateData();
     }
@@ -154,11 +149,19 @@ export class CbDebriefComponent implements OnInit {
     driver?: any
   ) {
     this.roadmapService
-      .getRoadmaps(limit, page, sortBy, sort, search, startDate, endDate, driver)
+      .getRoadmaps(
+        limit,
+        page,
+        sortBy,
+        sort,
+        search,
+        startDate,
+        endDate,
+        driver
+      )
       .subscribe((data) => {
-        this.rows = this.temp = data;
-        console.log(data);
-
+        this.rows = this.temp = data.data;
+        this.count = data.length;
       });
   }
 
@@ -190,13 +193,6 @@ export class CbDebriefComponent implements OnInit {
     //   .toPromise();
   }
 
-  // count roadmaps
-  countRoadmaps(startDate, endDate, driver?) {
-    this.roadmapService.countRoadmaps(startDate, endDate, driver).subscribe((data) => {
-      this.count = data.count;
-    });
-  }
-
   get f() {
     return this.dateForm.controls;
   }
@@ -212,7 +208,15 @@ export class CbDebriefComponent implements OnInit {
 
   updateFilter(event) {
     this.val = event.target.value.toLowerCase();
-    this.getRoadmaps(this.currentPageLimit, 1, null, null, this.val, this.date, this.date);
+    this.getRoadmaps(
+      this.currentPageLimit,
+      1,
+      null,
+      null,
+      this.val,
+      this.date,
+      this.date
+    );
   }
 
   // When number of displayed elements changes

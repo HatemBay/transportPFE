@@ -162,7 +162,10 @@ router.get("/", (req, res) => {
               .includes(req.query.search.toLowerCase())
         );
       }
-      return res.send(pickups.slice(skip).slice(0, limit));
+      return res.send({
+        length: pickups.length,
+        data: pickups.slice(skip).slice(0, limit),
+      });
     } else {
       res
         .status(400)

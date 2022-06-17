@@ -62,11 +62,6 @@ export class GestionColisComponent implements OnInit {
     private router: Router
   ) {}
   ngOnInit(): void {
-    this.columns = [
-      { prop: "nomc", name: "Nom & Prénom" },
-      { prop: "villec", name: "Ville" },
-      { prop: "c_remboursement", name: "COD" },
-    ];
 
     this.setDates();
 
@@ -78,8 +73,6 @@ export class GestionColisComponent implements OnInit {
     this.dateForm.valueChanges.subscribe((data) =>
       this.onDateFormValueChange(data)
     );
-
-    this.countPackages();
 
     this.getDataJson();
     // this.findAll();
@@ -111,24 +104,15 @@ export class GestionColisComponent implements OnInit {
           endDate
         )
         .subscribe((data) => {
-          this.rows = this.temp = data;
-          for (const item of this.rows) {
-            item.c_remboursement = parseFloat(
-              item.c_remboursement.toString()
-            ).toFixed(3);
-            // console.log(item.c_remboursement);
-          }
+          this.rows = this.temp = data.data;
+          this.count = data.length;
         });
     } else {
       this.packageService
         .getFullPackages(null, limit, page, sortBy, sort, search, etat)
         .subscribe((data) => {
-          this.rows = this.temp = data;
-          for (const item of this.rows) {
-            item.c_remboursement = parseFloat(
-              item.c_remboursement.toString()
-            ).toFixed(3);
-          }
+          this.rows = this.temp = data.data;
+          this.count = data.length;
         });
     }
   }
@@ -175,8 +159,10 @@ export class GestionColisComponent implements OnInit {
         state = element.value;
       }
     }
+    this.val = event.target.value.toLowerCase();
+    console.log(this.val);
+
     if (event.target.value.length > 2) {
-      this.val = event.target.value.toLowerCase();
       this.getDataJson(
         this.currentPageLimit,
         1,
@@ -361,7 +347,6 @@ export class GestionColisComponent implements OnInit {
       this.startDate,
       this.today
     );
-    this.countPackages();
   }
 
   update() {
@@ -386,7 +371,5 @@ export class GestionColisComponent implements OnInit {
       this.startDate,
       this.today
     );
-
-    this.countPackages(this.startDate, this.today);
   }
 }

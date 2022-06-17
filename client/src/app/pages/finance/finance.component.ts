@@ -98,8 +98,8 @@ export class FinanceComponent implements OnInit {
   }
 
   updateFilter(event) {
-    if (event.target.value.length > 2) {
       this.val = event.target.value.toLowerCase();
+      if (event.target.value.length > 2) {
       this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getDataJson(this.currentPageLimit, 1, null, null, null);

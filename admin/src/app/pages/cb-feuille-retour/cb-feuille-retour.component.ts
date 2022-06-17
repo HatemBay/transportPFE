@@ -185,15 +185,36 @@ export class CbFeuilleRetourComponent implements OnInit {
   }
 
   async getDrivers(): Promise<any> {
-    return await this.userService.getUsersByRole("chauffeur").toPromise();
+    return await this.userService
+      .getUsersByRole("chauffeur")
+      .pipe(
+        map((data) => {
+          return data.data;
+        })
+      )
+      .toPromise();
   }
 
   async getProviders() {
-    return await this.fournisseurService.getFournisseurs().toPromise();
+    return await this.fournisseurService
+      .getFournisseurs()
+      .pipe(
+        map((data) => {
+          return data.data;
+        })
+      )
+      .toPromise();
   }
 
   async getVehicles() {
-    return await this.vehiculeService.getVehicules().toPromise();
+    return await this.vehiculeService
+      .getVehicules()
+      .pipe(
+        map((data) => {
+          return data.data;
+        })
+      )
+      .toPromise();
   }
 
   async getPackagesByProvider(

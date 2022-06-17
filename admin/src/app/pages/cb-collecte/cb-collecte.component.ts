@@ -40,7 +40,7 @@ export class CbCollecteComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private packageService: PackageService,
-    private authService: AuthenticationService,
+    private authService: AuthenticationService
   ) {}
 
   ngOnInit(): void {
@@ -75,7 +75,7 @@ export class CbCollecteComponent implements OnInit {
       .getFullPackages(limit, page, sortBy, sort, search, null, null, reference)
       .subscribe((data) => {
         const len = this.rows.length;
-        this.rows = this.temp = data;
+        this.rows = this.temp = data.data;
         if (this.rows.length === len) this.references.splice(-1);
         for (const item of this.rows) {
           item.c_remboursement = parseFloat(
@@ -141,7 +141,10 @@ export class CbCollecteComponent implements OnInit {
   public changeState() {
     this.references.forEach((element) => {
       this.packageService
-        .updatePackageByCAB(element, { etat: "collecté", userId: this.authService.getUserDetails()._id }) //* userId has no use for now
+        .updatePackageByCAB(element, {
+          etat: "collecté",
+          userId: this.authService.getUserDetails()._id,
+        }) //* userId has no use for now
         .subscribe(() => {
           // clear references
           this.references = [];

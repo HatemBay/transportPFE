@@ -69,10 +69,7 @@ export class ColisJourComponent implements OnInit {
       this.onDateFormValueChange(data)
     );
 
-    this.countPackages();
-
     this.getDataJson();
-    // this.findAll();
   }
 
   setDates() {
@@ -84,13 +81,8 @@ export class ColisJourComponent implements OnInit {
     this.packageService
       .getDailyPackages(limit, page, sortBy, sort, search, this.date)
       .subscribe((data) => {
-        this.rows = this.temp = data;
-        for (const item of this.rows) {
-          item.c_remboursement = parseFloat(
-            item.c_remboursement.toString()
-          ).toFixed(3);
-          console.log(item.c_remboursement);
-        }
+        this.rows = this.temp = data.data;
+        this.count = data.length;
       });
   }
   // save changes in credentials
@@ -98,17 +90,9 @@ export class ColisJourComponent implements OnInit {
     this.date = data.date;
   }
 
-  private countPackages() {
-    this.packageService
-      .countAllPackagesAdminDaily(this.date)
-      .subscribe((res) => {
-        this.count = res.count;
-      });
-  }
-
   updateFilter(event) {
+    this.val = event.target.value.toLowerCase();
     if (event.target.value.length > 2) {
-      this.val = event.target.value.toLowerCase();
       this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getDataJson(this.currentPageLimit, 1);
@@ -196,6 +180,5 @@ export class ColisJourComponent implements OnInit {
 
   update() {
     this.getDataJson();
-    this.countPackages();
   }
 }

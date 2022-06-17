@@ -59,7 +59,10 @@ router.get("/", (req, res) => {
             item.ville?.toLowerCase().includes(req.query.search.toLowerCase())
         );
       }
-      return res.send(delegations.slice(skip).slice(0, limit));
+      return res.send({
+        length: delegations.length,
+        data: delegations.slice(skip).slice(0, limit),
+      });
     } else {
       console.log("Erreur lors de la récupération des delegations: " + err);
       res
