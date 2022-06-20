@@ -192,7 +192,8 @@
                   <label class="form-label">Service (*)</label>
                   <select formControlName="service" [value]="packageForm.service || null" name="service"
                     class="form-control">
-                    <option value="livraison" selected>Livraison</option>
+                    <option hidden="" value="">-- Choisir service--</option>
+                    <option value="livraison">Livraison</option>
                     <option value="collection">Collecte</option>
                     <option value="echange">Echange</option>
                   </select>

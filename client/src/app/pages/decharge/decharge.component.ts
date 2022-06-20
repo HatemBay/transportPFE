@@ -2,6 +2,7 @@ import { PackageService } from "src/app/services/package.service";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { NavigationExtras, Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { map } from "rxjs/internal/operators/map";
 
 @Component({
   selector: "app-decharge",
@@ -27,6 +28,7 @@ export class DechargeComponent implements OnInit {
   packages: any = [];
   rows: any = [];
   selected: any = [];
+  count: number;
   public columns: Array<object>;
   printable: boolean = false;
   val: string;
@@ -37,8 +39,7 @@ export class DechargeComponent implements OnInit {
   }
 
   async initiateData() {
-    this.rows = await this.getPackages();
-    console.log(this.rows);
+    this.getPackages();
   }
 
   async getPackages(
@@ -48,9 +49,12 @@ export class DechargeComponent implements OnInit {
     sort?: string,
     search?: string
   ) {
-    return await this.packageService
+    return this.packageService
       .getFullPackages("pickup", limit, page, sortBy, sort, search)
-      .toPromise();
+      .subscribe((data) => {
+        this.rows = data.data;
+        this.count = data.length;
+      });
   }
 
   // print selecetd elements
@@ -85,8 +89,8 @@ export class DechargeComponent implements OnInit {
 
   // dynamic search (triggers after inserting 3 characters)
   updateFilter(event) {
-      this.val = event.target.value.toLowerCase();
-      if (event.target.value.length > 2) {
+    this.val = event.target.value.toLowerCase();
+    if (event.target.value.length > 2) {
       this.getPackages(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getPackages(this.currentPageLimit, 1);
@@ -127,6 +131,11 @@ export class DechargeComponent implements OnInit {
   // change pages in footer
   changePage(page: any) {
     this.currentPage = parseInt(page, 10);
+  }
+
+  // preserve the ui presenting selected elements after changing pages
+  getId(row) {
+    return row._id;
   }
 
   // checkbox selection

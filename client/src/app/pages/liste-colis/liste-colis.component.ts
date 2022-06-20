@@ -60,7 +60,7 @@ export class ListeColisComponent implements OnInit {
 
     this.getDataJson();
     // this.findAll();
-    console.log(this.temp[0]);
+    // console.log(this.temp[0]);
   }
 
   // get data from backend
@@ -70,16 +70,12 @@ export class ListeColisComponent implements OnInit {
       .subscribe((data) => {
         this.rows = this.temp = data.data;
         this.count = data.length;
-        console.log("data");
-
-        console.log(data.data);
-        // console.log(this.temp);
       });
   }
 
   // dynamic search (triggers after inserting 3 characters)
   updateFilter(event) {
-      this.val = event.target.value.toLowerCase();
+    this.val = event.target.value.toLowerCase();
     if (event.target.value.length > 2) {
       this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
@@ -101,8 +97,6 @@ export class ListeColisComponent implements OnInit {
 
   // elements sorting
   onSort(event) {
-    console.log(event);
-    console.log(event.sorts[0].prop);
     this.getDataJson(
       this.currentPageLimit,
       event.page,
@@ -121,18 +115,18 @@ export class ListeColisComponent implements OnInit {
   // change pages in footer
   changePage(page: any) {
     this.currentPage = parseInt(page, 10);
+    console.log("change");
+    console.log(this.selected);
   }
 
   // update package
   modify(data) {
-    console.log(data.clientId);
     var navigationExtras: NavigationExtras = {
       queryParams: {
         packageId: data._id,
         clientId: data.clientId,
       },
     };
-    console.log(navigationExtras.queryParams);
 
     this.router.navigate(["/modifier-colis"], navigationExtras);
   }
@@ -167,23 +161,25 @@ export class ListeColisComponent implements OnInit {
         packageId: data._id,
       },
     };
-    console.log(navigationExtras.queryParams);
 
     this.router.navigate(["/details-colis"], navigationExtras);
   }
 
   // checkbox selection
   onSelect(event) {
-    // console.log("Select Event", event);
-
     this.selected = event.selected;
+    console.log("selected");
+    console.log(this.selected);
     if (this.selected.length > 0) {
       this.printable = true;
     } else {
       this.printable = false;
     }
+  }
 
-    // console.log(this.selected[0]._id);
+  // preserve the ui presenting selected elements after changing pages
+  getId(row) {
+    return row._id;
   }
 
   // print selecetd elements
@@ -199,7 +195,6 @@ export class ListeColisComponent implements OnInit {
     var navigationExtras: NavigationExtras = {
       queryParams,
     };
-    console.log(navigationExtras.queryParams);
 
     const url = this.router.serializeUrl(
       this.router.createUrlTree(["/imprimer-colis"], navigationExtras)

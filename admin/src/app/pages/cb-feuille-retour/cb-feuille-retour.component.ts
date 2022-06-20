@@ -249,6 +249,11 @@ export class CbFeuilleRetourComponent implements OnInit {
       });
   }
 
+  // preserve the ui presenting selected elements after changing pages
+  getId(row) {
+    return row._id;
+  }
+
   // checkbox selection
   onSelect(event) {
     // console.log("Select Event", event);

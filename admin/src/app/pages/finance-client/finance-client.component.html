@@ -90,7 +90,7 @@
         <div>
           <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
             [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
-            [selectionType]="'checkbox'" (sort)="onSort($event)">
+            [selectionType]="'checkbox'" [rowIdentity]="getId" (sort)="onSort($event)">
 
             <ngx-datatable-column [checkboxable]="true" [headerCheckboxable]="true" name="Code à barre">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>

@@ -106,6 +106,11 @@ export class FinanceComponent implements OnInit {
     }
   }
 
+    // preserve the ui presenting selected elements after changing pages
+    getId(row) {
+      return row._id;
+    }
+
   onSelect({ selected }) {
     console.log("Select Event", selected, this.selected);
 

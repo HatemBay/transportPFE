@@ -99,6 +99,12 @@ export class FinanceComponent implements OnInit {
     }
   }
 
+  // preserve the ui presenting selected elements after changing pages
+  getId(row) {
+    return row._id;
+  }
+
+  // on checkbox selection
   onSelect({ selected }) {
     console.log("Select Event", selected, this.selected);
 

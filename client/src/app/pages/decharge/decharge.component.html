@@ -31,7 +31,7 @@
         <div>
           <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
             [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
-            [selectionType]="'checkbox'" (select)="onSelect($event)" (sort)="onSort($event)">
+            [selectionType]="'checkbox'" [rowIdentity]="getId" (select)="onSelect($event)" (sort)="onSort($event)">
 
             <ngx-datatable-column name="" [width]="30" [sortable]="false" [draggable]="false" [resizeable]="false"
               [canAutoResize]="false" [checkboxable]="true" [headerCheckboxable]="true" prop="selected">

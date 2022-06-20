@@ -137,7 +137,7 @@
           </div>
         </div>
         <div>
-          <ngx-datatable #table class="bootstrap" [selectionType]="'checkbox'" [rows]="rows" [columns]="columns"
+          <ngx-datatable #table class="bootstrap" [selectionType]="'checkbox'" [rowIdentity]="getId" [rows]="rows" [columns]="columns"
             [columnMode]="'force'" [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'"
             [scrollbarH]="true" [externalSorting]="true" (select)="onSelect($event)" (sort)="onSort($event)">
 
