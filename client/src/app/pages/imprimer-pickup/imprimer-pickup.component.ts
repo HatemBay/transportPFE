@@ -45,6 +45,8 @@ export class ImprimerPickupComponent implements OnInit {
             .updatePackage(element._id, { etat: "pret" })
             .subscribe();
         }
+        console.log("created");
+
       });
   }
 

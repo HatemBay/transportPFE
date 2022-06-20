@@ -18,7 +18,7 @@
                 <div class="form-group">
                   <label class="form-label">Téléphone (*)</label>
                   <input list="phones" name="phones" formControlName="tel" id="tel" class="form-control" type="number"
-                    autocomplete="off" (keyup)="searchPhones($event)" (change)="importClient($event)" >
+                    autocomplete="off" (keyup)="searchPhones($event)" (change)="importClient($event)">
                   <datalist id="phones">
                     <option *ngFor="let client of clients" [value]="client.tel">
                       {{ client.tel }}
@@ -99,7 +99,7 @@
                     </ng-container>
                   </ng-container>
                 </div>
-<!--
+                <!--
                 <div class="form-group">
                   <label class="form-label">Ville (*)</label>
                   <select formControlName="ville" [value]="packageForm.ville" class="form-control" name="ville_cl"

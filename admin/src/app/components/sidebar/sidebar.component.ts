@@ -4,6 +4,7 @@ import { AuthenticationService } from "src/app/services/authentication.service";
 import { io } from "socket.io-client";
 import { PackageService } from "src/app/services/package.service";
 import { map } from "rxjs/internal/operators/map";
+import { PickupService } from "src/app/services/pickup.service";
 
 declare interface RouteInfo {
   path: string;
@@ -230,7 +231,7 @@ export class SidebarComponent implements OnInit {
   constructor(
     private router: Router,
     private auth: AuthenticationService,
-    private packageService: PackageService
+    private pickupService: PickupService
   ) {
     // role management
     this.role = this.auth.getUserDetails().role;
@@ -252,8 +253,8 @@ export class SidebarComponent implements OnInit {
   }
 
   async countTodayPackages() {
-    return await this.packageService
-      .countToday()
+    return await this.pickupService
+      .notify()
       .pipe(
         map((data) => {
           return data.count;

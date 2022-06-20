@@ -51,25 +51,29 @@ export class DechargeComponent implements OnInit {
   ) {
     return this.packageService
       .getFullPackages("pickup", limit, page, sortBy, sort, search)
-      .subscribe((data) => {
-        this.rows = data.data;
-        this.count = data.length;
-      });
+      .pipe(
+        map((data) => {
+          this.rows = data.data;
+          this.count = data.length;
+        })
+      )
+      .toPromise();
   }
 
   // print selecetd elements
   print() {
     var ids = [];
+
     for (var el of this.selected) {
       ids.push(el._id);
     }
+
     // Create our query parameters object
     const queryParams: any = {};
     queryParams.packages = JSON.stringify(ids);
     var navigationExtras: NavigationExtras = {
       queryParams,
     };
-    console.log(navigationExtras.queryParams);
 
     const url = this.router.serializeUrl(
       this.router.createUrlTree(["/imprimer-pickup"], navigationExtras)
@@ -83,8 +87,12 @@ export class DechargeComponent implements OnInit {
     WindowPrt.setTimeout(function () {
       WindowPrt.focus();
       WindowPrt.print();
+      location.reload();
+
       // WindowPrt.close();
     }, 1000);
+    // update list
+    this.getPackages();
   }
 
   // dynamic search (triggers after inserting 3 characters)

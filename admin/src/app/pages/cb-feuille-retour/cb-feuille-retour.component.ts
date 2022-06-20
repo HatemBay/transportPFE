@@ -79,17 +79,6 @@ export class CbFeuilleRetourComponent implements OnInit {
     this.fournisseurs = await this.getProviders();
     this.chauffeurs = await this.getDrivers();
     this.vehicules = await this.getVehicles();
-    console.log(this.fournisseurs);
-    console.log(this.chauffeurs);
-    console.log(this.vehicules);
-    // this.getPackagesByProvider(
-    //   this.fournisseurs[0]._id,
-    //   this.currentPageLimit,
-    //   1,
-    //   null,
-    //   null,
-    //   null
-    // );
   }
 
   get f() {
@@ -238,7 +227,7 @@ export class CbFeuilleRetourComponent implements OnInit {
       .subscribe(async (data) => {
         var result: any = [];
         var packages: any = [];
-        packages = data;
+        packages = data.data;
         for (let item of packages) {
           if (item.etat === "annulé") {
             result = [...result, item];
@@ -246,6 +235,7 @@ export class CbFeuilleRetourComponent implements OnInit {
         }
 
         this.rows = this.temp = result;
+        this.count = data.length;
       });
   }
 

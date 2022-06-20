@@ -66,6 +66,10 @@ var PackageSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    pickupId: {
+      type: Schema.Types.ObjectId,
+      ref: "Pickup",
+    },
     historique: [
       {
         type: Schema.Types.ObjectId,
@@ -75,7 +79,6 @@ var PackageSchema = new Schema(
   },
   {
     timestamps: true,
-    
   }
 );
 

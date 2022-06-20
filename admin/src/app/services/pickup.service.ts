@@ -32,6 +32,12 @@ export class PickupService {
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }
 
+  // Get notification
+  notify(): Observable<any> {
+    const url = `${this.baseUri}/daily-package/notification`;
+    return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
+  }
+
   // Get all pickups with all foreign info
   getPickups(
     isAllocated?: any,

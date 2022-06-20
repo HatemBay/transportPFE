@@ -96,7 +96,9 @@
               <ng-container *ngIf="!menuItem.collapsable; else collapsable">
                 <a routerLinkActive="active" [routerLink]="[menuItem.path]" class="nav-link">
                   <i class="ni {{menuItem.icon}}"></i>
-                  {{menuItem.title}}
+                  {{menuItem.title}} <ng-container *ngIf="menuItem.title == 'Colis de jour'"> <span
+                      class="badge badge-pill badge-success ml-4">{{packageCount}}</span>
+                  </ng-container>
                 </a>
               </ng-container>
               <!-- TODO: to be improved -->
@@ -146,7 +148,7 @@
       <ul class="navbar-nav mb-md-3">
         <li class="nav-item">
           <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard-angular/documentation/tutorial">
-            <i class="ni ni-spaceship"></i> Getting started {{packageCount}}
+            <i class="ni ni-spaceship"></i> Getting started
           </a>
         </li>
         <li class="nav-item">

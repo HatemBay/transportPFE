@@ -39,6 +39,7 @@ export class FinanceClientComponent implements OnInit {
   packages: any = [];
   success: boolean = false;
   toPrint: boolean = false;
+  totalCOD: number = 0;
 
   public currentPageLimit: number = 10;
   public currentPage: number = 1;
@@ -102,9 +103,10 @@ export class FinanceClientComponent implements OnInit {
         null
       );
       this.fournisseur = await this.getProvider(this.fourn);
-      console.log("slm");
-
       console.log(this.packages);
+      for (let pack of this.packages) {
+        this.totalCOD += pack.c_remboursement;
+      }
 
       var livré = [];
       var annulé = [];
@@ -189,7 +191,7 @@ export class FinanceClientComponent implements OnInit {
         map(async (data) => {
           var result: any = [];
           var packages: any = [];
-          packages = data;
+          packages = data.data;
           for (let item of packages) {
             if (
               item.etat === "livré (espèce)" ||

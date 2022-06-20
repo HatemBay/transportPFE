@@ -121,7 +121,7 @@ export class NouveauColisComponent implements OnInit {
   }
   getVilles() {
     this.villeService.getVilles().subscribe((data) => {
-      this.villes = data;
+      this.villes = data.data;
     });
   }
 

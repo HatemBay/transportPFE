@@ -62,13 +62,7 @@ export class CbRamassageComponent implements OnInit {
   }
 
   // get data from backend
-  getDataJson(
-    limit?: any,
-    page?: any,
-    sortBy?: any,
-    sort?: any,
-    search?: any,
-  ) {
+  getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
     this.packageService
       .getFullPackages(
         limit,
@@ -155,12 +149,16 @@ export class CbRamassageComponent implements OnInit {
         alert(this.f.reference.value + ": colis existe déjà !!!");
         return this.f.reference.setValue("");
       }
-      const state = await this.getPackageState(this.f.reference.value);
-      if (state !== "pret") {
-        alert(this.f.reference.value + ": colis dans un état avancé !!!");
-        return this.f.reference.setValue("");
+      if (this.f.reference.value) {
+        const state = await this.getPackageState(this.f.reference.value);
+        if (state !== "pret") {
+          alert(this.f.reference.value + ": colis dans un état avancé !!!");
+          return this.f.reference.setValue("");
+        }
+        this.references.push(this.f.reference.value);
       }
-      if (this.f.reference.value) this.references.push(this.f.reference.value);
+      console.log("slm");
+
       this.getDataJson(null, null, null, null, this.val);
       this.f.reference.setValue("");
     }
