@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { map } from "rxjs/internal/operators/map";
 import { PackageService } from "src/app/services/package.service";
 
 @Component({
@@ -53,7 +54,7 @@ export class CbRamassageComponent implements OnInit {
       reference: ["", Validators.required],
     });
 
-    this.getDataJson(null, null, null, null, null, this.references);
+    this.getDataJson();
   }
 
   get f() {
@@ -67,21 +68,34 @@ export class CbRamassageComponent implements OnInit {
     sortBy?: any,
     sort?: any,
     search?: any,
-    reference?: any
   ) {
     this.packageService
-      .getFullPackages(limit, page, sortBy, sort, search, null, null, reference)
-      .subscribe((data) => {
-        const len = this.rows.length;
-        this.rows = this.temp = data.data;
-        if (this.rows.length === len) this.references.splice(-1);
-        for (const item of this.rows) {
-          item.c_remboursement = parseFloat(
-            item.c_remboursement.toString()
-          ).toFixed(3);
-          // console.log(item.c_remboursement);
+      .getFullPackages(
+        limit,
+        page,
+        sortBy,
+        sort,
+        search,
+        null,
+        null,
+        this.references
+      )
+      .subscribe(
+        (data) => {
+          const len = this.rows.length;
+          this.rows = this.temp = data.data;
+          if (this.rows.length === len) this.references.splice(-1);
+          for (const item of this.rows) {
+            item.c_remboursement = parseFloat(
+              item.c_remboursement.toString()
+            ).toFixed(3);
+            // console.log(item.c_remboursement);
+          }
+        },
+        (err) => {
+          console.log(err);
         }
-      });
+      );
   }
 
   // Data sorting
@@ -122,7 +136,18 @@ export class CbRamassageComponent implements OnInit {
     this.currentPageLimit = parseInt(limit, 10);
   }
 
-  public submitRef(event) {
+  async getPackageState(cab) {
+    return await this.packageService
+      .getPackageByCAB(cab)
+      .pipe(
+        map((data) => {
+          return data[0].etat;
+        })
+      )
+      .toPromise();
+  }
+
+  public async submitRef(event) {
     // if enter is pressed
     if (event.keyCode === 13) {
       // alert('you just pressed the enter key');
@@ -130,8 +155,13 @@ export class CbRamassageComponent implements OnInit {
         alert(this.f.reference.value + ": colis existe déjà !!!");
         return this.f.reference.setValue("");
       }
-      this.references.push(this.f.reference.value);
-      this.getDataJson(null, null, null, null, this.val, this.references);
+      const state = await this.getPackageState(this.f.reference.value);
+      if (state !== "pret") {
+        alert(this.f.reference.value + ": colis dans un état avancé !!!");
+        return this.f.reference.setValue("");
+      }
+      if (this.f.reference.value) this.references.push(this.f.reference.value);
+      this.getDataJson(null, null, null, null, this.val);
       this.f.reference.setValue("");
     }
   }
@@ -142,7 +172,7 @@ export class CbRamassageComponent implements OnInit {
         .updatePackageByCAB(element, { etat: "ramassé par livreur" })
         .subscribe(() => {
           this.references = [];
-          this.getDataJson(null, null, null, null, this.val, this.references);
+          this.getDataJson(null, null, null, null, this.val);
         });
     });
   }

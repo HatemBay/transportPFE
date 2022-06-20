@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { map } from "rxjs/internal/operators/map";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { PackageService } from "src/app/services/package.service";
 
@@ -55,7 +56,7 @@ export class CbCollecteComponent implements OnInit {
       reference: ["", Validators.required],
     });
 
-    this.getDataJson(null, null, null, null, null, this.references);
+    this.getDataJson();
   }
 
   get f() {
@@ -68,11 +69,10 @@ export class CbCollecteComponent implements OnInit {
     page?: any,
     sortBy?: any,
     sort?: any,
-    search?: any,
-    reference?: any
+    search?: any
   ) {
     this.packageService
-      .getFullPackages(limit, page, sortBy, sort, search, null, null, reference)
+      .getFullPackages(limit, page, sortBy, sort, search, null, null, this.references)
       .subscribe((data) => {
         const len = this.rows.length;
         this.rows = this.temp = data.data;
@@ -124,7 +124,18 @@ export class CbCollecteComponent implements OnInit {
     this.currentPageLimit = parseInt(limit, 10);
   }
 
-  public submitRef(event) {
+  async getPackageState(cab) {
+    return await this.packageService
+      .getPackageByCAB(cab)
+      .pipe(
+        map((data) => {
+          return data[0].etat;
+        })
+      )
+      .toPromise();
+  }
+
+  public async submitRef(event) {
     // if enter is pressed
     if (event.keyCode === 13) {
       // alert('you just pressed the enter key');
@@ -132,8 +143,13 @@ export class CbCollecteComponent implements OnInit {
         alert(this.f.reference.value + ": colis existe déjà !!!");
         return this.f.reference.setValue("");
       }
+      const state = await this.getPackageState(this.f.reference.value);
+      if (state !== "pret" && state !== "ramassé par livreur") {
+        alert(this.f.reference.value + ": colis dans un état avancé !!!");
+        return this.f.reference.setValue("");
+      }
       this.references.push(this.f.reference.value);
-      this.getDataJson(null, null, null, null, this.val, this.references);
+      this.getDataJson(null, null, null, null, this.val);
       this.f.reference.setValue("");
     }
   }
@@ -148,7 +164,7 @@ export class CbCollecteComponent implements OnInit {
         .subscribe(() => {
           // clear references
           this.references = [];
-          this.getDataJson(null, null, null, null, null, this.references);
+          this.getDataJson();
         });
     });
   }

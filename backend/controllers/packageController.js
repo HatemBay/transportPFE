@@ -423,7 +423,7 @@ router.get("/all-info-daily/admin", (req, res) => {
 });
 
 // Read all with all client and provider data (provider restricted)
-router.get("/all-info-period/admin", (req, res) => {
+router.get("/all-info-period/admin", async (req, res) => {
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
 
