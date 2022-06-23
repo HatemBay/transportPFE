@@ -1548,6 +1548,48 @@ router.get("/count/today", (req, res) => {
   });
 });
 
+router.get("/count/over-week", async (req, res) => {
+  const queryObj = {};
+  var count = [];
+
+  const dateS = new Date();
+
+  startYear = dateS.getFullYear();
+  startMonth = dateS.getMonth();
+  startDay = dateS.getDate();
+
+  for (var i = 0; i < 7; i++) {
+    queryObj["createdAt"] = {
+      $gte: new Date(startYear, startMonth, startDay, 0, 0, 0, 0),
+      $lte: new Date(startYear, startMonth, startDay, 23, 59, 59, 999),
+    };
+    startDay--;
+    count.push(await Package.find(queryObj).count());
+  }
+  res.status(200).send(count.reverse());
+});
+
+router.get("/count/over-year", async (req, res) => {
+  const queryObj = {};
+  var count = [];
+
+  const dateS = new Date();
+
+  startYear = dateS.getFullYear();
+  startMonth = dateS.getMonth();
+  startDay = dateS.getDate();
+
+  for (var i = 0; i < 12; i++) {
+    queryObj["createdAt"] = {
+      $gte: new Date(startYear, startMonth, 1, 0, 0, 0, 0),
+      $lte: new Date(startYear, startMonth + 1, 0, 23, 59, 59, 999),
+    };
+    startMonth--;
+    count.push(await Package.find(queryObj).count());
+  }
+  res.status(200).send(count.reverse());
+});
+
 /********************** STATISTICS **********************/
 
 // Package.aggregate([

@@ -18,7 +18,9 @@ import {
 })
 export class DashboardComponent implements OnInit {
   public datasets: any;
+  public dataLabels: any;
   public data: any;
+  public labels: any;
   public salesChart;
   public clicked: boolean = true;
   public clicked1: boolean = false;
@@ -35,6 +37,23 @@ export class DashboardComponent implements OnInit {
   annule: any;
   paye: any;
   livre: any;
+  statsWeek: Array<number>;
+  statsYear: Array<number>;
+  months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "June",
+    "July",
+    "Aug",
+    "Sept",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  daysOfTheWeek: any = [];
 
   constructor(
     private fb: FormBuilder,
@@ -44,11 +63,33 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.datasets = [
-      [0, 20, 10, 30, 15, 40, 20, 70, 70],
-      [0, 20, 5, 25, 10, 30, 15, 40, 40],
-    ];
+    this.initiateStatData();
+  }
+
+  async initiateStatData() {
+    this.setDates();
+
+    this.getStats(null, null);
+
+    this.dateForm = this.fb.group({
+      today: this.today,
+      startDate: this.startDate,
+    });
+
+    this.dateForm.valueChanges.subscribe((data) =>
+      this.onDateFormValueChange(data)
+    );
+
+    this.statsWeek = await this.getStatsWeek();
+    this.statsYear = await this.getStatsYear();
+
+    this.setLabelsForStats();
+
+    this.datasets = [this.statsYear, this.statsWeek];
+    this.dataLabels = [this.months, this.daysOfTheWeek];
+
     this.data = this.datasets[0];
+    this.labels = this.dataLabels[0];
 
     var chartOrders = document.getElementById("chart-orders");
 
@@ -67,19 +108,32 @@ export class DashboardComponent implements OnInit {
       options: chartExample1.options,
       data: chartExample1.data,
     });
+    this.updateOptions();
+  }
 
-    this.setDates();
+  //sets a table of months to display in chart
+  setLabelsForStats() {
+    var monthIndex = new Date().getMonth();
 
-    this.getStats(null, null);
+    const splice = this.months.splice(monthIndex);
+    for (var element of splice.reverse()) {
+      this.months.unshift(element);
+    }
+    console.log(this.months);
 
-    this.dateForm = this.fb.group({
-      today: this.today,
-      startDate: this.startDate,
-    });
+    var date = new Date();
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
 
-    this.dateForm.valueChanges.subscribe((data) =>
-      this.onDateFormValueChange(data)
-    );
+    this.daysOfTheWeek.push(day + "/" + month);
+    for (var i = 0; i < 6; i++) {
+      date = new Date(year, month - 1, day - 1);
+      var year = date.getFullYear();
+      var month = date.getMonth() + 1;
+      var day = date.getDate();
+      this.daysOfTheWeek.push(day + "/" + month);
+    }
   }
 
   // save changes in credentials
@@ -90,71 +144,51 @@ export class DashboardComponent implements OnInit {
 
   public updateOptions() {
     this.salesChart.data.datasets[0].data = this.data;
+    this.salesChart.data.labels = this.labels;
     this.salesChart.update();
+  }
+
+  public async getStatsWeek() {
+    return await this.packageService.statsWeek().toPromise();
+  }
+  public async getStatsYear() {
+    return await this.packageService.statsYear().toPromise();
   }
 
   // returns statistics
   public getStats(startDate, endDate) {
     this.packageService
-      .countAllPackagesAdmin(
-        null,
-        startDate,
-        endDate,
-      )
+      .countAllPackagesAdmin(null, startDate, endDate)
       .subscribe((data) => {
         this.allPackages = data.count;
       });
     this.packageService
-      .countAllPackagesAdmin(
-        "nouveau",
-        startDate,
-        endDate,
-      )
+      .countAllPackagesAdmin("nouveau", startDate, endDate)
       .subscribe((data) => {
         this.nouveau = data.count;
       });
     this.packageService
-      .countAllPackagesAdmin(
-        "collecté",
-        startDate,
-        endDate,
-      )
+      .countAllPackagesAdmin("collecté", startDate, endDate)
       .subscribe((data) => {
         this.collecte = data.count;
       });
     this.packageService
-      .countAllPackagesAdmin(
-        "en cours",
-        startDate,
-        endDate,
-      )
+      .countAllPackagesAdmin("en cours", startDate, endDate)
       .subscribe((data) => {
         this.enCours = data.count;
       });
     this.packageService
-      .countAllPackagesAdmin(
-        "annulé",
-        startDate,
-        endDate,
-      )
+      .countAllPackagesAdmin("annulé", startDate, endDate)
       .subscribe((data) => {
         this.annule = data.count;
       });
     this.packageService
-      .countAllPackagesAdmin(
-        "payé",
-        startDate,
-        endDate,
-      )
+      .countAllPackagesAdmin("payé", startDate, endDate)
       .subscribe((data) => {
         this.paye = data.count;
       });
     this.packageService
-      .countAllPackagesAdmin(
-        "livré",
-        startDate,
-        endDate,
-      )
+      .countAllPackagesAdmin("livré", startDate, endDate)
       .subscribe((data) => {
         this.livre = data.count;
       });

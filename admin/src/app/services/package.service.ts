@@ -299,9 +299,20 @@ export class PackageService {
     );
   }
 
-  // Count packages for a client
-  countToday(): Observable<any> {
-    let url = `${this.baseUri}/count/today`;
+  // get package count daily over a week
+  statsWeek(): Observable<any> {
+    let url = `${this.baseUri}/count/over-week`;
+    return this.http.get(url, { headers: this.headers }).pipe(
+      map((res: any) => {
+        return res || {};
+      }),
+      catchError(this.errorMgmt)
+    );
+  }
+
+  // get package count monthly over a year
+  statsYear(): Observable<any> {
+    let url = `${this.baseUri}/count/over-year`;
     return this.http.get(url, { headers: this.headers }).pipe(
       map((res: any) => {
         return res || {};
