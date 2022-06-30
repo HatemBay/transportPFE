@@ -57,7 +57,7 @@ export const ROUTES: RouteInfo[] = [
     title: "Gestion de colis",
     icon: "ni-circle-08 text-pink",
     class: "",
-    roles: [],
+    roles: ["fourn"],
     parent: "",
     collapsable: false,
   },
@@ -190,7 +190,7 @@ export const ROUTES: RouteInfo[] = [
     title: "Finance",
     icon: "ni-circle-08 text-pink",
     class: "",
-    roles: ["admin", "fourn"],
+    roles: ["fourn"],
     parent: "",
     collapsable: true,
   },
@@ -198,7 +198,7 @@ export const ROUTES: RouteInfo[] = [
     path: "/finance-client",
     title: "Client",
     class: "",
-    roles: [],
+    roles: ["fourn"],
     parent: "Finance",
   },
   {
@@ -225,8 +225,9 @@ export class SidebarComponent implements OnInit {
   private socket: any;
   public data: any;
 
-  role: any;
+  role: string;
   packageCount: any;
+  test = [];
 
   constructor(
     private router: Router,
@@ -235,12 +236,22 @@ export class SidebarComponent implements OnInit {
   ) {
     // role management
     this.role = this.auth.getUserDetails().role;
+    console.log(this.role);
     // Connect Socket with server URL
     this.socket = io("http://localhost:3000", { transports: ["websocket"] });
   }
 
   async ngOnInit(): Promise<void> {
     this.menuItems = ROUTES.filter((menuItem) => menuItem);
+    console.log(typeof this.menuItems[4].roles[0]);
+    // for (let item of this.menuItems[4].roles) {
+    //   this.test.push(item);
+    // }
+    this.test = this.menuItems[4].roles as Array<string>;
+    console.log( this.test.indexOf('financier'));
+
+    // console.log( this.menuItems[4].roles.indexOF('financier'));
+
     this.router.events.subscribe((event) => {
       this.isCollapsed = true;
     });
@@ -248,8 +259,12 @@ export class SidebarComponent implements OnInit {
     console.log(this.packageCount);
     this.socket.on("notification", (data) => {
       this.packageCount = data.count;
-      console.log(data.count);
     });
+  }
+
+  checkRole(data) {
+    const roles = data as Array<string>;
+    return roles.indexOf(this.role) !== -1
   }
 
   async countTodayPackages() {

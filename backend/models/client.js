@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 var Joi = require("joi");
 
+//TODO: remove fournisseurId and use fournisseurs
 var ClientSchema = new Schema(
   {
     nom: {
@@ -36,6 +37,12 @@ var ClientSchema = new Schema(
         ref: "Package",
       },
     ],
+    // fournisseurs: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Fournisseur",
+    //   },
+    // ],
     fournisseurId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Fournisseur",

@@ -12,8 +12,7 @@ import {
   Validators,
 } from "@angular/forms";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
-import { async, firstValueFrom, lastValueFrom } from "rxjs";
-import { startWith, map } from "rxjs/operators";
+import { map } from "rxjs/operators";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { PackageService, IPackage } from "src/app/services/package.service";
 import { DelegationService } from "src/app/services/delegation.service";
@@ -65,7 +64,7 @@ export class NouveauColisComponent implements OnInit {
       this.getVilles();
       this.packageForm = this.fb.group({
         tel: [
-          "",
+          ,
           [
             Validators.required,
             Validators.min(10000000),
@@ -402,9 +401,9 @@ export class NouveauColisComponent implements OnInit {
       this.clientService
         .getClients(null, null, null, null, event.target.value, "tels")
         .subscribe((data) => {
-          console.log(data);
+          console.log(data.data);
 
-          this.clients = data;
+          this.clients = data.data;
         });
     }
   }

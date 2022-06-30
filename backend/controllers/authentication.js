@@ -51,7 +51,7 @@ const register = async (req, res) => {
         res.json({
           token: token,
           message: "user registered successfully",
-          verification: "An Email sent to your account please verify",
+          // verification: "An Email sent to your account please verify",
         });
       }
       // If user is not found
@@ -163,6 +163,7 @@ const grantAccess = (action, resource) => {
     try {
       const permission = roles.can(req.user.role)[action](resource);
       if (!permission.granted) {
+        console.log("You don't have enough permission to perform this action");
         return res.status(401).json({
           error: "You don't have enough permission to perform this action",
         });

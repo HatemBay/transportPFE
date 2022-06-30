@@ -91,7 +91,7 @@
       <!-- Navigation -->
       <ul class="navbar-nav">
         <li *ngFor="let menuItem of menuItems" class="{{menuItem.class}} nav-item">
-          <ng-container *ngIf="!menuItem.roles.includes(role)">
+          <ng-container *ngIf="!checkRole(menuItem.roles)">
             <ng-container *ngIf="!menuItem.parent || menuItem.parent === ''">
               <ng-container *ngIf="!menuItem.collapsable; else collapsable">
                 <a routerLinkActive="active" [routerLink]="[menuItem.path]" class="nav-link">
@@ -129,11 +129,14 @@
             <ul #collapseF="ngbCollapse" #collapseG="ngbCollapse" [(ngbCollapse)]="isFCollapsed"
               [(ngbCollapse)]="isGCollapsed" class="navbar-nav ml-4 mr-4 bg-secondary">
               <li *ngFor="let menuItem2 of menuItems; let index = index;" class="nav-item">
-                <ng-container *ngIf="menuItem2.parent === menuItem.title">
-                  <a class="nav-link" [routerLink]="[menuItem2.path]">{{menuItem2.title}}</a>
-                  <!-- <ng-container *ngIf="!isGCollapsed">
+                <ng-container *ngIf="!checkRole(menuItem2.roles)">
+
+                  <ng-container *ngIf="menuItem2.parent === menuItem.title">
+                    <a class="nav-link" [routerLink]="[menuItem2.path]">{{menuItem2.title}}</a>
+                    <!-- <ng-container *ngIf="!isGCollapsed">
                     <p>{{index}}</p>
                   </ng-container> -->
+                  </ng-container>
                 </ng-container>
               </li>
             </ul>

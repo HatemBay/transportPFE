@@ -8,6 +8,8 @@ var { Client } = require("../models/client");
 const { Delegation } = require("../models/delegation");
 const { Fournisseur } = require("../models/fournisseur");
 
+//TODO: remove fournisseurId and use fournisseurs (in all crud)
+
 // get all clients belonging to connected provider
 router.get("/all", (req, res) => {
   // adapting request id to aggregate options
@@ -52,6 +54,7 @@ router.get("/all", (req, res) => {
         tel: 1,
         tel2: 1,
         createdAt: 1,
+        // fournisseurs: 1,
         fournisseurId: 1,
         delegationId: "$delegations._id",
         delegation: "$delegations.nom",
@@ -73,6 +76,11 @@ router.get("/all", (req, res) => {
     },
   ];
 
+  // if (fid) {
+  //   data.push({
+  //     $match: { fournisseurs: fid },
+  //   });
+  // }
   if (fid) {
     data.push({
       $match: { fournisseurId: fid },
@@ -183,6 +191,7 @@ router.get("/:id", (req, res) => {
       $match: { _id: ObjectId(req.params.id) },
     },
   ];
+
   if (fid) {
     data.push({
       $match: { fournisseurId: fid },
@@ -190,8 +199,9 @@ router.get("/:id", (req, res) => {
   }
 
   Client.aggregate(data).exec((err, doc) => {
-    if (!err) res.send(doc);
-    else {
+    if (!err) {
+      res.send(doc);
+    } else {
       console.log("Erreur lors de la récupération du client: " + err);
       res.status(400).send(err.message);
     }
@@ -237,17 +247,19 @@ router.post("/", (req, res) => {
   // console.log(req.body);
   const client = new Client();
 
-  (client.nom = req.body.nom),
-    (client.adresse = req.body.adresse),
-    (client.codePostale = req.body.codePostale),
-    (client.tel = req.body.tel),
-    (client.tel2 = req.body.tel2),
-    (client.fournisseurId = req.body.fournisseurId);
+  client.nom = req.body.nom;
+  client.adresse = req.body.adresse;
+  client.codePostale = req.body.codePostale;
+  client.tel = req.body.tel;
+  client.tel2 = req.body.tel2;
+  client.fournisseurId = req.body.fournisseurs;
+  // client.fournisseurs.push(req.body.fournisseurs);
   client.delegationId = req.body.delegationId;
   return client.save().then(
     (doc) => {
       return Fournisseur.findByIdAndUpdate(
         client.fournisseurId,
+        // client.fournisseurs[0],
         { $push: { clients: doc._id } },
         { new: true, useFindAndModify: false }
       ).then(
@@ -433,7 +445,6 @@ router.delete("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id ${req.params.id}`);
   Client.findByIdAndRemove(req.params.id, (err, doc) => {
-    console.log(doc);
     if (!err) {
       Fournisseur.findByIdAndUpdate(
         doc.fournisseurId,
@@ -450,6 +461,31 @@ router.delete("/:id", (req, res) => {
           }
         }
       );
+      
+      // var msg = "";
+      // var error = "";
+      // doc.fournisseurs.forEach((element) => {
+      //   Fournisseur.findByIdAndUpdate(
+      //     element,
+      //     { $pull: { clients: doc._id } },
+      //     (err2) => {
+      //       if (!err2) {
+      //         msg = "client supprimé";
+      //       } else {
+      //         error = err2;
+      //       }
+      //     }
+      //   );
+      // });
+      // if (msg != "") {
+      //   res.status(200);
+      //   res.json({
+      //     message: "client supprimé",
+      //   });
+      // } else if (error != "") {
+      //   console.log(error);
+      //   res.status(400).send(error.message);
+      // }
     } else {
       res.status(400).send(err.message);
       console.log(err);
@@ -460,6 +496,7 @@ router.delete("/:id", (req, res) => {
 // count clients by provider
 router.get("/count/all/:fid", (req, res) => {
   var fid = req.params.fid;
+  // Client.count({ fournisseurs: fid }, (err, count) => {
   Client.count({ fournisseurId: fid }, (err, count) => {
     if (!err) {
       res.send({ count: count });
