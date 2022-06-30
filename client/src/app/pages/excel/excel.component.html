@@ -21,30 +21,18 @@
         <form class="row" enctype="multipart/form-data">
           <div class="col-md-5 offset-md-2 mt-4 form-group">
             <input class="form-control" type="file" (change)="onFileSelected($event)" accept=".xls" />
-            <ng-container *ngIf="errors.length !== 0">
-              <ng-container *ngFor="let error of errors | keyvalue">
-                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
-                <small class="text-danger">
-                  {{error.key}}: {{error.value}}
-                </small>
-                <br>
-              </ng-container>
-            </ng-container>
             <!-- <input type="file" class="form-control" name="employee_file_excel" accept=".xlsx"> -->
-          </div>
-          <div class="col-md-3 mt-4 ml-5">
-            <button name="submit" type="submit" (click)="upload()" class="btn btn-info px-5">Appliquer</button>
           </div>
         </form>
       </div>
       <div class="card">
-        <div hidden="">
+        <div [ngClass]="[display]">
           <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold">Importation excel</h6>
             <div class="m-0 float-right">
               <form method="POST">
-                <button name="add" type="submit" class="btn btn-success mr-3">Continuer</button>
-                <button name="vider" type="submit" class="btn btn-info mr-3">Annuler</button>
+                <button name="add" type="submit" class="btn btn-success mr-3" (click)="upload()">Continuer</button>
+                <button name="vider" type="submit" class="btn btn-info mr-3" (click)="redirect()">Annuler</button>
               </form>
             </div>
           </div>
@@ -54,11 +42,40 @@
                 <tr>
                   <th>Nom &amp; Prénom</th>
                   <th>Téléphone</th>
-                  <th>Ville</th>
                   <th>Délégation</th>
                   <th>Adresse</th>
                   <th>COD</th>
                   <th>Libelle de marchandise</th>
+                  <th>Alertes</th>
+                </tr>
+                <tr *ngFor="let item of excelData; let index = index;">
+                  <td>{{item["Nom & Prénom"]}}</td>
+                  <td>{{item["Tél"]}}</td>
+                  <td>{{item["délegation"]}}</td>
+                  <td>{{item["adresse"]}}</td>
+                  <td>{{item["COD"]}}</td>
+                  <td>{{item["libelle"]}}</td>
+                  <ng-container *ngIf="errors.length !== 0">
+                    <td>
+                      <ng-container *ngFor="let error of errors | keyvalue">
+                        <ng-container *ngIf="error.key.indexOf((index+1).toString()) !== -1">
+                          <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                          <ng-container *ngIf="error.value.indexOf('is not a valid enum') !== -1; else Else">
+                            <small class="text-danger">
+                              Etat de colis donné est invalide, état 'nouveau' sera attribué par default
+                            </small>
+                          </ng-container>
+                          <ng-template #Else>
+                            <small class="text-danger">
+                              {{error.value}}, vous pouvez la changer à partir de la liste
+                            </small>
+                          </ng-template>
+                          <br>
+                        </ng-container>
+                      </ng-container>
+                    </td>
+
+                  </ng-container>
                 </tr>
               </thead>
               <tbody id="filter_body">

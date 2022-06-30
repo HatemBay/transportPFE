@@ -238,7 +238,7 @@
               <ngx-datatable-column name="COD">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{row.c_remboursement}}.000
+                    {{row.c_remboursement | number: '1.3-3'}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
@@ -292,7 +292,7 @@
               <ngx-datatable-column name="COD">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{row.c_remboursement}}.000
+                    {{row.c_remboursement | number: '1.3-3'}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>

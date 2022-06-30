@@ -61,7 +61,7 @@
                 <td>{{row.telc}}</td>
                 <td>{{row.villef | titlecase}}, {{row.delegationf | titlecase}}</td>
                 <td>{{row.etat | titlecase}}</td>
-                <td class="text-center">{{row.c_remboursement}}.000</td>
+                <td class="text-center">{{row.c_remboursement | number: '1.3-3'}}</td>
               </tr>
             </ng-container>
           </tbody>
@@ -88,7 +88,7 @@
               <td>{{row.telc}}</td>
               <td>{{row.villef | titlecase}}, {{row.delegationf | titlecase}}</td>
               <td>{{row.etat | titlecase}}</td>
-              <td class="text-center">{{row.c_remboursement}}.000</td>
+              <td class="text-center">{{row.c_remboursement | number: '1.3-3'}}</td>
             </tr>
           </ng-container>
         </tbody>

@@ -67,7 +67,7 @@
                     <td class="text-center">
                       {{package.telc}} <ng-container *ngIf="package.tel2c"> / {{package.tel2c}} </ng-container>
                     </td>
-                    <td class="text-center">{{package.c_remboursement}}.000</td>
+                    <td class="text-center">{{package.c_remboursement | number: '1.3-3'}}</td>
                     <!-- </ng-container> -->
 
                   </tr>

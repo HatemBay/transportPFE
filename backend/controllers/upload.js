@@ -107,7 +107,30 @@ router.post("/:fid", (req, res) => {
               client.fournisseurId = fournisseurId;
 
               package.CAB = check;
-              package.etat = el.etat;
+              if (
+                el.etat in
+                [
+                  "nouveau",
+                  "pret",
+                  "ramassé par livreur",
+                  "collecté",
+                  "en cours",
+                  "livré (espèce)",
+                  "livré (chèque)",
+                  "annulé",
+                  "reporté",
+                ]
+              ) {
+                resultHandler["ligne" + index] =
+                  el.etat + " is not a valid enum value for path `etat`";
+                errors++;
+                console.log(
+                  el.etat + " is not a valid enum value for path `etat`"
+                );
+                package.etat = el.etat;
+              } else {
+                package.etat = "nouveau";
+              }
               package.c_remboursement = el.cod;
               package.libelle = el.libelle;
               package.fournisseurId = fournisseurId;
@@ -178,7 +201,7 @@ router.post("/:fid", (req, res) => {
                     (err2) => {
                       resultHandler["ligne" + index] = err2.message;
                       errors++;
-                      Client.findByIdAndDelete(doc._id).exec();
+                      // Client.findByIdAndDelete(doc._id).exec();
                       return console.log(
                         "Erreur lors de l'enregistrement du colis: " + err2
                       );
