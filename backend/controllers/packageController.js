@@ -304,9 +304,9 @@ router.get("/all-info-daily/admin", (req, res) => {
   var limit = parseInt(req.query.limit) || 10;
   var page = parseInt(req.query.page) || 1;
   var skip = limit * page - limit;
-  var n = -1;
+  var n = 1;
   var sortBy = req.query.sortBy || "createdAt";
-  if (req.query.sort == "asc") n = 1;
+  if (req.query.sort == "desc") n = -1;
   sort[sortBy] = n;
 
   Package.aggregate([
@@ -336,7 +336,10 @@ router.get("/all-info-daily/admin", (req, res) => {
         as: "delegationsClient",
       },
     },
-    { $unwind: "$delegationsClient" },
+    {
+      $unwind: { path: "$delegationsClient", preserveNullAndEmptyArrays: true },
+    },
+
     {
       $lookup: {
         from: "villes",
@@ -345,7 +348,8 @@ router.get("/all-info-daily/admin", (req, res) => {
         as: "villesClient",
       },
     },
-    { $unwind: "$villesClient" },
+    { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
+
     {
       $project: {
         _id: 1,
@@ -369,9 +373,7 @@ router.get("/all-info-daily/admin", (req, res) => {
         nomf: "$fournisseurs.nom",
         telf: "$fournisseurs.tel",
         createdAt: 1,
-        updatedAt: {
-          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
-        },
+        updatedAt: 1,
       },
     },
     {
@@ -383,10 +385,11 @@ router.get("/all-info-daily/admin", (req, res) => {
     },
     {
       $match: {
-        createdAt: {
+        updatedAt: {
           $gte: new Date(year, month, day, 0, 0, 0, 0),
           $lte: new Date(year, month, day, 23, 59, 59, 999),
         },
+        etat: "pret",
       },
     },
     {
@@ -504,7 +507,9 @@ router.get("/all-info-period/admin", async (req, res) => {
         as: "delegationsClient",
       },
     },
-    { $unwind: "$delegationsClient" },
+    {
+      $unwind: { path: "$delegationsClient", preserveNullAndEmptyArrays: true },
+    },
     {
       $lookup: {
         from: "villes",
@@ -513,7 +518,7 @@ router.get("/all-info-period/admin", async (req, res) => {
         as: "villesClient",
       },
     },
-    { $unwind: "$villesClient" },
+    { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
     {
       $project: {
         _id: 1,
@@ -725,7 +730,9 @@ router.get("/all-info-admin/:id", (req, res) => {
         as: "delegationsClient",
       },
     },
-    { $unwind: "$delegationsClient" },
+    {
+      $unwind: { path: "$delegationsClient", preserveNullAndEmptyArrays: true },
+    },
     {
       $lookup: {
         from: "villes",
@@ -734,7 +741,7 @@ router.get("/all-info-admin/:id", (req, res) => {
         as: "villesClient",
       },
     },
-    { $unwind: "$villesClient" },
+    { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "users",
@@ -850,7 +857,9 @@ router.get("/all-info-admin-cab/:cab", (req, res) => {
         as: "delegationsClient",
       },
     },
-    { $unwind: "$delegationsClient" },
+    {
+      $unwind: { path: "$delegationsClient", preserveNullAndEmptyArrays: true },
+    },
     {
       $lookup: {
         from: "villes",
@@ -859,7 +868,7 @@ router.get("/all-info-admin-cab/:cab", (req, res) => {
         as: "villesClient",
       },
     },
-    { $unwind: "$villesClient" },
+    { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
     {
       $project: {
         _id: 1,
@@ -928,7 +937,9 @@ router.get("/all-info-search/admin", (req, res) => {
         as: "delegationsClient",
       },
     },
-    { $unwind: "$delegationsClient" },
+    {
+      $unwind: { path: "$delegationsClient", preserveNullAndEmptyArrays: true },
+    },
     {
       $lookup: {
         from: "villes",
@@ -937,7 +948,7 @@ router.get("/all-info-search/admin", (req, res) => {
         as: "villesClient",
       },
     },
-    { $unwind: "$villesClient" },
+    { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "fournisseurs",
@@ -1588,6 +1599,29 @@ router.get("/count/over-year", async (req, res) => {
     count.push(await Package.find(queryObj).count());
   }
   res.status(200).send(count.reverse());
+});
+
+// get notification for daily packages
+router.get("/daily-package/notification", async (req, res) => {
+  const date = new Date();
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
+
+  //* finds today's packages with state 'pret'
+  const todaysPackagesCount = await Package.count({
+    updatedAt: {
+      $gte: new Date(year, month, day, 0, 0, 0, 0),
+      $lte: new Date(year, month, day, 23, 59, 59, 999),
+    },
+    etat: "pret",
+  }).then((res) => {
+    return res;
+  });
+
+  const notify = { count: todaysPackagesCount };
+  socket.emit("notification", notify); // Updates Live Notification
+  return res.status(201).send(notify);
 });
 
 /********************** STATISTICS **********************/

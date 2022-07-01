@@ -232,7 +232,7 @@ export class SidebarComponent implements OnInit {
   constructor(
     private router: Router,
     private auth: AuthenticationService,
-    private pickupService: PickupService
+    private packageService: PackageService
   ) {
     // role management
     this.role = this.auth.getUserDetails().role;
@@ -268,7 +268,7 @@ export class SidebarComponent implements OnInit {
   }
 
   async countTodayPackages() {
-    return await this.pickupService
+    return await this.packageService
       .notify()
       .pipe(
         map((data) => {

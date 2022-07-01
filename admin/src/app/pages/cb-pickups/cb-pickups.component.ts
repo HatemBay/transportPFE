@@ -80,6 +80,7 @@ export class CbPickupsComponent implements OnInit {
 
     if (this.routePath == "pickup") {
       this.getDataJson(this.isAllocated);
+      console.log();
     } else {
       this.isAllocated = "true";
       this.setDates();
@@ -129,6 +130,11 @@ export class CbPickupsComponent implements OnInit {
       .subscribe((data) => {
         this.rows = this.temp = data.data;
         this.count = data.length;
+        for (var i = 0; i < this.count; i++) {
+          this.selected[i] = false;
+        }
+        console.log(this.selected);
+
       });
   }
 
@@ -306,5 +312,13 @@ export class CbPickupsComponent implements OnInit {
       this.startDate,
       this.today
     );
+  }
+
+  onChange(row) {
+    let index = this.rows.indexOf(row);
+    this.selected[index] = true;
+    console.log(this.selected);
+
+
   }
 }

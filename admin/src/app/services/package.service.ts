@@ -196,6 +196,12 @@ export class PackageService {
     );
   }
 
+  // Get notification for daily packages with state 'pret'
+  notify(): Observable<any> {
+    const url = `${this.baseUri}/daily-package/notification`;
+    return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
+  }
+
   // Get package by cab
   getFullPackageByCAB(cab: any): Observable<any> {
     const url = `${this.baseUri}/all-info-admin-cab/${cab}`;

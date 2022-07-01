@@ -9,6 +9,7 @@ import {
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { io } from "socket.io-client";
 import { ClientService } from "src/app/services/client.service";
 import { PackageService } from "src/app/services/package.service";
 
@@ -44,6 +45,8 @@ export class ColisJourComponent implements OnInit {
   dateForm: FormGroup;
   date: string;
   val: string;
+  private socket: any;
+  moreData: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -51,7 +54,9 @@ export class ColisJourComponent implements OnInit {
     private packageService: PackageService,
     private clientService: ClientService,
     private router: Router
-  ) {}
+  ) {
+    this.socket = io("http://localhost:3000", { transports: ["websocket"] });
+  }
   ngOnInit(): void {
     // Initial columns, can be used for data list which is will be filtered
     this.columns = [
@@ -70,6 +75,11 @@ export class ColisJourComponent implements OnInit {
     );
 
     this.getDataJson();
+    this.socket.on("notification", (data) => {
+      this.moreData = true;
+      console.log(this.moreData);
+
+    });
   }
 
   setDates() {

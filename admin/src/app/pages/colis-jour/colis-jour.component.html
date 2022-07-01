@@ -31,9 +31,12 @@
     <div class="col">
       <div class="card shadow">
         <div class="card-header">
-          <div *ngIf="success" class="alert alert-success ml-4 mr-4">
-            <span class="closebtn" onclick="this.parentElement.style.display='none'; success = false;">&times;</span>
-            Colis supprimé avec succes
+          <div *ngIf="moreData == true" class="alert alert-info ml-4 mr-4 text-center">
+            <span class="closebtn float-left" style="background: #37d5f2; color: #fff;"
+              onclick="this.parentElement.style.display='none'; success = false;">&times;</span>
+            Nouveaux colis ajoutés, mettre à jour?
+            <button class="btn btn-secondary ml-4" (click)="getDataJson(); moreData = false;"><i
+                class="fa fa-check"></i></button>
           </div>
           <div class="row mb-4">
             <div class="col-8">Colis des jour: </div>

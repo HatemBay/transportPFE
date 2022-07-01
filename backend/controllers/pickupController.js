@@ -322,30 +322,6 @@ router.post("/", (req, res) => {
   // pickup.pickupNb = pickupNb;
 });
 
-// get notification for daily packages
-router.get("/daily-package/notification", async (req, res) => {
-  var count = 0;
-  const date = new Date();
-  const day = date.getDate();
-  const month = date.getMonth();
-  const year = date.getFullYear();
-  
-  const todaysPickups = await Pickup.find({
-    createdAt: {
-      $gte: new Date(year, month, day, 0, 0, 0, 0),
-      $lte: new Date(year, month, day, 23, 59, 59, 999),
-    },
-  }).then((res) => {
-    return res;
-  });
-
-  todaysPickups.forEach((element) => {
-    count += element.packages.length;
-  });
-  const notify = { count: count };
-  socket.emit("notification", notify); // Updates Live Notification
-  return res.status(201).send(notify);
-});
 
 // modify pickup
 router.put("/:id", (req, res) => {
