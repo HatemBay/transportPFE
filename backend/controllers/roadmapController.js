@@ -246,7 +246,7 @@ router.get("/:id", (req, res) => {
   Roadmap.aggregate(data).exec((err, roadmap) => {
     if (!err) res.send(roadmap);
     else
-      console.log("Erreur lors de la récupération du feuille de route: " + err);
+      console.log("Erreur lors de la récupération de la feuille de route: " + err);
   });
 });
 
@@ -258,11 +258,11 @@ router.post("/", (req, res) => {
     .exec(async (err, roadmaps) => {
       if (err) {
         console.log(
-          "Erreur dans la récupération du nombre du feuille de route"
+          "Erreur dans la récupération du nombre de la feuille de route"
         );
         return res
           .status(404)
-          .send("Erreur dans la récupération du nombre du feuille de route");
+          .send("Erreur dans la récupération du nombre de la feuille de route");
       }
 
       const roadmap = new Roadmap();
@@ -311,7 +311,7 @@ router.post("/", (req, res) => {
           );
         },
         (err) => {
-          console.log("Erreur lors de la création du feuille de route: " + err);
+          console.log("Erreur lors de la création de la feuille de route: " + err);
           return res.status(400).send(err.message);
         }
       );
@@ -344,7 +344,7 @@ router.put("/:id", (req, res) => {
       );
     },
     (err) => {
-      console.log("Erreur lors de la mise à jour du feuille de route: " + err);
+      console.log("Erreur lors de la mise à jour de la feuille de route: " + err);
       return res.status(400).send(err.message);
     }
   );
@@ -354,10 +354,10 @@ router.put("/:id", (req, res) => {
       return res.status(200).send(roadmap);
     },
     (err) => {
-      console.log("Erreur lors du mis à jour du feuille de route: " + err);
+      console.log("Erreur lors de la mise à jour de la feuille de route: " + err);
       return res
         .status(400)
-        .send("Erreur lors du mis à jour du feuille de route: " + err);
+        .send("Erreur lors de la mise à jour de la feuille de route: " + err);
     }
   );
 });
@@ -374,7 +374,7 @@ router.put("/:id", (req, res) => {
 //         message: "roadmap supprimée avec succès",
 //       });
 //     } else {
-//       console.log("Erreur dans la suppression du feuille de route: " + err);
+//       console.log("Erreur dans la suppression de la feuille de route: " + err);
 //       res.status(400).send(err.message);
 //     }
 //   });
@@ -387,14 +387,18 @@ router.get("/nb/last", (req, res) => {
     .exec(async (err, roadmaps) => {
       if (err) {
         console.log(
-          "Erreur dans la récupération du nombre du feuille de route"
+          "Erreur dans la récupération du nombre de la feuille de route"
         );
         return res
           .status(404)
-          .send("Erreur dans la récupération du nombre du feuille de route");
+          .send("Erreur dans la récupération du nombre de la feuille de route");
+      } else {
+        if (roadmaps && roadmaps.length === 0) {
+          return res.status(200).send("0");
+        } else {
+          return res.send(roadmaps[0].roadmapNb.toString());
+        }
       }
-
-      return res.status(200).send(roadmaps[0].roadmapNb.toString());
     });
 });
 

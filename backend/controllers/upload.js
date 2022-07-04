@@ -180,7 +180,7 @@ router.post("/:fid", (req, res) => {
                                 resultHandler["ligne" + index] = err4.message;
                                 errors++;
                                 return console.log(
-                                  "Erreur lors du mis à jour du client: " + err4
+                                  "Erreur lors de la mise à jour du client: " + err4
                                 );
                                 // return res.status(400).send(err4.message);
                               }
@@ -190,7 +190,7 @@ router.post("/:fid", (req, res) => {
                             resultHandler["ligne" + index] = err3.message;
                             errors++;
                             return console.log(
-                              "Erreur lors du mis à jour du fournisseur: " +
+                              "Erreur lors de la mise à jour du fournisseur: " +
                                 err3
                             );
                             // return res.status(400).send(err3.message);
@@ -209,11 +209,7 @@ router.post("/:fid", (req, res) => {
                     }
                   );
                 } catch (err) {
-                  if (err.message.indexOf("tel_1") !== -1) {
-                    resultHandler["ligne" + index] = "téléphone existe déjà";
-                  } else {
-                    resultHandler["ligne" + index] = err.message;
-                  }
+                  resultHandler["ligne" + index] = err.message;
                   console.log(resultHandler);
                   errors++;
 

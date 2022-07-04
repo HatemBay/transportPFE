@@ -155,10 +155,10 @@ router.post("/", (req, res) => {
       ).exec((err, doc) => {
         if (!err) res.send(doc);
         else {
-          console.log("Erreur lors du mis à jour du chauffeur: " + err);
+          console.log("Erreur lors de la mise à jour du chauffeur: " + err);
           res
             .status(400)
-            .send("Erreur lors du mis à jour du chauffeur: " + err);
+            .send("Erreur lors de la mise à jour du chauffeur: " + err);
         }
       });
     },
@@ -243,29 +243,29 @@ router.put("/:id", (req, res) => {
                 if (!err3) res.status(200).send(doc);
                 else {
                   console.log(
-                    "Erreur lors du mis à jour du chauffeur: " + err3
+                    "Erreur lors de la mise à jour du chauffeur: " + err3
                   );
                   res
                     .status(400)
-                    .send("Erreur lors du mis à jour du chauffeur: " + err3);
+                    .send("Erreur lors de la mise à jour du chauffeur: " + err3);
                 }
               });
             },
             (err2) => {
-              console.log("Erreur lors du mis à jour du chauffeur: " + err2);
+              console.log("Erreur lors de la mise à jour du chauffeur: " + err2);
               res
                 .status(400)
-                .send("Erreur lors du mis à jour du chauffeur: " + err2);
+                .send("Erreur lors de la mise à jour du chauffeur: " + err2);
             }
           );
         } else {
           res.status(200).send(doc);
         }
       } else {
-        console.log("Erreur lors de mis à jour de la véhicule: " + err);
+        console.log("Erreur lors de mise à jour de la véhicule: " + err);
         res
           .status(400)
-          .send("Erreur lors de mis à jour de la véhicule: " + err);
+          .send("Erreur lors de mise à jour de la véhicule: " + err);
       }
     }
   );
@@ -286,7 +286,7 @@ router.delete("/:id", (req, res) => {
               message: "Véhicule supprimée avec succès",
             });
           } else {
-            console.log("Erreur lors de mis à jour du chauffeur: " + err2);
+            console.log("Erreur lors de mise à jour du chauffeur: " + err2);
           }
         }
       );

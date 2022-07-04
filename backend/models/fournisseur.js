@@ -31,6 +31,14 @@ var FournisseurSchema = new Schema(
       maxlength: 8,
       unique: true,
     },
+    fraisLivraison: {
+      type: Number,
+      default: 0,
+    },
+    fraisRetour: {
+      type: Number,
+      default: 0,
+    },
     hash: String,
     salt: String,
     packages: [
@@ -49,6 +57,12 @@ var FournisseurSchema = new Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "Pickup",
+      },
+    ],
+    finances: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Finance",
       },
     ],
     delegationId: {
@@ -96,7 +110,6 @@ FournisseurSchema.methods.generateJWT = function () {
       _id: fournisseur._id.toString(),
       email: fournisseur.email,
       nom: fournisseur.nom,
-      ville: fournisseur.ville,
       delegation: fournisseur.delegation,
       adresse: fournisseur.adresse,
       codePostale: fournisseur.codePostale,
@@ -113,7 +126,6 @@ const validate = (fournisseur) => {
   const schema = Joi.object({
     email: Joi.string().email().required(),
     nom: Joi.string().min(3).max(255).required(),
-    ville: Joi.string().required(),
     delegation: Joi.string().required(),
     adresse: Joi.string().required(),
     codePostale: Joi.number().required(),

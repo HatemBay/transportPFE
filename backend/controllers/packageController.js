@@ -922,6 +922,24 @@ router.get("/all-info-search/admin", (req, res) => {
   var data = [
     {
       $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "users",
+      },
+    },
+    { $unwind: { path: "$users", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "filieres",
+        localField: "users.filiereId",
+        foreignField: "_id",
+        as: "filieres",
+      },
+    },
+    { $unwind: { path: "$filieres", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
         from: "clients",
         localField: "clientId",
         foreignField: "_id",
@@ -1007,6 +1025,9 @@ router.get("/all-info-search/admin", (req, res) => {
         poids: 1,
         pieces: 1,
         etat: 1,
+        userId: "$users._id",
+        nomu: "$users.nom",
+        filiere: "$filieres.nom",
         clientId: "$clients._id",
         nomc: "$clients.nom",
         villec: "$villesClient.nom",
@@ -1150,7 +1171,9 @@ router.post("/", (req, res) => {
               );
             },
             (err) => {
-              console.log("Erreur lors du mis à jour du fournisseur: " + err);
+              console.log(
+                "Erreur lors de la mise à jour du fournisseur: " + err
+              );
               res.status(400).send(err.message);
             }
           );
@@ -1206,7 +1229,7 @@ router.put("/:id", (req, res) => {
                   },
                   (err) => {
                     console.log(
-                      `Erreur lors de la mis à jour de l'utilisateur: ${err}`
+                      `Erreur lors de la mise à jour de l'utilisateur: ${err}`
                     );
                     return res.status(400).send(err.message);
                   }
@@ -1215,7 +1238,7 @@ router.put("/:id", (req, res) => {
             },
             (err) => {
               console.log(
-                "Erreur lors de la mis à jour du colis (historique): " + err
+                "Erreur lors de la mise à jour du colis (historique): " + err
               );
               res.status(400).send(err.message);
             }
@@ -1273,7 +1296,7 @@ router.put("/cab/:CAB", (req, res) => {
                   },
                   (err) => {
                     console.log(
-                      `Erreur lors de la mis à jour de l'utilisateur: ${err}`
+                      `Erreur lors de la mise à jour de l'utilisateur: ${err}`
                     );
                     return res.status(400).send(err.message);
                   }
@@ -1282,7 +1305,7 @@ router.put("/cab/:CAB", (req, res) => {
             },
             (err) => {
               console.log(
-                "Erreur lors de la mis à jour du colis (historique): " + err
+                "Erreur lors de la mise à jour du colis (historique): " + err
               );
               res.status(400).send(err.message);
             }

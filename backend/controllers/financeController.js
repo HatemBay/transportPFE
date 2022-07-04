@@ -6,10 +6,8 @@ const { Package } = require("../models/package");
 var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
 
-var { FeuilleRetour } = require("../models/feuille-retour");
-const { User } = require("../models/users");
+var { Finance } = require("../models/finance");
 
-// get return sheets
 router.get("/", (req, res) => {
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
@@ -47,33 +45,13 @@ router.get("/", (req, res) => {
   var data = [
     {
       $lookup: {
-        from: "users",
-        localField: "driverId",
+        from: "fournisseurs",
+        localField: "fournisseurId",
         foreignField: "_id",
-        as: "drivers",
+        as: "fournisseurs",
       },
     },
-    { $unwind: { path: "$drivers", preserveNullAndEmptyArrays: true } },
-    // {
-    //   $lookup: {
-    //     from: "users",
-    //     localField: "warehouseManagers",
-    //     foreignField: "_id",
-    //     as: "warehouseManagers",
-    //   },
-    // },
-    // {
-    //   $unwind: { path: "$warehouseManagers", preserveNullAndEmptyArrays: true },
-    // },
-    {
-      $lookup: {
-        from: "vehicules",
-        localField: "drivers.vehiculeId",
-        foreignField: "_id",
-        as: "vehicules",
-      },
-    },
-    { $unwind: { path: "$vehicules", preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: "$fournisseurs", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "packages",
@@ -85,12 +63,14 @@ router.get("/", (req, res) => {
     {
       $project: {
         _id: 1,
-        feuilleRetourNb: 1,
-        driverId: 1,
-        nomd: "$drivers.nom",
-        nomv: "$vehicules.serie",
-        // whManagerId: 1,
-        // nomMan: "$warehouseManagers.nom",
+        financeNb: 1,
+        fournisseurId: 1,
+        fraisLivraison: 1,
+        fraisRetour: 1,
+        totalCOD: 1,
+        totalFraisLivraison: 1,
+        totalHorsFrais: 1,
+        nomf: "$fournisseurs.nom",
         packages: "$packages",
         nbPackages: { $size: "$packages" },
         createdAt: 1,
@@ -115,63 +95,45 @@ router.get("/", (req, res) => {
       },
     });
   }
-  FeuilleRetour.aggregate(data).exec((err, feuilleRetours) => {
+  Finance.aggregate(data).exec((err, finances) => {
     if (!err) {
       if (req.query.search) {
-        feuilleRetours = feuilleRetours.filter(
+        finances = finances.filter(
           (item) =>
-            item.feuilleRetourNb.toString().includes(req.query.search) ||
+            item.financeNb.toString().includes(req.query.search) ||
             item.nbPackages.toString().includes(req.query.search) ||
+            item.totalCOD.toString().includes(req.query.search) ||
+            item.totalFraisLivraison.toString().includes(req.query.search) ||
+            item.totalHorsFrais.toString().includes(req.query.search) ||
             item.createdAtSearch.toString().includes(req.query.search) ||
-            item.nomd?.toLowerCase().includes(req.query.search.toLowerCase())
+            item.nomf?.toLowerCase().includes(req.query.search.toLowerCase())
         );
       }
       return res.send({
-        length: feuilleRetours.length,
-        data: feuilleRetours.slice(skip).slice(0, limit),
+        length: finances.length,
+        data: finances.slice(skip).slice(0, limit),
       });
     } else {
       res
         .status(400)
-        .send("Erreur lors de la récupération des feuilles de retour: " + err);
+        .send("Erreur lors de la récupération des finances: " + err);
     }
   });
 });
 
-// get return sheet
 router.get("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
   var data = [
     {
       $lookup: {
-        from: "drivers",
-        localField: "driverId",
+        from: "fournisseurs",
+        localField: "fournisseurId",
         foreignField: "_id",
-        as: "drivers",
+        as: "fournisseurs",
       },
     },
-    { $unwind: { path: "$drivers", preserveNullAndEmptyArrays: true } },
-    // {
-    //   $lookup: {
-    //     from: "users",
-    //     localField: "warehouseManagers",
-    //     foreignField: "_id",
-    //     as: "warehouseManagers",
-    //   },
-    // },
-    // {
-    //   $unwind: { path: "$warehouseManagers", preserveNullAndEmptyArrays: true },
-    // },
-    {
-      $lookup: {
-        from: "vehicules",
-        localField: "drivers.vehiculeId",
-        foreignField: "_id",
-        as: "vehicules",
-      },
-    },
-    { $unwind: { path: "$vehicules", preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: "$fournisseurs", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "packages",
@@ -183,12 +145,14 @@ router.get("/:id", (req, res) => {
     {
       $project: {
         _id: 1,
-        feuilleRetourNb: 1,
-        driverId: 1,
-        nomd: "$drivers.nom",
-        nomv: "$vehicules.serie",
-        // whManagerId: 1,
-        // nomMan: "$warehouseManagers.nom",
+        financeNb: 1,
+        fournisseurId: 1,
+        fraisLivraison: 1,
+        fraisRetour: 1,
+        totalCOD: 1,
+        totalFraisLivraison: 1,
+        totalHorsFrais: 1,
+        nomf: "$fournisseurs.nom",
         packages: "$packages",
         nbPackages: { $size: "$packages" },
         createdAt: 1,
@@ -202,33 +166,47 @@ router.get("/:id", (req, res) => {
       $match: { _id: ObjectId(req.params.id) },
     },
   ];
-  FeuilleRetour.aggregate(data).exec((err, feuilleRetour) => {
-    if (!err) res.send(feuilleRetour);
-    else
-      console.log(
-        "Erreur lors de la récupération du feuille de retour: " + err
-      );
+  Finance.aggregate(data).exec((err, finance) => {
+    if (!err) res.send(finance);
+    else console.log("Erreur lors de la récupération de la finance: " + err);
   });
 });
 
-// create return sheet
-router.post("/", (req, res) => {
-  FeuilleRetour.find()
-    .sort({ feuilleRetourNb: -1 })
+router.get("/nb/last", (req, res) => {
+  return Finance.find()
+    .sort({ financeNb: -1 })
     .limit(1)
-    .exec(async (err, feuilleRetours) => {
+    .exec(async (err, finances) => {
       if (err) {
-        console.log(
-          "Erreur dans la récupération du nombre du feuille de retour"
-        );
+        console.log("Erreur dans la récupération du nombre de la finance");
+        return res
+          .status(400)
+          .send("Erreur dans la récupération du nombre de la finance");
+      } else {
+        if (finances && finances.length === 0) {
+          return res.status(200).send("0");
+        } else {
+          return res.send(finances[0].financeNb.toString());
+        }
+      }
+    });
+});
+
+router.post("/", (req, res) => {
+  Finance.find()
+    .sort({ financeNb: -1 })
+    .limit(1)
+    .exec(async (err, finances) => {
+      if (err) {
+        console.log("Erreur dans la récupération du nombre de la finance");
         return res
           .status(404)
-          .send("Erreur dans la récupération du nombre du feuille de retour");
+          .send("Erreur dans la récupération du nombre de la finance");
       }
 
-      const feuilleRetour = new FeuilleRetour();
-      if (feuilleRetours.length > 0) {
-        feuilleRetour.feuilleRetourNb = feuilleRetours[0].feuilleRetourNb + 1;
+      const finance = new Finance();
+      if (finances.length > 0) {
+        finance.financeNb = finances[0].financeNb + 1;
       }
 
       var packages = [];
@@ -241,20 +219,24 @@ router.post("/", (req, res) => {
         packageIds.push(element._id);
       });
 
-      feuilleRetour.driverId = req.body.driverId;
-      // feuilleRetour.whManagerId = req.body.whManagerId;
-      feuilleRetour.packages = packageIds;
+      finance.fournisseurId = req.body.fournisseurId;
+      finance.fraisLivraison = req.body.fraisLivraison;
+      finance.fraisRetour = req.body.fraisRetour;
+      finance.totalCOD = req.body.totalCOD;
+      finance.totalFraisLivraison = req.body.totalFraisLivraison;
+      finance.totalHorsFrais = req.body.totalHorsFrais;
+      finance.packages = packageIds;
 
-      feuilleRetour.save().then(
-        (feuilleRetour) => {
-          User.findByIdAndUpdate(
-            req.body.driverId,
-            { $push: { feuilleRetours: feuilleRetour._id } },
+      finance.save().then(
+        (finance) => {
+          Fournisseur.findByIdAndUpdate(
+            req.body.fournisseurId,
+            { $push: { finances: finance._id } },
             { new: true, useFindAndModify: false }
           ).then(
             () => {
               () => {
-                return res.status(201).send(feuilleRetour);
+                return res.status(201).send(finance);
               },
                 (err3) => {
                   console.log(
@@ -272,79 +254,38 @@ router.post("/", (req, res) => {
           );
         },
         (err) => {
-          console.log(
-            "Erreur lors de la création du feuille de retour: " + err
-          );
+          console.log("Erreur lors de la création de la finance: " + err);
           return res.status(400).send(err.message);
         }
       );
     });
-  // feuilleRetour.feuilleRetourNb = feuilleRetourNb;
+  // finance.financeNb = financeNb;
 });
 
-// modify feuilleRetour
+// modify finance
 router.put("/:id", (req, res) => {
-  if (!ObjectId.isValid(req.params.id))
+  if (!ObjectId.isValid(req.params.id)) {
+    console.log(`no record with given id: ${req.params.id}`);
     return res.status(400).send(`no record with given id: ${req.params.id}`);
+  }
 
-  var query;
-
-  // return sheets can't be modified so just in case there's a need to change a driver we have this code
-  query = FeuilleRetour.findByIdAndUpdate(
+  Finance.findByIdAndUpdate(
     req.params.id,
     {
-      $set: {
-        driverId: req.body.driverId,
-      },
+      $set: req.body,
     },
-    { new: true }
-  ).then(
-    () => {
-      User.findByIdAndUpdate(
-        req.body.driverId,
-        { $push: { feuilleRetours: req.params.id } },
-        { new: true, useFindAndModify: false }
-      );
-    },
-    (err) => {
-      console.log("Erreur lors de la mise à jour du feuille de retour: " + err);
-      return res.status(400).send(err.message);
-    }
-  );
-
-  query.then(
-    (feuilleRetour) => {
-      return res.status(200).send(feuilleRetour);
-    },
-    (err) => {
-      console.log("Erreur lors de la mise à jour du feuille de retour: " + err);
-      return res
-        .status(400)
-        .send("Erreur lors de la mise à jour du feuille de retour: " + err);
-    }
-  );
-});
-
-router.get("/nb/last", (req, res) => {
-  return FeuilleRetour.find()
-    .sort({ feuilleRetourNb: -1 })
-    .limit(1)
-    .exec(async (err, feuilles) => {
-      if (err) {
-        console.log(
-          "Erreur dans la récupération du nombre du feuille de retour"
-        );
-        return res
-          .status(400)
-          .send("Erreur dans la récupération du nombre du feuille de retour");
+    { new: true },
+    (err, doc) => {
+      if (!err) {
+        res.status(200).send(doc);
       } else {
-        if (feuilles && feuilles.length === 0) {
-          return res.status(200).send("0");
-        } else {
-          return res.send(feuilles[0].feuilleRetourNb.toString());
-        }
+        console.log("Erreur lors de mise à jour de la finance: " + err);
+        res
+          .status(400)
+          .send("Erreur lors de mise à jour de la finance: " + err);
       }
-    });
+    }
+  );
 });
 
 // delete return sheet
@@ -352,14 +293,14 @@ router.get("/nb/last", (req, res) => {
 // router.delete("/:id", (req, res) => {
 //   if (!ObjectId.isValid(req.params.id))
 //     return res.status(400).send(`no record with given id ${req.params.id}`);
-//   FeuilleRetour.findByIdAndRemove(req.params.id, (err, doc) => {
+//   Finance.findByIdAndRemove(req.params.id, (err, doc) => {
 //     if (!err) {
 //       res.status(200);
 //       res.json({
-//         message: "feuille retour supprimée avec succès",
+//         message: "finance supprimée avec succès",
 //       });
 //     } else {
-//       console.log("Erreur dans la suppression du feuille de retour: " + err);
+//       console.log("Erreur dans la suppression de la finance: " + err);
 //       res.status(400).send(err.message);
 //     }
 //   });
@@ -397,7 +338,7 @@ router.get("/count/all", (req, res) => {
       $lte: new Date(endYear, endMonth, endDay, 23, 59, 59, 999),
     };
   }
-  var query = FeuilleRetour.find(queryObj);
+  var query = Finance.find(queryObj);
   query.count((err, count) => {
     if (!err) {
       res.send({ count: count });
@@ -409,7 +350,7 @@ router.get("/count/all", (req, res) => {
 });
 
 router.get("count-colis/:id", (req, res) => {
-  FeuilleRetour.find({ _id: req.params.id }).then(
+  Finance.find({ _id: req.params.id }).then(
     (res) => {
       res.send({ count: res.packages.length });
     },

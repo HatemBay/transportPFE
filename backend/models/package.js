@@ -46,6 +46,7 @@ var PackageSchema = new Schema(
         "livré (espèce)",
         "livré (chèque)",
         "annulé",
+        "retourné à",
         "reporté",
       ],
       reqiured: true,
@@ -62,7 +63,7 @@ var PackageSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Client",
     },
-    userId: {
+    warehouseManagerId: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },

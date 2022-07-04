@@ -17,11 +17,10 @@ import { DatePipe } from "@angular/common";
 import { NgxDatatableModule } from "@swimlane/ngx-datatable";
 import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
 import { NgxBarcodeModule } from "ngx-barcode";
-import { ImprimerRoadmapComponent } from "./pages/imprimer-roadmap/imprimer-roadmap.component";
 import { SafePipe } from "./safe.pipe";
+import { ImprimerRoadmapComponent } from "./pages/imprimer-roadmap/imprimer-roadmap.component";
 import { ImprimerFinanceComponent } from "./pages/imprimer-finance/imprimer-finance.component";
 import { ImprimerFeuilleRetourComponent } from "./pages/imprimer-feuille-retour/imprimer-feuille-retour.component";
-
 @NgModule({
   imports: [
     ReactiveFormsModule,

@@ -47,6 +47,7 @@ export class RechercheComponent implements OnInit {
     { state: "livré (chèque)", viewState: "Livré le " },
     { state: "annulé", viewState: "Annulé le " },
     { state: "payé", viewState: "Payé le " },
+    { state: "retourné à", viewState: "Retourné à " },
   ];
 
   constructor(

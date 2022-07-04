@@ -271,13 +271,13 @@ router.post("/", (req, res) => {
           ).then(
             () => res.send(doc),
             (err) => {
-              console.log("Erreur lors du mis à jour de la délegation: " + err);
+              console.log("Erreur lors de la mise à jour de la délegation: " + err);
               res.status(400).send(err.message);
             }
           );
         },
         (err) => {
-          console.log("Erreur lors du mis à jour du fournisseur: " + err);
+          console.log("Erreur lors de la mise à jour du fournisseur: " + err);
           res.status(400).send(err.message);
         }
       );
@@ -350,17 +350,17 @@ router.put("/:id", async (req, res) => {
             });
           },
           (err2) => {
-            console.log("Erreur lors de mis à jour de la délégation: " + err2);
+            console.log("Erreur lors de mise à jour de la délégation: " + err2);
             return res
               .status(400)
-              .send("Erreur lors du mis à jour de la délégation: " + err2);
+              .send("Erreur lors de la mise à jour de la délégation: " + err2);
           }
         );
       } else {
-        console.log("Erreur lors de mis à jour du client: " + err);
+        console.log("Erreur lors de mise à jour du client: " + err);
         return res
           .status(400)
-          .send("Erreur lors de mis à jour du client: " + err);
+          .send("Erreur lors de mise à jour du client: " + err);
       }
     }
   );
@@ -420,21 +420,21 @@ router.put("/:tel", async (req, res) => {
             },
             (err2) => {
               console.log(
-                "Erreur lors de mis à jour de la délégation: " + err2
+                "Erreur lors de mise à jour de la délégation: " + err2
               );
               return res
                 .status(400)
-                .send("Erreur lors du mis à jour de la délégation: " + err2);
+                .send("Erreur lors de la mise à jour de la délégation: " + err2);
             }
           );
         } else {
           return res.status(200).send(doc);
         }
       } else {
-        console.log("Erreur lors de mis à jour du client: " + err);
+        console.log("Erreur lors de mise à jour du client: " + err);
         return res
           .status(400)
-          .send("Erreur lors de mis à jour du client: " + err);
+          .send("Erreur lors de mise à jour du client: " + err);
       }
     }
   );

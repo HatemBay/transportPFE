@@ -180,14 +180,14 @@ router.post("/", (req, res) => {
             },
             (err2) => {
               console.log(
-                "Erreur lors du mis à jour de la délegation: " + err2
+                "Erreur lors de la mise à jour de la délegation: " + err2
               );
               res.status(400).send(err2.message);
             }
           );
         },
         (err) => {
-          console.log("Erreur lors du mis à jour de la filiere: " + err);
+          console.log("Erreur lors de la mise à jour de la filiere: " + err);
           res.status(400).send(err.message);
         }
       );
@@ -256,21 +256,21 @@ router.put("/:id", (req, res) => {
             },
             (err2) => {
               console.log(
-                "Erreur lors de mis à jour de la délégation: " + err2
+                "Erreur lors de mise à jour de la délégation: " + err2
               );
               res
                 .status(400)
-                .send("Erreur lors du mis à jour de la délégation: " + err2);
+                .send("Erreur lors de la mise à jour de la délégation: " + err2);
             }
           );
         } else {
           res.status(400).send(doc);
         }
       } else {
-        console.log("Erreur lors de mis à jour de l'utilisateur: " + err);
+        console.log("Erreur lors de mise à jour de l'utilisateur: " + err);
         res
           .status(400)
-          .send("Erreur lors de mis à jour de l'utilisateur: " + err);
+          .send("Erreur lors de mise à jour de l'utilisateur: " + err);
       }
     }
   );
@@ -298,7 +298,7 @@ router.delete("/:id", (req, res) => {
                   });
                 } else {
                   console.log(
-                    "Erreur lors du mis à jour de la délegation: " + err3
+                    "Erreur lors de la mise à jour de la délegation: " + err3
                   );
                   res.status(400).send(err3.message);
                 }

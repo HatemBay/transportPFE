@@ -79,8 +79,8 @@ router.put("/:id", (req, res) => {
       if (!err) {
         res.status(200).send(doc);
       } else {
-        console.log("Erreur lors de mis à jour de la filière: " + err);
-        res.status(400).send("Erreur lors de mis à jour de la filière: " + err);
+        console.log("Erreur lors de mise à jour de la filière: " + err);
+        res.status(400).send("Erreur lors de mise à jour de la filière: " + err);
       }
     }
   );

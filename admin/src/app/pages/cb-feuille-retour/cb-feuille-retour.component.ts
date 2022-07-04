@@ -320,11 +320,7 @@ export class CbFeuilleRetourComponent implements OnInit {
     // console.log(this.selected[0]._id);
   }
 
-  // allocate driver to return paper
-  allocate() {
-    console.log(this.selected[0]);
-    console.log(this.selected);
-
+  printNew() {
     this.feuilleRetourService
       .createFeuilleRetour({
         driverId: this.g.driverId.value,
@@ -334,11 +330,6 @@ export class CbFeuilleRetourComponent implements OnInit {
         this.success = true;
       });
 
-    this.print();
-  }
-
-  // print selecetd elements
-  print() {
     var CABs: Array<number> = [];
     for (var el of this.selected) {
       CABs.push(el.CAB);
@@ -367,6 +358,7 @@ export class CbFeuilleRetourComponent implements OnInit {
       WindowPrt.print();
       // WindowPrt.close();
     }, 1000);
+    this.getPackages();
   }
 
   // redirects to printable facture

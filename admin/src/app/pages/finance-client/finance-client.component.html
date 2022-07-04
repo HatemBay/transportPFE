@@ -88,14 +88,22 @@
           </div>
         </div>
         <div>
-          <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
+          <ngx-datatable #table class="bootstrap" [rows]="rowsFinance" [columns]="columns" [columnMode]="'force'"
             [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
-            [selectionType]="'checkbox'" [rowIdentity]="getId" (sort)="onSort($event)">
+            [selectionType]="'checkbox'" (sort)="onSort($event)">
 
-            <ngx-datatable-column [checkboxable]="true" [headerCheckboxable]="true" name="Code à barre">
+            <ngx-datatable-column name="Date">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  {{row.CAB}}
+                  {{row.createdAtSearch}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Numéro">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.financeNb}}
                 </span>
               </ng-template>
             </ngx-datatable-column>
@@ -108,19 +116,35 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column name="Adresse">
+            <ngx-datatable-column name="totalCOD">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  {{row.villef | titlecase}}, {{row.delegationf | titlecase}}
+                  {{row.totalCOD}}
                 </span>
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column name="Date">
+            <ngx-datatable-column name="Cout total de livraison">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  {{row.createdAtSearch}}
+                  {{row.totalFraisLivraison}}
                 </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Total hors frais de livraison">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.totalHorsFrais}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column [sortable]="false" name="Action" prop="{data: modifData, nom: nom}">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
+                <a [routerLink]="" (click)="toFacture(row)" class="btn btn-sm btn-primary rounded-circle">
+                  <i class="fa fa-eye"></i>
+                </a>
               </ng-template>
             </ngx-datatable-column>
 
@@ -146,7 +170,8 @@
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
       <h3 class="m-0 font-weight-bold ne_pas_imprimer">Statistiques client</h3>
       <div class="input-group-append ne_pas_imprimer">
-        <button id="enregistrer" class="btn btn-primary ml-5" (click)="print()">Enregistrer et Imprimer</button>
+        <button id="enregistrer" class="btn btn-primary ml-5" (click)="printNewFinance()">Enregistrer et
+          Imprimer</button>
       </div>
     </div>
     <div id="">
@@ -160,7 +185,7 @@
           <h5>ADRESSE : El jem</h5>
         </div>
         <div class="col-lg-5 text-center" style="width: 50%">
-          <h3 style="color: black; font-weight: bold;">Etat détaillé N°: 1 - 08/06/2022</h3>
+          <h3 style="color: black; font-weight: bold;">Etat détaillé N°: {{financeNb + 1}} - 08/06/2022</h3>
           <h6>Fournisseur : {{fournisseur[0].nom}} </h6>
           <h6>Tél : {{fournisseur[0].tel}}</h6>
           <h6>MF : 1579 HNM 000</h6>
@@ -173,15 +198,20 @@
         </div>
         <div class="col-lg-4" style="width: 50%">
           <div class="card-body">
-            <div class="alert alert-light border"> Frais de livraion <small>(par colis)</small>: 6.000</div>
-            <div class="alert alert-light border"> Frais de retour <small>(par colis)</small>: 0.000</div>
+            <div class="alert alert-light border"> Frais de livraion <small>(par colis)</small>: {{totalLivraison |
+              number: '1.3-3'}}
+            </div>
+            <div class="alert alert-light border"> Frais de retour <small>(par colis)</small>: {{totalRetour | number:
+              '1.3-3'}}</div>
           </div>
         </div>
         <div class="col-lg-8">
           <div class="card-body text-center">
-            <div class="alert alert-light border h3"> Total COD : {{totalCOD}},000</div>
-            <div class="alert alert-light border h3"> Total de livraison : 6,000</div>
-            <div class="alert alert-light border h3"> Total hors frais de livraison : 4,000</div>
+            <div class="alert alert-light border h3"> Total COD : {{totalCOD | number: '1.3-3'}}</div>
+            <div class="alert alert-light border h3"> Total de livraison : {{totalFraisLivraison | number: '1.3-3'}}
+            </div>
+            <div class="alert alert-light border h3"> Total hors frais de livraison : {{totalHorsFrais | number:
+              '1.3-3'}}</div>
 
             <input type="hidden" id="total_cod" value="10">
             <input type="hidden" id="cout_livraison" value="6">
@@ -193,9 +223,9 @@
           <h2>Livré</h2>
           <div>
             <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
-              [headerHeight]="50" [limit]="10" [footerHeight]="0" [rowHeight]="'auto'" [scrollbarH]="true">
+              [headerHeight]="50" [footerHeight]="0" [rowHeight]="'auto'" [scrollbarH]="true">
 
-              <ngx-datatable-column name="Code à barre">
+              <ngx-datatable-column [sortable]="false" name="Code à barre">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
                     {{row.CAB}}
@@ -203,15 +233,15 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="Client">
+              <ngx-datatable-column [sortable]="false" name="Client">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{row.nomc | titlecase}}
+                    {{row.nomf | titlecase}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="Téléphone">
+              <ngx-datatable-column [sortable]="false" name="Téléphone">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
                     {{row.telc}}
@@ -219,7 +249,7 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="Adresse">
+              <ngx-datatable-column [sortable]="false" name="Adresse">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
                     {{row.villef | titlecase}}, {{row.delegationf | titlecase}}
@@ -227,7 +257,7 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="Etat">
+              <ngx-datatable-column [sortable]="false" name="Etat">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
                     {{row.etat | titlecase}}
@@ -235,7 +265,7 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="COD">
+              <ngx-datatable-column [sortable]="false" name="COD">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
                     {{row.c_remboursement | number: '1.3-3'}}
@@ -247,9 +277,9 @@
           <h2 class="mt-5">Retourné à l'expéditeur</h2>
           <div>
             <ngx-datatable #table class="bootstrap" [rows]="rows2" [columns]="columns" [columnMode]="'force'"
-              [headerHeight]="50" [limit]="10" [footerHeight]="0" [rowHeight]="'auto'" [scrollbarH]="true">
+              [headerHeight]="50" [footerHeight]="0" [rowHeight]="'auto'" [scrollbarH]="true">
 
-              <ngx-datatable-column name="Code à barre">
+              <ngx-datatable-column [sortable]="false" name="Code à barre">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
                     {{row.CAB}}
@@ -257,7 +287,7 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="Client">
+              <ngx-datatable-column [sortable]="false" name="Client">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
                     {{row.nomc | titlecase}}
@@ -265,7 +295,7 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="Téléphone">
+              <ngx-datatable-column [sortable]="false" name="Téléphone">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
                     {{row.telc}}
@@ -273,7 +303,7 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="Adresse">
+              <ngx-datatable-column [sortable]="false" name="Adresse">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
                     {{row.villef | titlecase}}, {{row.delegationf | titlecase}}
@@ -281,7 +311,7 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="Etat">
+              <ngx-datatable-column [sortable]="false" name="Etat">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
                     {{row.etat | titlecase}}
@@ -289,7 +319,7 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="COD">
+              <ngx-datatable-column [sortable]="false" name="COD">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
                     {{row.c_remboursement | number: '1.3-3'}}

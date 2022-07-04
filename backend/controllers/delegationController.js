@@ -100,7 +100,7 @@ router.post("/", (req, res) => {
           res.status(200).send(doc);
         },
         (err) => {
-          console.log("Erreur lors du mis à jour de la ville: " + err);
+          console.log("Erreur lors de la mise à jour de la ville: " + err);
           res.status(400).send(err.message);
         }
       );
@@ -127,10 +127,10 @@ router.put("/:id", (req, res) => {
       if (!err) {
         res.status(200).send(doc);
       } else {
-        console.log("Erreur lors de mis à jour de la delegation: " + err);
+        console.log("Erreur lors de mise à jour de la delegation: " + err);
         res
           .status(400)
-          .send("Erreur lors de mis à jour de la delegation: " + err);
+          .send("Erreur lors de mise à jour de la delegation: " + err);
       }
     }
   );

@@ -14,6 +14,7 @@ var HistoriqueSchema = new Schema(
         "livré (espèce)",
         "livré (chèque)",
         "annulé",
+        "retourné à",
         "reporté",
       ],
       required: true,

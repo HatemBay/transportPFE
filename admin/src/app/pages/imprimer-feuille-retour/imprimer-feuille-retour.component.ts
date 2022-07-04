@@ -34,8 +34,7 @@ export class ImprimerFeuilleRetourComponent implements OnInit {
 
     packageCABs.forEach((element) => {
       this.getPackageData(element);
-      // TODO: change state after feuille-retour allocation
-      // this.changeState(element);
+      this.changeState(element);
     });
     if (!JSON.parse(this.nb)) this.getLastFeuilleRetourNb();
     else this.feuilleRetourNb = this.nb;
@@ -45,7 +44,6 @@ export class ImprimerFeuilleRetourComponent implements OnInit {
     this.packageService.getFullPackageByCAB(element).subscribe((data) => {
       this.packages.push(data[0]);
       console.log(data[0]);
-
     });
   }
 
@@ -58,8 +56,8 @@ export class ImprimerFeuilleRetourComponent implements OnInit {
   }
 
   public changeState(element: any) {
-    // this.packageService
-    //   .updatePackageByCAB(element, { etat: "en cours" })
-    //   .subscribe();
+    this.packageService
+      .updatePackageByCAB(element, { etat: "retourné à" })
+      .subscribe();
   }
 }

@@ -3,6 +3,7 @@ import { FournisseurService } from "src/app/services/fournisseur.service";
 import { Component, OnInit } from "@angular/core";
 import { map } from "rxjs";
 import { ActivatedRoute } from "@angular/router";
+import { FinanceService } from "src/app/services/finance.service";
 
 @Component({
   selector: "app-imprimer-finance",
@@ -15,17 +16,35 @@ export class ImprimerFinanceComponent implements OnInit {
   fournisseur: any = [];
   fourn: any = [];
   packages: any = [];
+  CABs: string;
+  nb: any;
+  financeNb: number;
 
   constructor(
     private fournisseurService: FournisseurService,
+    private financeService: FinanceService,
     private packageService: PackageService,
     private route: ActivatedRoute
   ) {
-    this.fourn = this.route.snapshot.queryParamMap.get("fournisseur");
+    this.fourn = this.route.snapshot.queryParamMap.get("fournisseurId");
+    this.CABs = this.route.snapshot.queryParamMap.get("CABs");
+    this.nb = this.route.snapshot.queryParamMap.get("nb");
   }
 
   ngOnInit(): void {
-    this.initiateData();
+    if (this.nb && this.nb !== null) {
+      this.initiateData();
+    } else {
+      const packageCABs = JSON.parse(this.CABs);
+
+      packageCABs.forEach((element) => {
+        this.getPackageData(element);
+        // TODO: change state after feuille-retour allocation
+        // this.changeState(element);
+      });
+      if (!JSON.parse(this.nb)) this.getLastFinanceNb();
+      else this.financeNb = this.nb;
+    }
   }
 
   async initiateData() {
@@ -57,10 +76,25 @@ export class ImprimerFinanceComponent implements OnInit {
     this.rows2 = annulé;
   }
 
-  async getProvider(dournisseurId: string) {
+  async getProvider(fournisseurId: string) {
     return await this.fournisseurService
-      .getFournisseur(dournisseurId)
+      .getFournisseur(fournisseurId)
       .toPromise();
+  }
+
+  getPackageData(element: any) {
+    this.packageService.getFullPackageByCAB(element).subscribe((data) => {
+      this.packages.push(data[0]);
+      console.log(data[0]);
+    });
+  }
+
+  getLastFinanceNb() {
+    this.financeService.getLastFinanceNb().subscribe((data) => {
+      console.log("data");
+      console.log(data);
+      this.financeNb = data;
+    });
   }
 
   async getPackagesByProvider(

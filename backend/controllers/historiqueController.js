@@ -7,11 +7,77 @@ var { Historique } = require("../models/historique");
 const { Package } = require("../models/package");
 
 router.get("/", (req, res) => {
-  Historique.find().exec((err, historiques) => {
-    if (!err) return res.send(historiques);
-    return res
-      .status(400)
-      .send("Erreur lors de la récupération des historiques: " + err);
+  data = [
+    {
+      $lookup: {
+        from: "packages",
+        localField: "packageId",
+        foreignField: "_id",
+        as: "packages",
+      },
+    },
+    { $unwind: "$packages" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "packages.userId",
+        foreignField: "$_id",
+        as: "users",
+      },
+    },
+    { $unwind: "$users" },
+    {
+      $lookup: {
+        from: "filieres",
+        localField: "users.filiereId",
+        foreignField: "$_id",
+        as: "filieres",
+      },
+    },
+    { $unwind: "$filieres" },
+    {
+      $lookup: {
+        from: "fournisseurs",
+        localField: "packages.fournisseurId",
+        foreignField: "$_id",
+        as: "fournisseurs",
+      },
+    },
+    { $unwind: "$fournisseurs" },
+    {
+      $project: {
+        _id: 1,
+        action: 1,
+        date: 1,
+        packageId: "$packages._id",
+        packageId: "$packages._id",
+        filiere: "$filieres.nom",
+        createdAt: 1,
+        updatedAt: 1,
+        dateSearch: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$date" },
+        },
+      },
+    },
+    {
+      $addFields: {
+        createdAtSearch: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
+        },
+      },
+    },
+    {
+      $sort: sort,
+    },
+  ];
+
+  Historique.aggregate(data).exec((err, doc) => {
+    if (!err) {
+      return res.send({
+        length: doc.length,
+        data: doc.slice(skip).slice(0, limit),
+      });
+    } else console.log("Erreur lors de la récupération des historiques: " + err);
   });
 });
 
@@ -24,7 +90,6 @@ router.get("/:id", (req, res) => {
   });
 });
 
-// create branch
 router.post("/", (req, res) => {
   const historique = new Historique();
 
@@ -53,10 +118,10 @@ router.put("/:id", (req, res) => {
       if (!err) {
         res.status(200).send(doc);
       } else {
-        console.log("Erreur lors de mis à jour de l'historique: " + err);
+        console.log("Erreur lors de mise à jour de l'historique: " + err);
         res
           .status(400)
-          .send("Erreur lors de mis à jour de l'historique: " + err);
+          .send("Erreur lors de mise à jour de l'historique: " + err);
       }
     }
   );
@@ -79,7 +144,7 @@ router.delete("/:id", (req, res) => {
               message: "Historique supprimée avec succès",
             });
           } else {
-            console.log("Erreur lors de la mis à jour du colis: " + err2);
+            console.log("Erreur lors de la mise à jour du colis: " + err2);
             return res.status(400).send(err.message);
           }
         }
@@ -89,6 +154,6 @@ router.delete("/:id", (req, res) => {
       return res.status(400).send(err.message);
     }
   });
-}); 
+});
 
 module.exports = router;

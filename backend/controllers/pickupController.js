@@ -370,10 +370,10 @@ router.put("/:id", (req, res) => {
       return res.status(200).send(pickup);
     },
     (err) => {
-      console.log("Erreur lors du mis à jour du pickup: " + err);
+      console.log("Erreur lors de la mise à jour du pickup: " + err);
       return res
         .status(400)
-        .send("Erreur lors du mis à jour du pickup: " + err);
+        .send("Erreur lors de la mise à jour du pickup: " + err);
     }
   );
 });

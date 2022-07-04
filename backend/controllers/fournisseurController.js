@@ -13,14 +13,16 @@ router.post("/", (req, res) => {
   var encrypted = fournisseur.setPassword(req.body.password, res);
   if (!encrypted) return;
 
-  (fournisseur.email = req.body.email),
-    (fournisseur.nom = req.body.nom),
-    (fournisseur.delegationId = req.body.delegationId),
-    (fournisseur.adresse = req.body.adresse),
-    (fournisseur.codePostale = req.body.codePostale),
-    (fournisseur.tel = req.body.tel),
-    (fournisseur.salt = encrypted[0]),
-    (fournisseur.hash = encrypted[1]);
+  fournisseur.email = req.body.email;
+  fournisseur.nom = req.body.nom;
+  fournisseur.delegationId = req.body.delegationId;
+  fournisseur.fraisLivraison = req.body.fraisLivraison;
+  fournisseur.fraisRetour = req.body.fraisRetour;
+  fournisseur.adresse = req.body.adresse;
+  fournisseur.codePostale = req.body.codePostale;
+  fournisseur.tel = req.body.tel;
+  fournisseur.salt = encrypted[0];
+  fournisseur.hash = encrypted[1];
 
   // if err add return
   fournisseur.save().then(
@@ -34,7 +36,7 @@ router.post("/", (req, res) => {
           return res.status(200).send(fournisseur);
         },
         (err2) => {
-          console.log("Erreur lors du mis à jour de la délegation: " + err2);
+          console.log("Erreur lors de la mise à jour de la délegation: " + err2);
           return res.status(400).send(err2.message);
         }
       );
@@ -79,6 +81,8 @@ router.get("/", (req, res) => {
         _id: 1,
         email: 1,
         nom: 1,
+        fraisLivraison: 1,
+        fraisRetour: 1,
         villeId: "$villes._id",
         ville: "$villes.nom",
         delegationId: "$delegations._id",
@@ -159,6 +163,8 @@ router.get("/:id", (req, res) => {
         _id: 1,
         email: 1,
         nom: 1,
+        fraisLivraison: 1,
+        fraisRetour: 1,
         villeId: "$villes._id",
         ville: "$villes.nom",
         delegationId: "$delegations._id",
@@ -248,21 +254,21 @@ router.put("/:id", (req, res) => {
             },
             (err2) => {
               console.log(
-                "Erreur lors de mis à jour de la délégation: " + err2
+                "Erreur lors de mise à jour de la délégation: " + err2
               );
               res
                 .status(400)
-                .send("Erreur lors du mis à jour de la délégation: " + err2);
+                .send("Erreur lors de la mise à jour de la délégation: " + err2);
             }
           );
         } else {
           res.status(400).send(doc);
         }
       } else {
-        console.log("Erreur lors de mis à jour du fournisseur: " + err);
+        console.log("Erreur lors de mise à jour du fournisseur: " + err);
         res
           .status(400)
-          .send("Erreur lors de mis à jour du fournisseur: " + err);
+          .send("Erreur lors de mise à jour du fournisseur: " + err);
       }
     }
   );
@@ -283,7 +289,7 @@ router.delete("/:id", (req, res) => {
               message: "Fournisseur supprimé",
             });
           } else {
-            console.log("Erreur lors du mis à jour de la délegation: " + err2);
+            console.log("Erreur lors de la mise à jour de la délegation: " + err2);
             res.status(400).send(err2.message);
           }
         }
