@@ -332,7 +332,6 @@ router.put("/:id", (req, res) => {
     {
       $set: {
         driverId: req.body.driverId,
-        isAllocated: 1,
       },
     },
     { new: true }

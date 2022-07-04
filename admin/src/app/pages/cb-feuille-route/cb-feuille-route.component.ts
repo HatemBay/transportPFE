@@ -293,7 +293,7 @@ export class CbFeuilleRouteComponent implements OnInit {
     this.currentPage = parseInt(page, 10);
   }
 
-  // redirects to printable facture for pickup
+  // redirects to printable facture for roadmap
   toFacture(row) {
     var CABs = [];
     console.log(row.packages);

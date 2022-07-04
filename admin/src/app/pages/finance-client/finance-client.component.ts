@@ -63,6 +63,8 @@ export class FinanceClientComponent implements OnInit {
     private route: ActivatedRoute,
     private packageService: PackageService
   ) {
+    console.log(this.route.snapshot.queryParamMap.get("fournisseur"));
+
     this.fourn = this.route.snapshot.queryParamMap.get("fournisseur") || null;
     // console.log(JSON.parse(this.fourn));
   }

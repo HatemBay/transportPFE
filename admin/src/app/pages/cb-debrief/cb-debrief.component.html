@@ -129,7 +129,7 @@
               <ngx-datatable-column name="Livré">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{countEtat(row, 'livré livré (espèce)')}}
+                    {{countEtat(row, 'livré (espèce)')}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
@@ -137,7 +137,7 @@
               <ngx-datatable-column name="Livré autre moyen">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{countEtat(row, 'livré livré (chèque)')}}
+                    {{countEtat(row, 'livré (chèque)')}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
@@ -341,7 +341,7 @@
                   </td>
                   <td> {{package.client}} </td>
                   <td id="tr_36317525"> {{package.etat}} </td>
-                  <td class="text-center"> {{row.c_remboursement | number: '1.3-3'}} </td>
+                  <td class="text-center"> {{package.c_remboursement | number: '1.3-3'}} </td>
                 </tr>
               </ng-container>
             </tbody>

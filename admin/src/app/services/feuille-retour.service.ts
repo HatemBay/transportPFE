@@ -27,14 +27,13 @@ export class FeuilleRetourService {
   }
 
   // Get return sheet
-  getFeuilleRetour(id: any) {
+  getFeuilleRetour(id: any): Observable<any> {
     const url = `${this.baseUri}/${id}`;
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }
 
   // Get all return sheets with all foreign info
   getFeuilleRetours(
-    isAllocated?: any,
     limit?: any,
     page?: any,
     sortBy?: any,
@@ -42,12 +41,9 @@ export class FeuilleRetourService {
     search?: any,
     startDate?: any,
     endDate?: any
-  ) {
+  ): Observable<any> {
     const url = `${this.baseUri}`;
     var queryParams = new HttpParams();
-    if (isAllocated) {
-      queryParams = queryParams.append("isAllocated", isAllocated);
-    }
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);
     if (sortBy) {
@@ -85,16 +81,9 @@ export class FeuilleRetourService {
   }
 
   // Count return sheets
-  countFeuilleRetours(
-    isAllocated?: any,
-    startDate?: any,
-    endDate?: any
-  ): Observable<any> {
+  countFeuilleRetours(startDate?: any, endDate?: any): Observable<any> {
     let url = `${this.baseUri}/count/all`;
     var queryParams = new HttpParams();
-    if (isAllocated) {
-      queryParams = queryParams.append("isAllocated", isAllocated);
-    }
     if (startDate) {
       queryParams = queryParams.append("startDate", startDate);
     }
@@ -113,7 +102,7 @@ export class FeuilleRetourService {
   }
 
   // Get last feuille-retour number
-  getLastFeuilleRetourNb() {
+  getLastFeuilleRetourNb(): Observable<any> {
     const url = `${this.baseUri}/nb/last`;
     return this.http.get(url, { headers: this.headers }); //if error try removing/adding header
   }

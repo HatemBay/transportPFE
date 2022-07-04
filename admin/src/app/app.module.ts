@@ -8,7 +8,6 @@ import { AppComponent } from "./app.component";
 import { AdminLayoutComponent } from "./layouts/admin-layout/admin-layout.component";
 import { AuthLayoutComponent } from "./layouts/auth-layout/auth-layout.component";
 
-
 import { NgbActiveModal, NgbModule } from "@ng-bootstrap/ng-bootstrap";
 
 import { AppRoutingModule } from "./app.routing";
@@ -19,8 +18,9 @@ import { NgxDatatableModule } from "@swimlane/ngx-datatable";
 import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
 import { NgxBarcodeModule } from "ngx-barcode";
 import { ImprimerRoadmapComponent } from "./pages/imprimer-roadmap/imprimer-roadmap.component";
-import { SafePipe } from './safe.pipe';
-import { ImprimerFinanceComponent } from './pages/imprimer-finance/imprimer-finance.component';
+import { SafePipe } from "./safe.pipe";
+import { ImprimerFinanceComponent } from "./pages/imprimer-finance/imprimer-finance.component";
+import { ImprimerFeuilleRetourComponent } from "./pages/imprimer-feuille-retour/imprimer-feuille-retour.component";
 
 @NgModule({
   imports: [
@@ -42,6 +42,7 @@ import { ImprimerFinanceComponent } from './pages/imprimer-finance/imprimer-fina
     LoginComponent,
     ImprimerComponent,
     ImprimerRoadmapComponent,
+    ImprimerFeuilleRetourComponent,
     SafePipe,
     ImprimerFinanceComponent,
   ],

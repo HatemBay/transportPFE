@@ -56,23 +56,87 @@ export class CbFeuilleRetourComponent implements OnInit {
     private userService: UserService,
     private packageService: PackageService,
     private feuilleRetourService: FeuilleRetourService,
+    private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+    this.routePath = this.route.snapshot.routeConfig.path;
+  }
 
   ngOnInit(): void {
-    this.columns = [{ prop: "createdAtSearch", name: "Date" }];
+    if (this.routePath === "feuille-de-retour") {
+      this.columns = [{ prop: "createdAtSearch", name: "Date" }];
 
-    this.fournisseursForm = this.fb.group({
-      fournisseurs: ["", Validators.required],
-    });
+      this.fournisseursForm = this.fb.group({
+        fournisseurs: ["", Validators.required],
+      });
 
-    this.chauffeursForm = this.fb.group({
-      driverId: ["", Validators.required],
-      // TODO: to be added
-      // vehicules: ["", Validators.required],
-    });
+      this.chauffeursForm = this.fb.group({
+        driverId: ["", Validators.required],
+        // TODO: to be added
+        // vehicules: ["", Validators.required],
+      });
 
-    this.initiateData();
+      this.initiateData();
+    } else {
+      this.columns = [
+        { prop: "feuilleRetourNb", name: "N° bon de sortie" },
+        { prop: "nbPackages", name: "Nbre de colis" },
+        { prop: "nomd", name: "Chauffeur" },
+        { prop: "createdAtSearch", name: "Date" },
+      ];
+
+      this.getRoadmapData();
+    }
+  }
+
+  getRoadmapData(
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any
+  ) {
+    this.feuilleRetourService
+      .getFeuilleRetours(limit, page, sortBy, sort, search)
+      .subscribe((data) => {
+        this.rows = this.temp = data.data;
+        this.count = data.length;
+      });
+  }
+
+  updateFilterHistorique(event) {
+    this.val = event.target.value.toLowerCase();
+
+    this.getRoadmapData(this.currentPageLimit, 1, null, null, this.val);
+  }
+
+  onSortHistorique(event) {
+    this.getRoadmapData(
+      this.currentPageLimit,
+      event.page,
+      event.sorts[0].prop,
+      event.newValue,
+      this.val
+    );
+  }
+
+  // When number of displayed elements changes
+  public onLimitChangeHistorique(limit: any): void {
+    this.changePageLimit(limit);
+    this.table.limit = this.currentPageLimit;
+    this.getRoadmapData(limit, null, null, null, this.val);
+  }
+
+  // When page changes
+  onFooterPageHistorique(event) {
+    this.changePage(event.page);
+    this.getRoadmapData(
+      this.currentPageLimit,
+      event.page,
+      null,
+      null,
+      this.val
+    );
   }
 
   async initiateData() {
@@ -143,7 +207,6 @@ export class CbFeuilleRetourComponent implements OnInit {
     this.currentPageLimit = parseInt(limit, 10);
   }
 
-  // Data sorting
   onSort(event) {
     // console.log(this.fournisseursForm.value.fournisseurs);
     this.getPackagesByProvider(
@@ -178,7 +241,7 @@ export class CbFeuilleRetourComponent implements OnInit {
       .getUsersByRole("chauffeur")
       .pipe(
         map((data) => {
-          return data.data;
+          return data;
         })
       )
       .toPromise();
@@ -304,5 +367,40 @@ export class CbFeuilleRetourComponent implements OnInit {
       WindowPrt.print();
       // WindowPrt.close();
     }, 1000);
+  }
+
+  // redirects to printable facture
+  toFacture(row) {
+    var CABs = [];
+    console.log(row.packages);
+    for (var el of row.packages) {
+      CABs.push(el.CAB);
+    }
+
+    // Create our query parameters object
+    const queryParams: any = {};
+    queryParams.CABs = JSON.stringify(CABs);
+    queryParams.type = "historique";
+    queryParams.nb = row.feuilleRetourNb;
+    var navigationExtras: NavigationExtras = {
+      queryParams,
+    };
+    console.log(navigationExtras.queryParams);
+
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(["/imprimer-feuille-retour"], navigationExtras)
+    );
+
+    const WindowPrt = window.open(
+      url,
+      "_blank",
+      "left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0"
+    );
+
+    WindowPrt.setTimeout(function () {
+      WindowPrt.focus();
+      WindowPrt.print();
+      // WindowPrt.close();
+    }, 2000);
   }
 }

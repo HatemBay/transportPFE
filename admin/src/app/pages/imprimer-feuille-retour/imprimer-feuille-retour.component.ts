@@ -10,9 +10,11 @@ import { RoadmapService } from "src/app/services/roadmap.service";
   styleUrls: ["./imprimer-feuille-retour.component.scss"],
 })
 export class ImprimerFeuilleRetourComponent implements OnInit {
+  routePath: string;
   CABs: string;
   nb: any;
   feuilleRetourNb: any;
+
   packages: any = [];
 
   constructor(
@@ -20,7 +22,9 @@ export class ImprimerFeuilleRetourComponent implements OnInit {
     private feuilleRetourService: FeuilleRetourService,
     private packageService: PackageService
   ) {
+    this.routePath = this.route.snapshot.routeConfig.path;
     this.CABs = this.route.snapshot.queryParamMap.get("CABs");
+    this.nb = this.route.snapshot.queryParamMap.get("nb");
 
     console.log(this.CABs);
   }
@@ -28,18 +32,20 @@ export class ImprimerFeuilleRetourComponent implements OnInit {
   ngOnInit(): void {
     const packageCABs = JSON.parse(this.CABs);
 
-    // if (typeof packageCABs === "string") {
     packageCABs.forEach((element) => {
       this.getPackageData(element);
       // TODO: change state after feuille-retour allocation
       // this.changeState(element);
     });
-    this.getLastFeuilleRetourNb();
+    if (!JSON.parse(this.nb)) this.getLastFeuilleRetourNb();
+    else this.feuilleRetourNb = this.nb;
   }
 
   getPackageData(element: any) {
     this.packageService.getFullPackageByCAB(element).subscribe((data) => {
       this.packages.push(data[0]);
+      console.log(data[0]);
+
     });
   }
 
@@ -49,5 +55,11 @@ export class ImprimerFeuilleRetourComponent implements OnInit {
       console.log(data);
       this.feuilleRetourNb = data;
     });
+  }
+
+  public changeState(element: any) {
+    // this.packageService
+    //   .updatePackageByCAB(element, { etat: "en cours" })
+    //   .subscribe();
   }
 }

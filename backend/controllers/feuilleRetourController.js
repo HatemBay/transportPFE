@@ -295,7 +295,6 @@ router.put("/:id", (req, res) => {
     {
       $set: {
         driverId: req.body.driverId,
-        isAllocated: 1,
       },
     },
     { new: true }
@@ -376,9 +375,6 @@ router.get("/count/all", (req, res) => {
   var endDay = null;
 
   const queryObj = {};
-  if (req.query.isAllocated) {
-    queryObj["isAllocated"] = req.query.isAllocated;
-  }
 
   if (startDate && endDate) {
     const dateS = new Date(req.query.startDate);
