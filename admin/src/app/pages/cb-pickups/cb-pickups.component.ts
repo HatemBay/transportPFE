@@ -134,7 +134,6 @@ export class CbPickupsComponent implements OnInit {
           this.selected[i] = false;
         }
         console.log(this.selected);
-
       });
   }
 
@@ -318,7 +317,5 @@ export class CbPickupsComponent implements OnInit {
     let index = this.rows.indexOf(row);
     this.selected[index] = true;
     console.log(this.selected);
-
-
   }
 }

@@ -34,6 +34,7 @@ export class FinanceService {
 
   // Get all return sheets with all foreign info
   getFinances(
+    fournisseurId: any,
     limit?: any,
     page?: any,
     sortBy?: any,
@@ -44,6 +45,7 @@ export class FinanceService {
   ): Observable<any> {
     const url = `${this.baseUri}`;
     var queryParams = new HttpParams();
+    queryParams = queryParams.append("fournisseurId", fournisseurId);
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);
     if (sortBy) {

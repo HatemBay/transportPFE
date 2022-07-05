@@ -70,7 +70,7 @@ export class PackageService {
     search?: any,
     etat?: any,
     startDate?: any,
-    endDate?: any,
+    endDate?: any
   ): Observable<any> {
     const url = `${this.baseUri}/all-info/${this.userId}`;
     var queryParams = new HttpParams();

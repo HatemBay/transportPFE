@@ -1,6 +1,9 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { NavigationExtras, Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { map } from "rxjs";
+import { AuthenticationService } from "src/app/services/authentication.service";
+import { FinanceService } from "src/app/services/finance.service";
 import { PackageService } from "src/app/services/package.service";
 
 @Component({
@@ -30,7 +33,12 @@ export class FinanceComponent implements OnInit {
   count: any;
   val: string;
 
-  constructor(private packageService: PackageService, private router: Router) {}
+  constructor(
+    private packageService: PackageService,
+    private financeService: FinanceService,
+    private router: Router,
+    private authService: AuthenticationService
+  ) {}
 
   ngOnInit(): void {
     // Initial columns, can be used for data list which is will be filtered
@@ -42,9 +50,58 @@ export class FinanceComponent implements OnInit {
       { prop: "codePostale", name: "CodePostale" },
     ];
 
-    this.countPackages();
+    this.initiateData();
+  }
 
-    this.getDataJson();
+  initiateData() {
+    this.getFinances();
+  }
+
+  async getFinances() {
+    return await this.financeService
+      .getFinances(this.authService.getUserDetails()._id)
+      .pipe(
+        map((data) => {
+          this.count = data.length;
+          this.rows = data.data;
+        })
+      )
+      .toPromise();
+  }
+
+  // redirects to printable facture
+  toFacture(row) {
+    var CABs = [];
+    console.log(row.packages);
+    for (var el of row.packages) {
+      CABs.push(el.CAB);
+    }
+
+    // Create our query parameters object
+    const queryParams: any = {};
+    queryParams.CABs = JSON.stringify(CABs);
+    queryParams.finance = row._id;
+    queryParams.nb = row.financeNb;
+    var navigationExtras: NavigationExtras = {
+      queryParams,
+    };
+    console.log(navigationExtras.queryParams);
+
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(["/imprimer-finance"], navigationExtras)
+    );
+
+    const WindowPrt = window.open(
+      url,
+      "_blank",
+      "left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0"
+    );
+
+    WindowPrt.setTimeout(function () {
+      WindowPrt.focus();
+      WindowPrt.print();
+      // WindowPrt.close();
+    }, 2000);
   }
 
   // get data from backend
@@ -98,18 +155,18 @@ export class FinanceComponent implements OnInit {
   }
 
   updateFilter(event) {
-      this.val = event.target.value.toLowerCase();
-      if (event.target.value.length > 2) {
+    this.val = event.target.value.toLowerCase();
+    if (event.target.value.length > 2) {
       this.getDataJson(this.currentPageLimit, 1, null, null, this.val);
     } else {
       this.getDataJson(this.currentPageLimit, 1, null, null, null);
     }
   }
 
-    // preserve the ui presenting selected elements after changing pages
-    getId(row) {
-      return row._id;
-    }
+  // preserve the ui presenting selected elements after changing pages
+  getId(row) {
+    return row._id;
+  }
 
   onSelect({ selected }) {
     console.log("Select Event", selected, this.selected);
@@ -131,8 +188,7 @@ export class FinanceComponent implements OnInit {
   view(data) {
     console.log(data);
     var navigationExtras: NavigationExtras = {
-      queryParams: {
-      },
+      queryParams: {},
     };
     console.log(navigationExtras.queryParams);
 

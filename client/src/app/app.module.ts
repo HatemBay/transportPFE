@@ -17,6 +17,7 @@ import { DatePipe } from "@angular/common";
 import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
 import { NgxBarcodeModule } from "ngx-barcode";
 import { ImprimerPickupComponent } from "./pages/imprimer-pickup/imprimer-pickup.component";
+import { ImprimerFinanceComponent } from "./pages/imprimer-finance/imprimer-finance.component";
 
 @NgModule({
   imports: [
@@ -37,6 +38,7 @@ import { ImprimerPickupComponent } from "./pages/imprimer-pickup/imprimer-pickup
     LoginComponent,
     ImprimerComponent,
     ImprimerPickupComponent,
+    ImprimerFinanceComponent,
   ],
   providers: [DatePipe],
   bootstrap: [AppComponent],

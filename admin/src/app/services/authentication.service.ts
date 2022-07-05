@@ -85,7 +85,7 @@ export class AuthenticationService {
 
   public isLoggedIn(): boolean {
     const user = this.getUserDetails();
-    if (user) {
+    if (user && user.role) {
       return user.exp > Date.now() / 1000;
     } else {
       return false;

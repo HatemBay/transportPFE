@@ -53,6 +53,7 @@ export class FinanceClientComponent implements OnInit {
   totalHorsFrais: number = 0;
   totalLivraison: number = 0;
   totalRetour: number = 0;
+  date: any;
 
   public currentPageLimit: number = 10;
   public currentPage: number = 1;
@@ -77,11 +78,9 @@ export class FinanceClientComponent implements OnInit {
     private route: ActivatedRoute,
     private packageService: PackageService
   ) {
-    console.log(this.route.snapshot.queryParamMap.get("fournisseur"));
+    this.date = new Date();
 
     this.fourn = this.route.snapshot.queryParamMap.get("fournisseur") || null;
-    // console.log(JSON.parse(this.fourn));
-    console.log("slm");
   }
 
   ngOnInit(): void {
@@ -142,7 +141,7 @@ export class FinanceClientComponent implements OnInit {
     if (this.fourn !== null) {
       this.packages = await this.getPackagesByProvider(
         this.fourn,
-        50,
+        50, //TODO: change
         1,
         null,
         null,
@@ -155,26 +154,21 @@ export class FinanceClientComponent implements OnInit {
       }
 
       var livré = [];
-      var annulé = [];
+      var retourné = [];
+
       for (let pack of this.packages) {
         if (pack.etat === "livré (espèce)" || pack.etat === "livré (chèque)") {
-          console.log(this.fournisseur[0]);
-
           this.totalLivraison += this.fournisseur[0].fraisLivraison;
           livré = [...livré, pack];
-        } else if (
-          pack.etat === "annulé" //TODO: to be changed to 'retourné à l'expéditeur
-        ) {
+        } else if (pack.etat === "retourné") {
           this.totalRetour += this.fournisseur[0].fraisRetour;
-          annulé = [...annulé, pack];
+          retourné = [...retourné, pack];
         }
       }
       this.totalFraisLivraison = this.totalLivraison + this.totalRetour;
       this.totalHorsFrais = this.totalCOD - this.totalFraisLivraison;
       this.rows = livré;
-      this.rows2 = annulé;
-      // console.log(this.rows);
-      // console.log(this.rows2);
+      this.rows2 = retourné;
 
       this.fournisseursForm.patchValue({ fournisseurs: this.fourn });
       this.toPrint = true;
@@ -217,8 +211,6 @@ export class FinanceClientComponent implements OnInit {
       .getFinances(limit, page, sortBy, sort, search, startDate, endDate)
       .pipe(
         map((data) => {
-          console.log(data.data);
-
           return data.data;
         })
       )
@@ -269,7 +261,7 @@ export class FinanceClientComponent implements OnInit {
             if (
               item.etat === "livré (espèce)" ||
               item.etat === "livré (chèque)" ||
-              item.etat === "annulé" //TODO: to be changed to 'retourné à l'expéditeur
+              item.etat === "retourné"
             ) {
               result = [...result, item];
             }
@@ -346,7 +338,6 @@ export class FinanceClientComponent implements OnInit {
 
   // Data sorting
   onSort(event) {
-    // console.log(this.fournisseursForm.value.fournisseurs);
     if (this.init) {
       this.getFinancesData(
         this.currentPageLimit,
@@ -411,7 +402,6 @@ export class FinanceClientComponent implements OnInit {
   // redirects to printable facture
   toFacture(row) {
     var CABs = [];
-    console.log(row.packages);
     for (var el of row.packages) {
       CABs.push(el.CAB);
     }
@@ -421,10 +411,11 @@ export class FinanceClientComponent implements OnInit {
     queryParams.CABs = JSON.stringify(CABs);
     queryParams.type = "historique";
     queryParams.nb = row.financeNb;
+    queryParams.fournisseurId = row.fournisseurId;
+    queryParams.financeId = row._id;
     var navigationExtras: NavigationExtras = {
       queryParams,
     };
-    console.log(navigationExtras.queryParams);
 
     const url = this.router.serializeUrl(
       this.router.createUrlTree(["/imprimer-finance"], navigationExtras)
@@ -465,11 +456,21 @@ export class FinanceClientComponent implements OnInit {
 
     // Create our query parameters object
     const queryParams: any = {};
+    queryParams.type = "new";
     queryParams.CABs = JSON.stringify(CABs);
+    queryParams.fournisseurId = this.f.fournisseurs.value;
+    const frais = {
+      fraisLivraison: this.totalLivraison,
+      fraisRetour: this.totalRetour,
+      totalCOD: this.totalCOD,
+      totalFraisLivraison: this.totalFraisLivraison,
+      totalHorsFrais: this.totalHorsFrais,
+    };
+    queryParams.frais = JSON.stringify(frais);
+
     var navigationExtras: NavigationExtras = {
       queryParams,
     };
-    console.log(navigationExtras.queryParams);
 
     const url = this.router.serializeUrl(
       this.router.createUrlTree(["/imprimer-finance"], navigationExtras)
@@ -493,8 +494,6 @@ export class FinanceClientComponent implements OnInit {
 
   getLastFinanceNb() {
     this.financeService.getLastFinanceNb().subscribe((data) => {
-      console.log("data");
-      console.log(data);
       this.financeNb = data;
     });
   }

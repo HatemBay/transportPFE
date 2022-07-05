@@ -107,7 +107,7 @@
                 </ng-template>
               </ngx-datatable-column>
               <ngx-datatable-column [sortable]="false" [width]="360" name="Actions" prop="{data: modifData, nom: nom}">
-                <ng-template let-value="value" let-row="row"ngx-datatable-cell-template="true">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
                   <form [formGroup]="pickupForm" (ngSubmit)="allocateDriver(row)">
                     <div class="row">
                       <select (change)="onChange(row)" formControlName="driverId" style="width: 60%; float: left;"
@@ -116,7 +116,8 @@
                         <option *ngFor="let chauffeur of chauffeurs" [value]="chauffeur._id">
                           {{ chauffeur.nom | titlecase }} </option>
                       </select>
-                      <button [disabled]="selected[rows.indexOf(row)] == false" type="submit" name="pickup_print" class="btn btn-success">
+                      <button [disabled]="selected[rows.indexOf(row)] == false" type="submit" name="pickup_print"
+                        class="btn btn-success">
                         <i class="fa fa-check"></i>
                       </button>
                     </div>

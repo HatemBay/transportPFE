@@ -142,6 +142,14 @@
             [rowHeight]="'auto'" [scrollbarH]="true" [externalSorting]="true" (select)="onSelect($event)"
             (sort)="onSort($event)">
 
+            <ngx-datatable-column name="Numero">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.financeNb}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
             <ngx-datatable-column name="Date">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
@@ -150,25 +158,33 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column name="Tél/Tél2" prop="tel">
+            <ngx-datatable-column name="TotalCOD">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  {{row.tel}} / {{row.tel2}}
+                  {{row.totalCOD}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Total HFL">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.totalHorsFrais}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Total cout de livraison">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.totalFraisLivraison}}
                 </span>
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column *ngFor="let column of columns;
-        let i = index;" name="{{column.name}}" prop="{{column.prop}}">
-            </ngx-datatable-column>
-
             <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
-                <span>
-                  <a [routerLink]="" (click)="view(row)" class="btn btn-sm btn-warning rounded-circle">
-                    <i class="fas fa-eye"></i>
-                  </a>
-                </span>
+                <a [routerLink]="" (click)="toFacture(row)" class="btn btn-sm btn-primary rounded-circle">
+                  <i class="fa fa-eye"></i>
+                </a>
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-footer>

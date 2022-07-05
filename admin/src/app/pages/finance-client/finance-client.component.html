@@ -185,7 +185,7 @@
           <h5>ADRESSE : El jem</h5>
         </div>
         <div class="col-lg-5 text-center" style="width: 50%">
-          <h3 style="color: black; font-weight: bold;">Etat détaillé N°: {{financeNb + 1}} - 08/06/2022</h3>
+          <h3 style="color: black; font-weight: bold;">Etat détaillé N°: {{financeNb + 1}} - {{date | date:'yyyy/MM/dd'}}</h3>
           <h6>Fournisseur : {{fournisseur[0].nom}} </h6>
           <h6>Tél : {{fournisseur[0].tel}}</h6>
           <h6>MF : 1579 HNM 000</h6>
@@ -274,7 +274,7 @@
               </ngx-datatable-column>
             </ngx-datatable>
           </div>
-          <h2 class="mt-5">Retourné à l'expéditeur</h2>
+          <h2 class="mt-5">Retourné</h2>
           <div>
             <ngx-datatable #table class="bootstrap" [rows]="rows2" [columns]="columns" [columnMode]="'force'"
               [headerHeight]="50" [footerHeight]="0" [rowHeight]="'auto'" [scrollbarH]="true">

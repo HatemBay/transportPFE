@@ -57,7 +57,7 @@ export class ImprimerFeuilleRetourComponent implements OnInit {
 
   public changeState(element: any) {
     this.packageService
-      .updatePackageByCAB(element, { etat: "retourné à" })
+      .updatePackageByCAB(element, { etat: "retourné" })
       .subscribe();
   }
 }

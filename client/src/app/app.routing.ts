@@ -4,11 +4,11 @@ import { BrowserModule } from "@angular/platform-browser";
 import { Routes, RouterModule } from "@angular/router";
 
 import { AdminLayoutComponent } from "./layouts/admin-layout/admin-layout.component";
-import { AuthLayoutComponent } from "./layouts/auth-layout/auth-layout.component";
 import { LoginComponent } from "./pages/login/login.component";
 import { AuthGuard } from "./services/auth.guard";
 import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
 import { ImprimerPickupComponent } from "./pages/imprimer-pickup/imprimer-pickup.component";
+import { ImprimerFinanceComponent } from "./pages/imprimer-finance/imprimer-finance.component";
 
 const routes: Routes = [
   {
@@ -37,6 +37,7 @@ const routes: Routes = [
   { path: "imprimer-colis-gestion", canActivate: [AuthGuard], component: ImprimerComponent },
   { path: "imprimer-colis", canActivate: [AuthGuard], component: ImprimerComponent },
   { path: "imprimer-pickup", canActivate: [AuthGuard], component: ImprimerPickupComponent },
+  { path: "imprimer-finance", canActivate: [AuthGuard], component: ImprimerFinanceComponent },
   {
     path: "**",
     redirectTo: "dashboard",

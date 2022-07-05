@@ -214,7 +214,7 @@ router.get("/all-info/:fid", async (req, res) => {
   if (req.query.type == "finance-client") {
     data.push({
       $match: {
-        etat: { $in: ["livré (espèce)", "livré (chèque)", "annulé"] },
+        etat: { $in: ["livré (espèce)", "livré (chèque)", "retourné"] },
       },
     });
   }
@@ -640,15 +640,6 @@ router.get("/all-info/:id/:fid", (req, res) => {
     { $unwind: "$clients" },
     {
       $lookup: {
-        from: "fournisseurs",
-        localField: "fournisseurId",
-        foreignField: "_id",
-        as: "fournisseurs",
-      },
-    },
-    { $unwind: "$fournisseurs" },
-    {
-      $lookup: {
         from: "delegations",
         localField: "clients.delegationId",
         foreignField: "_id",
@@ -667,6 +658,43 @@ router.get("/all-info/:id/:fid", (req, res) => {
       },
     },
     { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "fournisseurs",
+        localField: "fournisseurId",
+        foreignField: "_id",
+        as: "fournisseurs",
+      },
+    },
+    { $unwind: "$fournisseurs" },
+    {
+      $lookup: {
+        from: "delegations",
+        localField: "fournisseurs.delegationId",
+        foreignField: "_id",
+        as: "delegationsFournisseurs",
+      },
+    },
+    {
+      $unwind: {
+        path: "$delegationsFournisseurs",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegationsFournisseurs.villeId",
+        foreignField: "_id",
+        as: "villesFournisseurs",
+      },
+    },
+    {
+      $unwind: {
+        path: "$villesFournisseurs",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
     {
       $project: {
         _id: 1,
@@ -690,8 +718,8 @@ router.get("/all-info/:id/:fid", (req, res) => {
         tel2c: "$clients.tel2",
         fournisseurId: "$fournisseurs._id",
         nomf: "$fournisseurs.nom",
-        villef: "$fournisseurs.ville",
-        delegationf: "$fournisseurs.delegation",
+        villef: "$villesFournisseurs.nom",
+        delegationf: "$delegationsFournisseurs.nom",
         telf: "$fournisseurs.tel",
         adressef: "$fournisseurs.adresse",
         createdAt: 1,
@@ -824,6 +852,26 @@ router.get("/all-info-admin-cab/:cab", (req, res) => {
     { $unwind: "$clients" },
     {
       $lookup: {
+        from: "delegations",
+        localField: "clients.delegationId",
+        foreignField: "_id",
+        as: "delegationsClient",
+      },
+    },
+    {
+      $unwind: { path: "$delegationsClient", preserveNullAndEmptyArrays: true },
+    },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegationsClient.villeId",
+        foreignField: "_id",
+        as: "villesClient",
+      },
+    },
+    { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
         from: "users",
         localField: "userId",
         foreignField: "_id",
@@ -852,23 +900,28 @@ router.get("/all-info-admin-cab/:cab", (req, res) => {
     {
       $lookup: {
         from: "delegations",
-        localField: "clients.delegationId",
+        localField: "fournisseurs.delegationId",
         foreignField: "_id",
-        as: "delegationsClient",
+        as: "delegationsFournisseur",
       },
     },
     {
-      $unwind: { path: "$delegationsClient", preserveNullAndEmptyArrays: true },
+      $unwind: {
+        path: "$delegationsFournisseur",
+        preserveNullAndEmptyArrays: true,
+      },
     },
     {
       $lookup: {
         from: "villes",
-        localField: "delegationsClient.villeId",
+        localField: "delegationsFournisseur.villeId",
         foreignField: "_id",
-        as: "villesClient",
+        as: "villesFournisseur",
       },
     },
-    { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
+    {
+      $unwind: { path: "$villesFournisseur", preserveNullAndEmptyArrays: true },
+    },
     {
       $project: {
         _id: 1,
@@ -891,8 +944,8 @@ router.get("/all-info-admin-cab/:cab", (req, res) => {
         tel2c: "$clients.tel2",
         fournisseurId: "$fournisseurs._id",
         nomf: "$fournisseurs.nom",
-        villef: "$fournisseurs.ville",
-        delegationf: "$fournisseurs.delegation",
+        villef: "$villesFournisseur.nom",
+        delegationf: "$delegationsFournisseur.nom",
         telf: "$fournisseurs.tel",
         adressef: "$fournisseurs.adresse",
         userId: "$users._id",

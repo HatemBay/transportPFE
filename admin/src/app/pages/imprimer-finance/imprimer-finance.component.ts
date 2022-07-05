@@ -11,14 +11,19 @@ import { FinanceService } from "src/app/services/finance.service";
   styleUrls: ["./imprimer-finance.component.scss"],
 })
 export class ImprimerFinanceComponent implements OnInit {
-  rows: any = [];
-  rows2: any = [];
   fournisseur: any = [];
+  finance: any = [];
   fourn: any = [];
   packages: any = [];
-  CABs: string;
+  paye: any = [];
+  retourne: any = [];
+  type: string;
   nb: any;
   financeNb: number;
+  frais: any;
+  financeId: any;
+  CABs: any;
+  date: any;
 
   constructor(
     private fournisseurService: FournisseurService,
@@ -26,67 +31,86 @@ export class ImprimerFinanceComponent implements OnInit {
     private packageService: PackageService,
     private route: ActivatedRoute
   ) {
+    this.financeId = this.route.snapshot.queryParamMap.get("financeId");
     this.fourn = this.route.snapshot.queryParamMap.get("fournisseurId");
+    this.type = this.route.snapshot.queryParamMap.get("type");
     this.CABs = this.route.snapshot.queryParamMap.get("CABs");
     this.nb = this.route.snapshot.queryParamMap.get("nb");
+    this.frais = JSON.parse(this.route.snapshot.queryParamMap.get("frais"));
+    console.log(this.frais);
+
   }
 
   ngOnInit(): void {
-    if (this.nb && this.nb !== null) {
-      this.initiateData();
+    if (this.type === "historique") {
+      this.initiateDataForExistingFinance();
     } else {
-      const packageCABs = JSON.parse(this.CABs);
-
-      packageCABs.forEach((element) => {
-        this.getPackageData(element);
-        // TODO: change state after feuille-retour allocation
-        // this.changeState(element);
-      });
-      if (!JSON.parse(this.nb)) this.getLastFinanceNb();
-      else this.financeNb = this.nb;
+      this.initiateDataForNewFinance();
     }
   }
 
-  async initiateData() {
-    this.packages = await this.getPackagesByProvider(
-      this.fourn,
-      50,
-      1,
-      null,
-      null,
-      null
-    );
+  async initiateDataForNewFinance() {
+    this.date = new Date();
     this.fournisseur = await this.getProvider(this.fourn);
-    console.log("slm");
+    const packageCABs = JSON.parse(this.CABs);
 
-    console.log(this.packages);
+    packageCABs.forEach(async (element) => {
+      const pack = await this.getPackageData(element);
 
-    var livré = [];
-    var annulé = [];
-    for (let pack of this.packages) {
-      if (pack.etat === "livré (espèce)" || pack.etat === "livré (chèque)") {
-        livré = [...livré, pack];
-      } else if (
-        pack.etat === "annulé" //TODO: to be changed to 'retourné à l'expéditeur
-      ) {
-        annulé = [...annulé, pack];
+      if (pack.etat == "livré (espèce)") {
+        this.paye.push(pack);
+        this.changeState(element, "livré - payé - espèce");
+      } else if (pack.etat == "livré (chèque)") {
+        this.paye.push(pack);
+        this.changeState(element, "livré - payé - chèque");
+      } else if (pack.etat == "retourné") {
+        this.retourne.push(pack);
+        this.changeState(element, "retourné à l'expediteur");
       }
+    });
+    if (!JSON.parse(this.nb)) this.getLastFinanceNb();
+    else this.financeNb = this.nb;
+  }
+
+  async initiateDataForExistingFinance() {
+    this.fournisseur = await this.getProvider(this.fourn);
+    this.finance = await this.getFinance();
+    for (let el of this.finance.packages) {
+      this.packages.push(await this.getPackageData(el.CAB));
     }
-    this.rows = livré;
-    this.rows2 = annulé;
+  }
+
+  async getFinance() {
+    return await this.financeService
+      .getFinance(this.financeId)
+      .pipe(
+        map((data) => {
+          return data[0];
+        })
+      )
+      .toPromise();
   }
 
   async getProvider(fournisseurId: string) {
     return await this.fournisseurService
       .getFournisseur(fournisseurId)
+      .pipe(
+        map((data) => {
+          return data[0];
+        })
+      )
       .toPromise();
   }
 
-  getPackageData(element: any) {
-    this.packageService.getFullPackageByCAB(element).subscribe((data) => {
-      this.packages.push(data[0]);
-      console.log(data[0]);
-    });
+  async getPackageData(element: any) {
+    return await this.packageService
+      .getFullPackageByCAB(element)
+      .pipe(
+        map((data) => {
+          return data[0];
+        })
+      )
+      .toPromise();
   }
 
   getLastFinanceNb() {
@@ -128,7 +152,7 @@ export class ImprimerFinanceComponent implements OnInit {
             if (
               item.etat === "livré (espèce)" ||
               item.etat === "livré (chèque)" ||
-              item.etat === "annulé" //TODO: to be changed to 'retourné à l'expéditeur
+              item.etat === "retourné"
             ) {
               result = [...result, item];
             }
@@ -137,5 +161,11 @@ export class ImprimerFinanceComponent implements OnInit {
         })
       )
       .toPromise();
+  }
+
+  public changeState(element: any, state: string) {
+    this.packageService
+      .updatePackageByCAB(element, { etat: state })
+      .subscribe();
   }
 }

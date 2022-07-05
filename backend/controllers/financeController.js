@@ -95,6 +95,15 @@ router.get("/", (req, res) => {
       },
     });
   }
+
+  if (req.query.fournisseurId) {
+    const fid = ObjectId(req.query.fournisseurId);
+    data.push({
+      $match: {
+        fournisseurId: fid,
+      },
+    });
+  }
   Finance.aggregate(data).exec((err, finances) => {
     if (!err) {
       if (req.query.search) {

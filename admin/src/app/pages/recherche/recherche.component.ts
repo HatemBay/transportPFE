@@ -47,7 +47,10 @@ export class RechercheComponent implements OnInit {
     { state: "livré (chèque)", viewState: "Livré le " },
     { state: "annulé", viewState: "Annulé le " },
     { state: "payé", viewState: "Payé le " },
-    { state: "retourné à", viewState: "Retourné à " },
+    { state: "retourné", viewState: "Retourné" },
+    { state: "retourné à l'expediteur", viewState: "Retourné à " },
+    { state: "livré - payé - espèce", viewState: "Livré - payé - espèce " },
+    { state: "livré - payé - chèque", viewState: "Livré - payé - chèque " },
   ];
 
   constructor(
@@ -108,7 +111,6 @@ export class RechercheComponent implements OnInit {
       });
   }
 
-
   public getIndex(historic, historique) {
     var index = historic.findIndex((p) => p.state == historique?.action);
     return index;
@@ -141,9 +143,9 @@ export class RechercheComponent implements OnInit {
   }
 
   getVilles() {
-    this.villeService.getVilles().subscribe(data => {
+    this.villeService.getVilles().subscribe((data) => {
       this.villes = data.data;
-    })
+    });
   }
 
   onSearchFormValueChanges(data: any): void {
