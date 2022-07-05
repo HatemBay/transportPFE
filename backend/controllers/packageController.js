@@ -72,7 +72,12 @@ router.get("/all-info/:fid", async (req, res) => {
   }
 
   // adapting request id to aggregate options
-  var id = mongoose.Types.ObjectId(req.params.fid);
+  if (!ObjectId.isValid(req.params.fid)) {
+    console.log(`no record with given id: ${req.params.id}`);
+    return res.status(400).send(`no record with given id: ${req.params.id}`);
+  } else {
+    var id = mongoose.Types.ObjectId(req.params.fid);
+  }
   var sort = {};
   var limit = parseInt(req.query.limit) || 10;
   var page = parseInt(req.query.page) || 1;

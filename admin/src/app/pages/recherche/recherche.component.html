@@ -140,10 +140,10 @@
                       <div class="form-group">
                         <button class="btn btn-danger btn-sm" title="Supprimer etat"
                           (click)="deleteState(historique)">x</button>
-                        <label class="form-label">{{historic[getIndex(historic, historique)].viewState}}
-                          <ng-container *ngIf="historic[getIndex(historic, historique)].state == 'collecté'">
+                        <label class="form-label">{{historic[getIndex(historic, historique)]?.viewState}}
+                          <ng-container *ngIf="historic[getIndex(historic, historique)]?.state == 'collecté'">
                             ({{package.filiere}})</ng-container>
-                          <ng-container *ngIf="historic[getIndex(historic, historique)].state == 'retourné à'">
+                          <ng-container *ngIf="historic[getIndex(historic, historique)]?.viewState == 'Retourné à '">
                             {{package.nomf}}</ng-container>
 
                           {{historique?.dateFormatted}}

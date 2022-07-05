@@ -58,6 +58,7 @@ export const AdminLayoutRoutes: Routes = [
   { path: "debrief-detail", component: CbDebriefComponent },
   { path: "debrief-detaillé", component: CbDebriefComponent },
   { path: "finance-client", component: FinanceClientComponent },
+  { path: "finance-client-print", component: FinanceClientComponent },
   { path: "debrief-global", component: FinanceDebriefGlobalComponent },
 
   {

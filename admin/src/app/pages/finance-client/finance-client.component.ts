@@ -54,7 +54,8 @@ export class FinanceClientComponent implements OnInit {
   totalLivraison: number = 0;
   totalRetour: number = 0;
   date: any;
-
+  display: string = "block";
+  display2: string = "default";
   public currentPageLimit: number = 10;
   public currentPage: number = 1;
 
@@ -65,7 +66,6 @@ export class FinanceClientComponent implements OnInit {
     { value: 50 },
     { value: 100 },
   ];
-  display: string = "default";
   selected: any = [];
   val: string;
 
@@ -81,6 +81,7 @@ export class FinanceClientComponent implements OnInit {
     this.date = new Date();
 
     this.fourn = this.route.snapshot.queryParamMap.get("fournisseur") || null;
+    this.toPrint = JSON.parse(this.route.snapshot.queryParamMap.get("toPrint")) || false;
   }
 
   ngOnInit(): void {
@@ -90,15 +91,11 @@ export class FinanceClientComponent implements OnInit {
       fournisseurs: ["", Validators.required],
     });
 
-    if (this.fourn === null) {
-      this.fournisseursForm.patchValue({
-        fournisseurs: "",
-      });
-      this.getFinancesData();
-    }
+
 
     this.getLastFinanceNb();
 
+    this.setDates();
     this.initiateData();
 
     this.dateForm = this.fb.group({
@@ -136,7 +133,6 @@ export class FinanceClientComponent implements OnInit {
   }
 
   async initiateData() {
-    this.setDates();
     this.fournisseurs = await this.getProviders();
     if (this.fourn !== null) {
       this.packages = await this.getPackagesByProvider(
@@ -147,7 +143,7 @@ export class FinanceClientComponent implements OnInit {
         null,
         null
       );
-      this.fournisseur = await this.getProvider(this.fourn);
+      this.fournisseur = await this.getProvider(this.fourn) || null;
       for (let pack of this.packages) {
         this.totalCOD += pack.c_remboursement;
       }
@@ -184,6 +180,11 @@ export class FinanceClientComponent implements OnInit {
   async getProvider(dournisseurId: string) {
     return await this.fournisseurService
       .getFournisseur(dournisseurId)
+      .pipe(
+        map((data) => {
+          return data[0];
+        })
+      )
       .toPromise();
   }
   async getProviders() {
@@ -218,15 +219,20 @@ export class FinanceClientComponent implements OnInit {
 
   //get packages from selected provider
   async getPackages() {
+    this.display = "default";
+    this.display2 = "block";
     this.toPrint = true;
+    this.initiateData();
+    this.fourn = this.fournisseursForm.value.fournisseurs;
     var navigationExtras: NavigationExtras = {
       queryParams: {
         fournisseur: this.fournisseursForm.value.fournisseurs,
+        toPrint: this.toPrint,
       },
     };
-    this.router.navigateByUrl("/", { skipLocationChange: true }).then(() => {
-      this.router.navigate(["/finance-client"], navigationExtras);
-    });
+    // this.router.navigateByUrl("/", { skipLocationChange: true }).then(() => {
+    this.router.navigate(["/finance-client-print"], navigationExtras);
+    // });
   }
 
   async getPackagesByProvider(
