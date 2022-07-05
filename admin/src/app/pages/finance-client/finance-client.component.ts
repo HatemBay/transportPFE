@@ -148,7 +148,6 @@ export class FinanceClientComponent implements OnInit {
         null
       );
       this.fournisseur = await this.getProvider(this.fourn);
-      console.log(this.packages);
       for (let pack of this.packages) {
         this.totalCOD += pack.c_remboursement;
       }

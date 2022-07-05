@@ -170,7 +170,7 @@
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
       <h3 class="m-0 font-weight-bold ne_pas_imprimer">Statistiques client</h3>
       <div class="input-group-append ne_pas_imprimer">
-        <button id="enregistrer" class="btn btn-primary ml-5" (click)="printNewFinance()">Enregistrer et
+        <button id="enregistrer" class="btn btn-primary ml-5" [disabled]="packages.length == 0" (click)="printNewFinance()">Enregistrer et
           Imprimer</button>
       </div>
     </div>
@@ -185,7 +185,8 @@
           <h5>ADRESSE : El jem</h5>
         </div>
         <div class="col-lg-5 text-center" style="width: 50%">
-          <h3 style="color: black; font-weight: bold;">Etat détaillé N°: {{financeNb + 1}} - {{date | date:'yyyy/MM/dd'}}</h3>
+          <h3 style="color: black; font-weight: bold;">Etat détaillé N°: {{financeNb + 1}} - {{date |
+            date:'yyyy/MM/dd'}}</h3>
           <h6>Fournisseur : {{fournisseur[0].nom}} </h6>
           <h6>Tél : {{fournisseur[0].tel}}</h6>
           <h6>MF : 1579 HNM 000</h6>
