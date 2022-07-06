@@ -18,7 +18,8 @@
             <div class="row mb-4">
               <div class="col-8">Gestion Personel </div>
               <div class="col-4 text-right">
-                <button [routerLink]="" (click)="showDefaultPassword()" class="btn btn-sm btn-primary" title="afficher mot de passe par défault">
+                <button [routerLink]="" (click)="showDefaultPassword()" class="btn btn-sm btn-primary"
+                  title="afficher mot de passe par défault">
                   <i class="fas fa-eye"></i>
                 </button>
                 <button [formGroup]="userForm" (click)="addModal()" data-target=""
@@ -76,7 +77,7 @@
 
               <ngx-datatable-column [sortable]="false" name="Actions" prop="{data: modifData, nom: nom}">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template="true">
-                  <span *ngIf="row.role != 'admin'; else admin">
+                  <span *ngIf="row.role != 'admin' && row._id != id; else admin">
                     <a [routerLink]="" (click)="modify(row)" class="btn btn-sm rounded-circle text-white"
                       style="background: blue">
                       <i class="fas fa-edit"></i>
@@ -85,11 +86,11 @@
                       <i class="fas fa-trash"></i>
                     </button>
                   </span>
-                </ng-template>
-                <ng-template #admin>
-                  <p>
-                    Accès interdit
-                  </p>
+                  <ng-template #admin>
+                    <p>
+                      Accès interdit
+                    </p>
+                  </ng-template>
                 </ng-template>
               </ngx-datatable-column>
               <ngx-datatable-footer>

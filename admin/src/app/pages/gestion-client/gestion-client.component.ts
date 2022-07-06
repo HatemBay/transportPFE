@@ -89,6 +89,8 @@ export class GestionClientComponent implements OnInit {
         villeId: ["", Validators.required],
         delegationId: ["", Validators.required],
         adresse: ["", Validators.required],
+        fraisLivraison: "",
+        fraisRetour: "",
       });
 
       //detect changes in form controls
@@ -149,7 +151,7 @@ export class GestionClientComponent implements OnInit {
   }
   getVilles() {
     this.villeService.getVilles().subscribe((data) => {
-      this.villes = data;
+      this.villes = data.data;
     });
   }
 

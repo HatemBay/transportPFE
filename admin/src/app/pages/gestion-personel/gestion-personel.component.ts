@@ -52,6 +52,7 @@ export class GestionPersonelComponent implements OnInit {
   routePath: any;
   userId: string;
   val: string;
+  id: any;
 
   constructor(
     private fb: FormBuilder,
@@ -66,6 +67,7 @@ export class GestionPersonelComponent implements OnInit {
     this.routePath = this.route.snapshot.routeConfig.path;
 
     this.userId = this.route.snapshot.queryParamMap.get("Id");
+    this.id = this.auth.getUserDetails()._id
   }
 
   ngOnInit(): void {
@@ -135,8 +137,7 @@ export class GestionPersonelComponent implements OnInit {
 
   getFilieres() {
     this.filiereService.getFilieres().subscribe((data) => {
-      this.filieres = data;
-      console.log(data);
+      this.filieres = data.data;
     });
   }
 
@@ -145,8 +146,17 @@ export class GestionPersonelComponent implements OnInit {
     this.userService
       .getUsers(limit, page, sortBy, sort, search)
       .subscribe((data) => {
-        this.rows = this.temp = data.data;
+        // putting the user account in first position
+        data.forEach((element) => {
+          if (element._id == this.id) {
+            data = data.filter((item) => item !== element);
+            data.unshift(element);
+          }
+        });
+        this.rows = this.temp = data;
         this.count = data.length;
+
+        console.log(data);
       });
   }
 
