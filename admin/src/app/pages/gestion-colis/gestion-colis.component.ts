@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { DatePipe } from "@angular/common";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { Router, NavigationExtras } from "@angular/router";
+import { Router, NavigationExtras, ActivatedRoute } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { ClientService } from "src/app/services/client.service";
 import { PackageService } from "src/app/services/package.service";
@@ -68,22 +68,27 @@ export class GestionColisComponent implements OnInit {
   count: any;
   init: boolean = false;
   val: string;
+  edited: boolean = false;
 
   constructor(
     private fb: FormBuilder,
     private packageService: PackageService,
-    private clientService: ClientService,
     private datePipe: DatePipe,
     private router: Router,
     private clipboard: Clipboard,
-    private excelService: ExcelService
-  ) {}
+    private excelService: ExcelService,
+    private route: ActivatedRoute
+  ) {
+    this.edited =
+      JSON.parse(this.route.snapshot.queryParamMap.get("edited")) || false;
+    this.success =
+      JSON.parse(this.route.snapshot.queryParamMap.get("success")) || false;
+  }
   ngOnInit(): void {
     this.columns = [
       { prop: "villec", name: "Ville" },
       { prop: "delegationc", name: "Délegation" },
       { prop: "adressec", name: "Adresse" },
-      { prop: "c_remboursement", name: "COD" },
     ];
 
     this.setDates();
@@ -265,17 +270,6 @@ export class GestionColisComponent implements OnInit {
     if (confirm("Êtes-vous sûr de vouloir supprimer ce colis?")) {
       this.packageService.deletePackage(data._id).subscribe(() => {
         console.log("package deleted");
-      });
-      this.clientService.deleteClient(data.clientId).subscribe(() => {
-        console.log("client deleted");
-        var temp = this.temp.filter(
-          (item) => item.CAB.indexOf(data.CAB) === -1
-        );
-        // update the rows after delete
-        this.rows = temp;
-        // trigger to show alert
-        this.success = true;
-        // setTimeout(() => this.success = false, 3000)
       });
     }
   }

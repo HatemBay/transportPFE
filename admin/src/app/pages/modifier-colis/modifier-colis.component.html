@@ -1,1 +1,332 @@
-<p>modifier-colis works!</p>
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <div class="header-body">
+    </div>
+  </div>
+</div>
+<!-- Page content -->
+<div class="container-fluid mt--7">
+  <div class="row">
+    <div class="col">
+      <div class="card shadow border-0">
+        <!-- ************************ START: PATH = NOUVEAU-COLIS / MODIFIER-COLIS ************************ -->
+        <div *ngIf="routePath == 'modifier-colis'">
+          <form class="card-body" (ngSubmit)="onSubmit()" [formGroup]="packageForm">
+            <div class="row">
+              <div class="col-sm-5 offset-1">
+                <h3 class="card-title">Coordonnées du client</h3>
+                <div class="form-group">
+                  <label class="form-label">Téléphone (*)</label>
+                  <input list="phones" name="phones" formControlName="tel" id="tel" class="form-control" type="number"
+                    autocomplete="off" (keyup)="searchPhones($event)" (change)="importClient($event)">
+                  <datalist id="phones">
+                    <option *ngFor="let client of clients" [value]="client.tel">
+                      {{ client.tel }}
+                    </option>
+                  </datalist>
+
+                  <ng-container
+                    *ngIf="packageForm.controls['tel'].invalid && (packageForm.controls['tel'].dirty || packageForm.controls['tel'].touched)">
+                    <ng-container *ngIf="packageForm.controls['tel'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Téléphone est requis.
+                      </small>
+                    </ng-container>
+                    <ng-container
+                      *ngIf="packageForm.controls['tel'].errors?.['min'] || packageForm.controls['tel'].errors?.['max']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Téléphone est invalide.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                  <!-- <ng-container *ngIf="error != 'none' && error.indexOf('tel_1') !== -1">
+                    <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                    <small class="text-danger">
+                      Téléphone existe déjà.
+                    </small>
+                  </ng-container> -->
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Nom &amp; Prénom (*)</label>
+                  <input formControlName="nom" id="nom" class="form-control">
+                  <ng-container
+                    *ngIf="packageForm.controls['nom'].invalid && (packageForm.controls['nom'].dirty || packageForm.controls['nom'].touched)">
+                    <ng-container *ngIf="packageForm.controls['nom'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Nom est requis.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Ville (*)</label>
+                  <select formControlName="villeId" class="form-control">
+                    <option hidden="" value="">-- Choisir --</option>
+                    <!-- <option value="sousse">Sousse </option>
+                    <option value="monastir">Monastir </option> -->
+                    <option *ngFor="let ville of villes" [value]="ville._id">
+                      {{ ville.nom | titlecase }} </option>
+                  </select>
+                  <ng-container
+                    *ngIf="packageForm.controls['villeId'].invalid && (packageForm.controls['villeId'].dirty || packageForm.controls['villeId'].touched)">
+                    <ng-container *ngIf="packageForm.controls['villeId'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Ville est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Delegation (*)</label>
+                  <select formControlName="delegationId" class="form-control">
+                    <option hidden="" value="">-- Choisir --</option>
+                    <!-- <option value="sousse">Sousse</option>
+                    <option value="ben arous">Ben Arous</option> -->
+                    <option *ngFor="let delegation of delegations" [value]="delegation._id">
+                      {{ delegation.nom | titlecase }} </option>
+                  </select>
+                  <ng-container
+                    *ngIf="packageForm.controls['delegationId'].invalid && (packageForm.controls['delegationId'].dirty || packageForm.controls['delegationId'].touched)">
+                    <ng-container *ngIf="packageForm.controls['delegationId'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Delegation est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <!--
+                <div class="form-group">
+                  <label class="form-label">Ville (*)</label>
+                  <select formControlName="ville" [value]="packageForm.ville" class="form-control" name="ville_cl"
+                    id="ville_cl">
+                    <option hidden="" value="">-- Choisir --</option>
+                    <option data-value="1" value="Ariana">Ariana</option>
+                    <option data-value="3" value="Ben Arous">Ben Arous</option>
+                    <option data-value="4" value="Bizerte">Bizerte</option>
+                    <option data-value="12" value="Mahdia">Mahdia</option>
+                    <option data-value="13" value="La Manouba">La Manouba</option>
+                    <option data-value="15" value="Monastir">Monastir</option>
+                    <option data-value="16" value="Nabeul">Nabeul</option>
+                    <option data-value="20" value="Sousse">Sousse</option>
+                    <option data-value="23" value="Tunis">Tunis</option>
+                  </select>
+                  <ng-container
+                    *ngIf="packageForm.controls['ville'].invalid && (packageForm.controls['ville'].dirty || packageForm.controls['ville'].touched)">
+                    <ng-container *ngIf="packageForm.controls['ville'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Ville est requis.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <div class="form-group" id="delegation">
+                  <label class="form-label">Délegation (*)</label>
+                  <select formControlName="delegation" [value]="packageForm.delegation" class="form-control"
+                    name="delegation_cl" id="delegation_cl">
+                    <option hidden="" value="">-- Choisir ville --</option>
+                    <option data-value="1" value="Ariana">Ariana</option>
+                    <option data-value="3" value="Ben Arous">Ben Arous</option>
+                    <option data-value="4" value="Bizerte">Bizerte</option>
+                  </select>
+                  <ng-container
+                    *ngIf="packageForm.controls['delegation'].invalid && (packageForm.controls['delegation'].dirty || packageForm.controls['delegation'].touched)">
+                    <ng-container *ngIf="packageForm.controls['delegation'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Delegation est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div> -->
+
+                <div class="form-group">
+                  <label class="form-label">Adresse (*)</label>
+                  <input formControlName="adresse" [value]="packageForm.adresse" name="adresse_cl" id="adresse_cl"
+                    type="text" class="form-control">
+                  <ng-container
+                    *ngIf="packageForm.controls['adresse'].invalid && (packageForm.controls['adresse'].dirty || packageForm.controls['adresse'].touched)">
+                    <ng-container *ngIf="packageForm.controls['adresse'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Adresse est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Code postale</label>
+                  <input formControlName="codePostale" [value]="packageForm.codePostale" name="code_post_cl" type="text"
+                    id="code_post_cl " class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Téléphone 2</label>
+                  <input formControlName="tel2" [value]="packageForm.tel2" name="tel_2_cl" class="form-control"
+                    id="tel_2_cl">
+                </div>
+              </div>
+
+              <div class="col-sm-5">
+                <h3 class="card-title">Coordonnées de colis</h3>
+                <div class="form-group">
+                  <label class="form-label">Contre remboursement <sup>TND</sup> (*)</label>
+                  <input formControlName="c_remboursement" [value]="packageForm.c_remboursement" name="cod"
+                    type="number" class="form-control" step="any">
+                  <ng-container
+                    *ngIf="packageForm.controls['c_remboursement'].invalid && (packageForm.controls['c_remboursement'].dirty || packageForm.controls['c_remboursement'].touched)">
+                    <ng-container *ngIf="packageForm.controls['c_remboursement'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        COD est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Service (*)</label>
+                  <select formControlName="service" [value]="packageForm.service || null" name="service"
+                    class="form-control">
+                    <option hidden="" value="">-- Choisir service--</option>
+                    <option value="livraison">Livraison</option>
+                    <option value="collection">Collecte</option>
+                    <option value="echange">Echange</option>
+                  </select>
+                  <ng-container
+                    *ngIf="packageForm.controls['service'].invalid && (packageForm.controls['service'].dirty || packageForm.controls['service'].touched)">
+                    <ng-container *ngIf="packageForm.controls['service'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Service est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Libelle de marchandise (*)</label>
+                  <input formControlName="libelle" [value]="packageForm.libelle" name="libelle" class="form-control">
+                  <ng-container
+                    *ngIf="packageForm.controls['libelle'].invalid && (packageForm.controls['libelle'].dirty || packageForm.controls['libelle'].touched)">
+                    <ng-container *ngIf="packageForm.controls['libelle'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Libellé est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Volume</label>
+                  <select formControlName="volume" [value]="packageForm.volume" name="volume" class="form-control">
+                    <option hidden="" value="">-- Choisir volume--</option>
+                    <option value="petit">Petit</option>
+                    <option value="moyen">Moyen</option>
+                    <option value="grand">Grand</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Poids</label>
+                  <input formControlName="poids" [value]="packageForm.poids" name="poids" type="number"
+                    class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Nombre de pièce par colis</label>
+                  <input formControlName="pieces" [value]="packageForm.pieces" name="nb_piece" type="number"
+                    class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Remarque</label>
+                  <textarea formControlName="remarque" [value]="packageForm.remarque" name="remarque"
+                    class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="customControlAutosizing">
+                    <label class="custom-control-label" for="customControlAutosizing">Décharge facture</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-footer text-right">
+              <!-- TODO: too complicated, simplify in admin and client accounts -->
+              <button *ngIf="checkData() && checkIds" (click)="onPreviousClick()" class="btn btn-primary px-5"
+                [disabled]="packageForm.invalid">Modifier</button>
+            </div>
+          </form>
+        </div>
+        <!-- ************************ END: PATH = MODIFIER-COLIS ************************ -->
+        <!-- ************************ START: PATH = DETAILS-COLIS ************************ -->
+        <div *ngIf="routePath == 'details-colis'">
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <h1 class="card-header text-center bg-danger text-white">{{package.CAB}}</h1>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-sm-3 text-right">
+                      <div class="form-group">
+                        <label class="form-label">Téléphone : {{package.telc}} / {{package.tel2c}}</label>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Nom &amp; Prénom : {{package.nomc}}</label>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Ville : {{package.villec}} </label>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Délegation : {{package.delegationc}} </label>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Adresse : {{package.adressec}} </label>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Code postale : {{package.codePostalec}} </label>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-3 offset-1" style="border-right: 1px solid #aaa;">
+                      <div class="form-group">
+                        <label class="form-label h4">COD : {{package.c_remboursement}} </label>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Service : {{package.service}} </label>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Poids : {{package.poids}} </label>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Libelle marchandise : {{package.libelle}} </label>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Volume : {{package.volume}} </label>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Nombre de pièce : {{package.pieces}} </label>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-4 offset-1">
+                      <div class="form-group">
+                        <label class="form-label h5">Etat</label>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Colis créé le {{package.createdAt | date:'dd-MM-yyyy à h:mm'}}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ************************ END: PATH = DETAILS-COLIS ************************ -->
+      </div>
+    </div>
+  </div>
+</div>

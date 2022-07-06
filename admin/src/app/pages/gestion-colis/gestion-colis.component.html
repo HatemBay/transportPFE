@@ -37,6 +37,10 @@
             <span class="closebtn" onclick="this.parentElement.style.display='none'; success = false;">&times;</span>
             Colis supprimé avec succes
           </div>
+          <div *ngIf="edited" class="alert alert-success ml-4 mr-4">
+            <span class="closebtn" onclick="this.parentElement.style.display='none'; edited = false;">&times;</span>
+            Colis modifié avec succes
+          </div>
           <div class="row mb-4">
             <div class="col-8">Gestion des colis: </div>
           </div>
@@ -104,7 +108,7 @@
             <ngx-datatable-column name="Code à barre">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  <a [routerLink]="['/']" (click)="details(row)">
+                  <a [routerLink]="['/']" (click)="details(row)" [width]="100">
                     {{row.CAB}}
                   </a>
                 </span>
@@ -115,12 +119,11 @@
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
                   {{row.etat}} <ng-container *ngIf="row.etat == 'collecté'"> - {{row.filiere}} </ng-container>
-                  <ng-container *ngIf="row.etat == 'retourné à'"> - {{row.nomf}} </ng-container>
                 </span>
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column name="Expéditeur" prop="nomf">
+            <ngx-datatable-column name="Expéditeur" prop="nomf" [width]="100">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
                   {{row.nomf}}
@@ -128,7 +131,7 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column name="Tél éxpéditeur" prop="telf">
+            <ngx-datatable-column name="Tél éxpéditeur" prop="telf" [width]="120">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
                   {{row.telf}}
@@ -136,7 +139,7 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column name="Destinataire" prop="nomc">
+            <ngx-datatable-column name="Destinataire" [width]="100">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
                   {{row.nomc}}
@@ -144,7 +147,7 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column name="Tél/Tél2" prop="telc">
+            <ngx-datatable-column name="Tél/Tél2">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
                   {{row.telc}} <ng-container *ngIf="row.tel2c">/</ng-container> {{row.tel2c}}
@@ -152,8 +155,36 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column *ngFor="let column of columns;
-        let i = index;" name="{{column.name}}" prop="{{column.prop}}">
+            <ngx-datatable-column name="Ville" [width]="80">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.villec}} <ng-container *ngIf="row.tel2c">/</ng-container> {{row.tel2c}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Délegation" [width]="100">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.delegationc}} <ng-container *ngIf="row.tel2c">/</ng-container> {{row.tel2c}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="Adresse">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.adressec}} <ng-container *ngIf="row.tel2c">/</ng-container> {{row.tel2c}}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <ngx-datatable-column name="COD" [width]="80">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                <span>
+                  {{row.c_remboursement | number: '1.3-3'}}
+                </span>
+              </ng-template>
             </ngx-datatable-column>
 
             <ngx-datatable-column name="Date">
@@ -183,44 +214,4 @@
       </div>
     </div>
   </div>
-</div>
-
-<div id="hidden" hidden class="dt-print-view">
-  <h1>Colis Express - Gestion de colis</h1>
-  <div></div>
-  <table class="table dataTableHover dataTable no-footer">
-    <thead>
-      <tr>
-        <th>Code à barre</th>
-        <th>Etat</th>
-        <th>Expéditeur</th>
-        <th>Tél expéditeur</th>
-        <th>Destinataire</th>
-        <th>Tél / Tél 2</th>
-        <th>Ville</th>
-        <th>Déligation</th>
-        <th>Adresse</th>
-        <th>COD</th>
-        <th>Date</th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngFor="let row of rows">
-        <tr>
-          <td>{{row.CAB}}</td>
-          <td>{{row.etat}}</td>
-          <td>{{row.nomf}}</td>
-          <td>{{row.nomc}}</td>
-          <td>{{row.telc}}</td>
-          <td>{{row.tel2c}}</td>
-          <td>{{row.villec}}</td>
-          <td>{{row.delegationc}}</td>
-          <td>{{row.adressec}}</td>
-          <td>{{row.c_remboursement | number: '1.3-3'}}</td>
-          <td>{{row.createdAtSearch}}/td>
-        </tr>
-      </ng-container>
-    </tbody>
-  </table>
-  <div></div>
 </div>

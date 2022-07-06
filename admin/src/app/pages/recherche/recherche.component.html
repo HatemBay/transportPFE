@@ -136,14 +136,14 @@
                   <h5 class="card-title">Etat du colis</h5>
                   <hr>
                   <ng-container *ngFor="let historique of package.historique">
-                    <ng-container *ngIf="getIndex(historic, historique)">
+                    <ng-container *ngIf="getIndex(historique)">
                       <div class="form-group">
                         <button class="btn btn-danger btn-sm" title="Supprimer etat"
                           (click)="deleteState(historique)">x</button>
-                        <label class="form-label">{{historic[getIndex(historic, historique)]?.viewState}}
-                          <ng-container *ngIf="historic[getIndex(historic, historique)]?.state == 'collecté'">
+                        <label class="form-label">{{historic[getIndex(historique)]?.viewState}}
+                          <ng-container *ngIf="historic[getIndex(historique)]?.state == 'collecté'">
                             ({{package.filiere}})</ng-container>
-                          <ng-container *ngIf="historic[getIndex(historic, historique)]?.viewState == 'Retourné à '">
+                          <ng-container *ngIf="historic[getIndex(historique)]?.viewState == 'Retourné à '">
                             {{package.nomf}}</ng-container>
 
                           {{historique?.dateFormatted}}
@@ -162,16 +162,13 @@
           <div class="card mb-4" style="position: relative;">
             <h1 class="card-header bg-primary text-white">{{package.CAB}}</h1>
             <div style="position: absolute; right: 1%; top: 4%;">
-              <ng-container *ngIf="package.etat !== 'nouveau'">
-                <a href="modifier_colis?code_barre=36317525" class="btn btn-sm btn-success mr-3"><i
-                    class="fa fa-edit"></i></a>
-              </ng-container>
-              <button class="btn btn-sm btn-danger mr-3" data-toggle="modal" data-target="#deleteModal"
-                onclick="supprimer(36317525)"><i class="fa fa-trash"></i></button>
+              <a (click)="modifyPackage(package)" class="btn btn-sm btn-success mr-3"><i class="fa fa-edit"></i></a>
+              <button class="btn btn-sm btn-danger mr-3" [routerLink]="" (click)="delete(package)"><i
+                  class="fa fa-trash"></i></button>
 
               <!-- <button class="btn btn-sm btn-success mr-3" data-toggle="modal" data-target="#etatModal" onclick="etat_modal(36317525)"><i class="fa fa-check"></i></button> -->
 
-              <a href="imprimers_colis?code_barre=36317525" target="_blank" class="btn btn-sm btn-warning mr-3">
+              <a [routerLink]="" (click)="printPackage(package)" class="btn btn-sm btn-warning mr-3">
                 <i class="fa fa-print"></i>
               </a>
             </div>
@@ -244,11 +241,11 @@
                   <h5 class="card-title">Etat du colis</h5>
                   <hr>
                   <ng-container *ngFor="let historique of package.historique">
-                    <ng-container *ngIf="getIndex(historic, historique)">
+                    <ng-container *ngIf="getIndex(historique)">
                       <div class="form-group col-12">
                         <button class="btn btn-danger btn-sm" title="Supprimer etat"
                           (click)="deleteState(historique)">x</button>
-                        <label class="form-label">{{historic[getIndex(historic, historique)].viewState}}
+                        <label class="form-label">{{historic[getIndex(historique)].viewState}}
                           {{historique?.dateFormatted}}</label>
                       </div>
                     </ng-container>

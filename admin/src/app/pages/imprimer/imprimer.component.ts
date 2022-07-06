@@ -9,45 +9,32 @@ import { PickupService } from "src/app/services/pickup.service";
   styleUrls: ["./imprimer.component.scss"],
 })
 export class ImprimerComponent implements OnInit {
-  routePath: string;
   pickup: any = [];
-  packages: any = [];
-  pickupId: string;
+  package: any;
+  packageId: string;
+
   constructor(
     private route: ActivatedRoute,
-    private pickupService: PickupService,
     private packageService: PackageService
   ) {
-    this.routePath = this.route.snapshot.routeConfig.path;
-    this.pickupId = this.route.snapshot.queryParamMap.get("id");
+    this.packageId = this.route.snapshot.queryParamMap.get("packageId");
   }
 
   ngOnInit(): void {
-    const packageIds = JSON.parse(
-      this.route.snapshot.queryParamMap.get("packages")
-    );
-
-    this.getDataJson(this.pickupId);
-
-    packageIds.forEach((element) => {
-      this.getPackageData(element._id);
-    });
-  }
-
-  getDataJson(pickupId: string) {
-    this.pickupService.getPickup(pickupId).subscribe((data) => {
-      this.pickup = data[0];
-    });
+    this.getPackageData(this.packageId);
   }
 
   getPackageData(element: any) {
     this.packageService.getPackage(element).subscribe((data) => {
-      this.packages.push(data[0]);
+      this.package = data[0];
     });
   }
 
   g(packages) {
     console.log(packages);
+  }
 
+  getDate() {
+    return new Date();
   }
 }

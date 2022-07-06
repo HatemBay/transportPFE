@@ -169,17 +169,6 @@ export class ColisJourComponent implements OnInit {
       this.packageService.deletePackage(data._id).subscribe(() => {
         console.log("package deleted");
       });
-      this.clientService.deleteClient(data.clientId).subscribe(() => {
-        console.log("client deleted");
-        var temp = this.temp.filter(
-          (item) => item.CAB.indexOf(data.CAB) === -1
-        );
-        // update the rows after delete
-        this.rows = temp;
-        // trigger to show alert
-        this.success = true;
-        // setTimeout(() => this.success = false, 3000)
-      });
     }
   }
 

@@ -12,14 +12,12 @@
               <h5>ADRESSE : El jem</h5>
             </div>
             <div class="col-md-4">
-              <h6>Date: {{pickup.createdAtSearch}}</h6>
-              <h6>Nombre de colis: {{pickup.nbPackages}}</h6>
+              <h6>Date: {{getDate()}}</h6>
               <h6></h6>
               <h6></h6>
             </div>
             <div class="col-md-12 text-center">
-              <h4>Decharge N°: {{pickup.pickupNb}}</h4>
-              <h6>(Ramassage)</h6>
+              <h6>({{package.service}})</h6>
             </div>
           </div>
           <div class="col-md-12 mt-5">
@@ -31,27 +29,24 @@
                   <th style="width: 30%">Adresse</th>
                   <th style="width: 15%" class="text-center">Tél1 / Tél2</th>
                   <th style="width: 5%" class="text-center">COD</th>
-                  <!-- <button (click)="g(packages)">dsds</button> -->
                 </tr>
-                <ng-container *ngFor="let package of packages">
-                  <tr>
-                    <td>
-                      <ngx-barcode [bc-value]="package.CAB" [bc-display-value]="true" [bc-height]="50"
-                        [bc-background]="'#ffffff'"></ngx-barcode>
-                    </td>
-                    <td class="text-center">{{pickup.nomf}}</td>
-                    <td>{{pickup.villef}}, {{pickup.delegationf}} </td>
-                    <td class="text-center">{{package.telc}}/ {{package.tel2c}}</td>
-                    <td class="text-center">{{package.c_remboursement}}</td>
-                  </tr>
-                </ng-container>
+                <tr>
+                  <td>
+                    <ngx-barcode [bc-value]="package.CAB" [bc-display-value]="true" [bc-height]="50"
+                      [bc-background]="'#ffffff'"></ngx-barcode>
+                  </td>
+                  <td class="text-center">{{package.nomf}}</td>
+                  <td>{{package.villef}}, {{package.delegationf}} </td>
+                  <td class="text-center">{{package.telc}}/ {{package.tel2c}}</td>
+                  <td class="text-center">{{package.c_remboursement | number: '1.3-3'}}</td>
+                </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
-      <div class="col-md-12 mt-4" style="text-align: center;">
-        <h6>Signature et cachet du client<br>.............................</h6>
+      <div class="row">
+        <h6><b><u>NB: CECI N'EST PAS UNE FACTURE</u></b></h6>
       </div>
     </div>
   </div>
