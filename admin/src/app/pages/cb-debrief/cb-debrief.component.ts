@@ -7,6 +7,7 @@ import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { RoadmapService } from "src/app/services/roadmap.service";
 import { ClientService } from "src/app/services/client.service";
 import { PackageService } from "src/app/services/package.service";
+import { AuthenticationService } from "src/app/services/authentication.service";
 
 @Component({
   selector: "app-cb-debrief",
@@ -50,11 +51,13 @@ export class CbDebriefComponent implements OnInit {
   endDate: any;
   driver: any;
   driverId: any;
+  role: any;
 
   constructor(
     private fb: FormBuilder,
     private datePipe: DatePipe,
     private roadmapService: RoadmapService,
+    private authService: AuthenticationService,
     private route: ActivatedRoute,
     private router: Router,
     private clientService: ClientService,
@@ -63,7 +66,6 @@ export class CbDebriefComponent implements OnInit {
     this.routePath = this.route.snapshot.routeConfig.path;
     this.roadmapId = this.route.snapshot.queryParamMap.get("id");
     // saves the search date
-    this.dateSave = this.route.snapshot.queryParamMap.get("date") || null;
     this.driver = this.route.snapshot.queryParamMap.get("driver") || null;
     this.driverId = this.route.snapshot.queryParamMap.get("driverId") || null;
     this.startDate = this.route.snapshot.queryParamMap.get("startDate") || null;
@@ -71,6 +73,7 @@ export class CbDebriefComponent implements OnInit {
     if (this.dateSave) {
       this.date = this.dateSave;
     }
+    this.role = this.authService.getUserDetails().role;
   }
 
   ngOnInit(): void {
@@ -80,9 +83,7 @@ export class CbDebriefComponent implements OnInit {
         { prop: "nbPackages", name: "Tous" },
         { prop: "createdAtSearch", name: "Date" },
       ];
-      if (!this.dateSave) {
-        this.setDates();
-      }
+      this.setDates();
 
       this.dateForm = this.fb.group({
         date: this.date,
@@ -120,6 +121,7 @@ export class CbDebriefComponent implements OnInit {
     this.totalAutre = 0;
     this.total = 0;
     this.roadmap = await this.getRoadmap(this.roadmapId);
+    console.log(this.roadmap);
 
     for (let element of this.roadmap.packages) {
       const client = await this.getClientByPackageId(element._id);
@@ -273,17 +275,7 @@ export class CbDebriefComponent implements OnInit {
   }
 
   update() {
-    var navigationExtras: NavigationExtras = {
-      queryParams: {
-        date: this.date,
-      },
-    };
-    this.router.navigateByUrl("/", { skipLocationChange: true }).then(() => {
-      this.router.navigate(["/debrief-list"], navigationExtras);
-    });
-    // this.router.navigate(["/debrief-list"], navigationExtras);
-    // this.getRoadmaps(null, null, null, null, null, this.date, this.date);
-    // this.countRoadmaps(this.date);
+    this.getRoadmaps(null, null, null, null, null, this.date, this.date);
   }
 
   public countEtat(row, etat) {

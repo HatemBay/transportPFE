@@ -12,6 +12,7 @@ import { FormGroup, FormBuilder } from "@angular/forms";
 import { HistoriqueService } from "src/app/services/historique.service";
 import { VilleService } from "src/app/services/ville.service";
 import { ClientService } from "src/app/services/client.service";
+import { AuthenticationService } from "src/app/services/authentication.service";
 
 @Component({
   selector: "app-recherche",
@@ -31,6 +32,7 @@ export class RechercheComponent implements OnInit {
   packageAction: any = false;
   clientId: any;
   routePath: any;
+  role: any;
   nextClicked = false;
   checkIds: boolean = false;
   package: any = [];
@@ -39,6 +41,7 @@ export class RechercheComponent implements OnInit {
   historic: any = [
     { state: "nouveau", viewState: "Colis créé le " },
     { state: "pret", viewState: "Colis modifié le " },
+    { state: "en cours de ramassage", viewState: "attribué à ramassage le " },
     { state: "collecté", viewState: "Collecté" },
     { state: "ramassé par livreur", viewState: "Rammasé par livreur le " },
     { state: "en cours", viewState: "En cours" },
@@ -58,7 +61,7 @@ export class RechercheComponent implements OnInit {
     private packageService: PackageService,
     private historiqueService: HistoriqueService,
     private villeService: VilleService,
-    private clientService: ClientService,
+    private authService: AuthenticationService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -70,6 +73,7 @@ export class RechercheComponent implements OnInit {
     this.packageAdresse = this.route.snapshot.queryParamMap.get("adresse");
     this.packageDelegation =
       this.route.snapshot.queryParamMap.get("delegation");
+    this.role = this.authService.getUserDetails().role;
   }
 
   ngOnInit() {
@@ -181,6 +185,14 @@ export class RechercheComponent implements OnInit {
       };
       this.router.navigate(["/gestion-colis"], navigationExtras);
     }
+  }
+
+  calculateAttempts(historique) {
+    var counter = 0;
+    historique.forEach((element) => {
+      if (element.action == "en cours") counter += 1;
+    });
+    return counter;
   }
 
   //************************ PATH = RECHERCHE ************************

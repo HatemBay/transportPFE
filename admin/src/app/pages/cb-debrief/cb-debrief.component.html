@@ -1,5 +1,6 @@
 <div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
   <div class="container-fluid">
+
     <!-- ************************ START: PATH = DEBRIEF-LIST (1) ************************ -->
     <ng-container *ngIf="routePath == 'debrief-list'">
       <div class="header-body">
@@ -326,18 +327,21 @@
               </tr>
             </thead>
             <tbody>
-              <ng-container *ngFor="let package of roadmap.packages; let index=i">
+              <ng-container *ngFor="let package of roadmap.packages; let index=index">
                 <tr>
+                  <!-- TODO: make the link redirect to search -->
                   <td><a href="rechercher?code_barre=36317525" target="_blank"> {{package.CAB}} </a></td>
                   <td id="tr_b_36317525" class="text-center">
-                    <button (click)="changeState(package.CAB, 'livré (espèce)')" title="Livré (Espèce)"
-                      class="btn btn-success btn-sm rounded-circle mr-1"><i class="fa fa-check"></i></button>
-                    <button (click)="changeState(package.CAB, 'livré (chèque)')" title="Livré (Chèque)"
-                      class="btn btn-warning btn-sm rounded-circle mr-1"><i class="fa fa-check-square"></i></button>
-                    <button (click)="changeState(package.CAB, 'annulé')" title="Annulé"
-                      class="btn btn-danger btn-sm rounded-circle mr-1"><i class="fa fa-times"></i></button>
-                    <button (click)="changeState(package.CAB, 'reporté')" title="Réporté"
-                      class="btn btn-info btn-sm rounded-circle mr-1"><i class="fa fa-reply-all"></i></button>
+                    <ng-container *ngIf="role!= 'admin' && package.etat == 'en cours'">
+                      <button (click)="changeState(package.CAB, 'livré (espèce)')" title="Livré (Espèce)"
+                        class="btn btn-success btn-sm rounded-circle mr-1"><i class="fa fa-check"></i></button>
+                      <button (click)="changeState(package.CAB, 'livré (chèque)')" title="Livré (Chèque)"
+                        class="btn btn-warning btn-sm rounded-circle mr-1"><i class="fa fa-check-square"></i></button>
+                      <button (click)="changeState(package.CAB, 'annulé')" title="Annulé"
+                        class="btn btn-danger btn-sm rounded-circle mr-1"><i class="fa fa-times"></i></button>
+                      <button (click)="changeState(package.CAB, 'reporté')" title="Réporté"
+                        class="btn btn-info btn-sm rounded-circle mr-1"><i class="fa fa-reply-all"></i></button>
+                    </ng-container>
                   </td>
                   <td> {{package.client}} </td>
                   <td id="tr_36317525"> {{package.etat}} </td>
