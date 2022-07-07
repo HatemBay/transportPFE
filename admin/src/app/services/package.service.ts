@@ -97,7 +97,8 @@ export class PackageService {
     search?: any,
     startDate?: any,
     endDate?: any,
-    reference?: any
+    reference?: any,
+    pickupId?: any
   ): Observable<any> {
     const url = `${this.baseUri}/all-info-period/admin`;
     var queryParams = new HttpParams();
@@ -124,6 +125,9 @@ export class PackageService {
       reference.forEach((element) => {
         queryParams = queryParams.append("reference", element);
       });
+    }
+    if (pickupId) {
+      queryParams = queryParams.append("pickupId", pickupId);
     }
     return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
   }

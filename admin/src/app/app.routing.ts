@@ -36,7 +36,7 @@ const routes: Routes = [
     component: LoginComponent,
   },
   {
-    path: "imprimer-pickup",
+    path: "imprimer-colis",
     canActivate: [AuthGuard],
     component: ImprimerComponent,
   },

@@ -125,9 +125,6 @@ router.get("/", (req, res) => {
       },
     },
   ];
-  data.push({
-    $sort: sort,
-  });
 
   if (req.query.isAllocated) {
     var isAllocated = req.query.isAllocated === "true";
@@ -147,6 +144,11 @@ router.get("/", (req, res) => {
       },
     });
   }
+
+  data.push({
+    $sort: sort,
+  });
+
   Pickup.aggregate(data).exec((err, pickups) => {
     if (!err) {
       if (req.query.search) {
@@ -161,6 +163,12 @@ router.get("/", (req, res) => {
               ?.toLowerCase()
               .includes(req.query.search.toLowerCase())
         );
+      }
+      if (req.query.noPagination) {
+        return res.send({
+          length: pickups.length,
+          data: pickups,
+        });
       }
       return res.send({
         length: pickups.length,
@@ -246,6 +254,31 @@ router.get("/:id", (req, res) => {
   });
 });
 
+// get notification for daily packages
+router.get("/daily-package/notification", async (req, res) => {
+  var count = 0;
+  const date = new Date();
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
+
+  const todaysPickups = await Pickup.find({
+    createdAt: {
+      $gte: new Date(year, month, day, 0, 0, 0, 0),
+      $lte: new Date(year, month, day, 23, 59, 59, 999),
+    },
+  }).then((res) => {
+    return res;
+  });
+
+  todaysPickups.forEach((element) => {
+    count += element.packages.length;
+  });
+  const notify = { count: count };
+  socket.emit("notification", notify); // Updates Live Notification
+  return res.status(201).send(notify);
+});
+
 // create pickup
 router.post("/", (req, res) => {
   const pickup = new Pickup();
@@ -321,7 +354,6 @@ router.post("/", (req, res) => {
     });
   // pickup.pickupNb = pickupNb;
 });
-
 
 // modify pickup
 router.put("/:id", (req, res) => {

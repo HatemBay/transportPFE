@@ -12,7 +12,143 @@ const { Fournisseur } = require("../models/fournisseur");
 const { default: mongoose } = require("mongoose");
 
 // Read all
-router.get("/", (req, res) => {
+router.get("/by-daily-pickup/:pickupId", (req, res) => {
+  const startDate = req.query.startDate || null;
+  const endDate = req.query.endDate || null;
+  const state = req.query.etat || null;
+
+  var startYear = null;
+  var startMonth = null;
+  var startDay = null;
+
+  var endYear = null;
+  var endMonth = null;
+  var endDay = null;
+
+  if (startDate && endDate) {
+    const dateS = new Date(req.query.startDate);
+    const dateE = new Date(req.query.endDate);
+
+    startYear = dateS.getFullYear();
+    startMonth = dateS.getMonth();
+    startDay = dateS.getDate();
+
+    endYear = dateE.getFullYear();
+    endMonth = dateE.getMonth();
+    endDay = dateE.getDate();
+
+    console.log(startDay);
+  }
+
+  // adapting request id to aggregate options
+  if (!ObjectId.isValid(req.params.fid)) {
+    console.log(`no record with given id: ${req.params.id}`);
+    return res.status(400).send(`no record with given id: ${req.params.id}`);
+  } else {
+    var id = mongoose.Types.ObjectId(req.params.fid);
+  }
+  var sort = {};
+  var limit = parseInt(req.query.limit) || 10;
+  var page = parseInt(req.query.page) || 1;
+  var skip = limit * page - limit;
+  var n = -1;
+  var sortBy = req.query.sortBy || "createdAt";
+  if (req.query.sort == "asc") n = 1;
+  sort[sortBy] = n;
+
+  data = [
+    {
+      $lookup: {
+        from: "clients",
+        localField: "clientId",
+        foreignField: "_id",
+        as: "clients",
+      },
+    },
+    { $unwind: "$clients" },
+    {
+      $lookup: {
+        from: "fournisseurs",
+        localField: "fournisseurId",
+        foreignField: "_id",
+        as: "fournisseurs",
+      },
+    },
+    { $unwind: "$fournisseurs" },
+    {
+      $lookup: {
+        from: "delegations",
+        localField: "fournisseurs.delegationId",
+        foreignField: "_id",
+        as: "delegations",
+      },
+    },
+    { $unwind: "$delegations" },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegations.villeId",
+        foreignField: "_id",
+        as: "villes",
+      },
+    },
+    { $unwind: "$villes" },
+    {
+      $lookup: {
+        from: "delegations",
+        localField: "clients.delegationId",
+        foreignField: "_id",
+        as: "delegationsClient",
+      },
+    },
+    {
+      $unwind: { path: "$delegationsClient", preserveNullAndEmptyArrays: true },
+    },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegationsClient.villeId",
+        foreignField: "_id",
+        as: "villesClient",
+      },
+    },
+    { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        _id: 1,
+        CAB: 1,
+        service: 1,
+        libelle: 1,
+        c_remboursement: 1,
+        volume: 1,
+        poids: 1,
+        pieces: 1,
+        etat: 1,
+        clientId: "$clients._id",
+        nomc: "$clients.nom",
+        villec: "$villesClient.nom",
+        delegationc: "$delegationsClient.nom",
+        adressec: "$clients.adresse",
+        codePostalec: "$clients.codePostale",
+        telc: "$clients.tel",
+        tel2c: "$clients.tel2",
+        fournisseurId: "$fournisseurs._id",
+        nomf: "$fournisseurs.nom",
+        villef: "$villes.nom",
+        delegationf: "$delegations.nom",
+        createdAt: 1,
+        updatedAt: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
+        },
+        createdAtSearch: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
+        },
+      },
+    },
+    {
+      $match: { fournisseurId: id },
+    },
+  ];
   Package.find((err, docs) => {
     if (!err) res.send(docs);
     else
@@ -314,7 +450,7 @@ router.get("/all-info-daily/admin", (req, res) => {
   if (req.query.sort == "desc") n = -1;
   sort[sortBy] = n;
 
-  Package.aggregate([
+  data = [
     {
       $lookup: {
         from: "clients",
@@ -366,6 +502,7 @@ router.get("/all-info-daily/admin", (req, res) => {
         poids: 1,
         pieces: 1,
         etat: 1,
+        pickupId: 1,
         clientId: "$clients._id",
         nomc: "$clients.nom",
         villec: "$villesClient.nom",
@@ -397,10 +534,13 @@ router.get("/all-info-daily/admin", (req, res) => {
         etat: "pret",
       },
     },
-    {
-      $sort: sort,
-    },
-  ]).exec((err, doc) => {
+  ];
+
+  data.push({
+    $sort: sort,
+  });
+
+  Package.aggregate(data).exec((err, doc) => {
     if (!err) {
       if (req.query.search && req.query.search.length > 2) {
         doc = doc.filter(
@@ -535,6 +675,7 @@ router.get("/all-info-period/admin", async (req, res) => {
         poids: 1,
         pieces: 1,
         etat: 1,
+        pickupId: 1,
         clientId: "$clients._id",
         nomc: "$clients.nom",
         villec: "$villesClient.nom",
@@ -562,12 +703,18 @@ router.get("/all-info-period/admin", async (req, res) => {
         },
       },
     },
-    {
-      $sort: sort,
-    },
   ];
 
-  if (req.query.reference != null) {
+  if (req.query.pickupId) {
+    const pickupId = mongoose.Types.ObjectId(req.query.pickupId);
+    data.push({
+      $match: {
+        pickupId: pickupId,
+      },
+    });
+  }
+
+  if (req.query.reference && req.query.reference != null) {
     if (Array.isArray(req.query.reference)) {
       const references = req.query.reference;
       const referencesNumber = references.map((ref) => parseInt(ref));
@@ -595,6 +742,10 @@ router.get("/all-info-period/admin", async (req, res) => {
       },
     });
   }
+
+  data.push({
+    $sort: sort,
+  });
 
   Package.aggregate(data).exec((err, doc) => {
     if (!err) {
@@ -803,6 +954,34 @@ router.get("/all-info-admin/:id", (req, res) => {
     },
     { $unwind: "$fournisseurs" },
     {
+      $lookup: {
+        from: "delegations",
+        localField: "fournisseurs.delegationId",
+        foreignField: "_id",
+        as: "delegationsFournisseurs",
+      },
+    },
+    {
+      $unwind: {
+        path: "$delegationsFournisseurs",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegationsFournisseurs.villeId",
+        foreignField: "_id",
+        as: "villesFournisseurs",
+      },
+    },
+    {
+      $unwind: {
+        path: "$villesFournisseurs",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
       $project: {
         _id: 1,
         CAB: 1,
@@ -823,8 +1002,8 @@ router.get("/all-info-admin/:id", (req, res) => {
         tel2c: "$clients.tel2",
         fournisseurId: "$fournisseurs._id",
         nomf: "$fournisseurs.nom",
-        villef: "$fournisseurs.ville",
-        delegationf: "$fournisseurs.delegation",
+        villef: "$villesFournisseurs.nom",
+        delegationf: "$delegationsFournisseurs.nom",
         telf: "$fournisseurs.tel",
         adressef: "$fournisseurs.adresse",
         userId: "$users._id",
@@ -1404,10 +1583,23 @@ router.delete("/:id", (req, res) => {
                     { $pull: { packages: doc._id } },
                     (err4) => {
                       if (!err4) {
-                        res.status(200);
-                        res.json({
-                          message: "Colis supprimé",
-                        });
+                        Historique.findOneAndDelete(
+                          { packageId: doc._id },
+                          (err5) => {
+                            if (!err5) {
+                              res.status(200);
+                              res.json({
+                                message: "Colis supprimé",
+                              });
+                            } else {
+                              console.log(
+                                "Erreur lors de la suppression de l'historique: " +
+                                  err5
+                              );
+                              return res.status(400).send(err5.message);
+                            }
+                          }
+                        );
                       } else {
                         console.log(
                           "Erreur lors de l'enregistrement du colis: " + err4
@@ -1680,29 +1872,6 @@ router.get("/count/over-year", async (req, res) => {
     count.push(await Package.find(queryObj).count());
   }
   res.status(200).send(count.reverse());
-});
-
-// get notification for daily packages
-router.get("/daily-package/notification", async (req, res) => {
-  const date = new Date();
-  const day = date.getDate();
-  const month = date.getMonth();
-  const year = date.getFullYear();
-
-  //* finds today's packages with state 'pret'
-  const todaysPackagesCount = await Package.count({
-    updatedAt: {
-      $gte: new Date(year, month, day, 0, 0, 0, 0),
-      $lte: new Date(year, month, day, 23, 59, 59, 999),
-    },
-    etat: "pret",
-  }).then((res) => {
-    return res;
-  });
-
-  const notify = { count: todaysPackagesCount };
-  socket.emit("notification", notify); // Updates Live Notification
-  return res.status(201).send(notify);
 });
 
 /********************** STATISTICS **********************/

@@ -40,7 +40,7 @@ export class ClientService {
       .post(url, data, { headers: this.headers })
       .pipe(catchError(this.errorMgmt));
   }
-  // Get all clients
+
   getClients(
     limit?: any,
     page?: any,

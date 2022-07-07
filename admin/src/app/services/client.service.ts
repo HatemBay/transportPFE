@@ -41,10 +41,18 @@ export class ClientService {
       .post(url, data, { headers: this.headers })
       .pipe(catchError(this.errorMgmt));
   }
-  // Get all clients
-  getClients(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any): Observable<any> {
+
+  getClients(
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any,
+    tels?: any
+  ): Observable<any> {
     const url = `${this.baseUri}/all`;
     var queryParams = new HttpParams();
+    queryParams = queryParams.append("fid", this.userId);
     queryParams = queryParams.append("limit", limit);
     queryParams = queryParams.append("page", page);
     if (sortBy) {
@@ -55,6 +63,9 @@ export class ClientService {
     }
     if (search) {
       queryParams = queryParams.append("search", search || "");
+    }
+    if (tels) {
+      queryParams = queryParams.append("tels", tels);
     }
     return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
   }

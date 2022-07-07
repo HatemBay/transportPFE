@@ -9,9 +9,11 @@ import {
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { map } from "rxjs/internal/operators/map";
 import { io } from "socket.io-client";
 import { ClientService } from "src/app/services/client.service";
 import { PackageService } from "src/app/services/package.service";
+import { PickupService } from "src/app/services/pickup.service";
 
 @Component({
   selector: "app-colis-jour",
@@ -52,6 +54,7 @@ export class ColisJourComponent implements OnInit {
     private fb: FormBuilder,
     private datePipe: DatePipe,
     private packageService: PackageService,
+    private pickupService: PickupService,
     private clientService: ClientService,
     private router: Router
   ) {
@@ -78,7 +81,6 @@ export class ColisJourComponent implements OnInit {
     this.socket.on("notification", (data) => {
       this.moreData = true;
       console.log(this.moreData);
-
     });
   }
 
@@ -87,13 +89,61 @@ export class ColisJourComponent implements OnInit {
   }
 
   // get data from backend
-  getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
-    this.packageService
-      .getDailyPackages(limit, page, sortBy, sort, search, this.date)
-      .subscribe((data) => {
-        this.rows = this.temp = data.data;
-        this.count = data.length;
-      });
+  async getDataJson(
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any
+  ) {
+    const pickupIds = await this.pickupService
+      .getPickups(
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        this.date,
+        this.date,
+        "noPagination"
+      )
+      .pipe(
+        map((data) => {
+          var ids = [];
+          data.data.forEach((pickup) => {
+            ids.push(pickup._id);
+          });
+          return ids;
+        })
+      )
+      .toPromise();
+
+    pickupIds.forEach(async (id) => {
+      var pack = [];
+      pack = await this.packageService
+        .getFullPackages(
+          limit,
+          page,
+          sortBy,
+          sort,
+          search,
+          null,
+          null,
+          null,
+          id
+        )
+        .pipe(
+          map((data) => {
+            return data.data;
+          })
+        )
+        .toPromise();
+      this.rows = [...this.rows, ...pack];
+      this.count = this.rows.length;
+      console.log("length");
+      console.log(this.rows.length);
+    });
   }
   // save changes in credentials
   private onDateFormValueChange(data: any): void {

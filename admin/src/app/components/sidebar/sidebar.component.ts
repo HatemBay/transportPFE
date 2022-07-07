@@ -232,7 +232,8 @@ export class SidebarComponent implements OnInit {
   constructor(
     private router: Router,
     private auth: AuthenticationService,
-    private packageService: PackageService
+    private packageService: PackageService,
+    private pickupService: PickupService
   ) {
     // role management
     this.role = this.auth.getUserDetails().role;
@@ -248,7 +249,7 @@ export class SidebarComponent implements OnInit {
     //   this.test.push(item);
     // }
     this.test = this.menuItems[4].roles as Array<string>;
-    console.log( this.test.indexOf('financier'));
+    console.log(this.test.indexOf("financier"));
 
     // console.log( this.menuItems[4].roles.indexOF('financier'));
 
@@ -264,11 +265,11 @@ export class SidebarComponent implements OnInit {
 
   checkRole(data) {
     const roles = data as Array<string>;
-    return roles.indexOf(this.role) !== -1
+    return roles.indexOf(this.role) !== -1;
   }
 
   async countTodayPackages() {
-    return await this.packageService
+    return await this.pickupService
       .notify()
       .pipe(
         map((data) => {

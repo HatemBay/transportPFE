@@ -47,7 +47,8 @@ export class PickupService {
     sort?: any,
     search?: any,
     startDate?: any,
-    endDate?: any
+    endDate?: any,
+    noPagination?: any
   ): Observable<any> {
     const url = `${this.baseUri}`;
     var queryParams = new HttpParams();
@@ -70,6 +71,9 @@ export class PickupService {
     }
     if (endDate) {
       queryParams = queryParams.append("endDate", endDate);
+    }
+    if (noPagination) {
+      queryParams = queryParams.append("noPagination", noPagination);
     }
     return this.http.get(url, { headers: this.headers, params: queryParams }); //if error try removing/adding header
   }

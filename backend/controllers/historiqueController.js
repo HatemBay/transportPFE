@@ -7,6 +7,15 @@ var { Historique } = require("../models/historique");
 const { Package } = require("../models/package");
 
 router.get("/", (req, res) => {
+  var sort = {};
+  var limit = parseInt(req.query.limit) || 10;
+  var page = parseInt(req.query.page) || 1;
+  var skip = limit * page - limit;
+  var n = -1;
+  var sortBy = req.query.sortBy || "createdAt";
+  if (req.query.sort == "asc") n = 1;
+  sort[sortBy] = n;
+
   data = [
     {
       $lookup: {
@@ -21,7 +30,7 @@ router.get("/", (req, res) => {
       $lookup: {
         from: "users",
         localField: "packages.userId",
-        foreignField: "$_id",
+        foreignField: "_id",
         as: "users",
       },
     },
@@ -30,7 +39,7 @@ router.get("/", (req, res) => {
       $lookup: {
         from: "filieres",
         localField: "users.filiereId",
-        foreignField: "$_id",
+        foreignField: "_id",
         as: "filieres",
       },
     },
@@ -39,7 +48,7 @@ router.get("/", (req, res) => {
       $lookup: {
         from: "fournisseurs",
         localField: "packages.fournisseurId",
-        foreignField: "$_id",
+        foreignField: "_id",
         as: "fournisseurs",
       },
     },
@@ -75,9 +84,10 @@ router.get("/", (req, res) => {
     if (!err) {
       return res.send({
         length: doc.length,
-        data: doc.slice(skip).slice(0, limit),
+        data: doc,
       });
-    } else console.log("Erreur lors de la récupération des historiques: " + err);
+    } else
+      console.log("Erreur lors de la récupération des historiques: " + err);
   });
 });
 

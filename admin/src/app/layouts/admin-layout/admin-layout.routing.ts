@@ -60,6 +60,7 @@ export const AdminLayoutRoutes: Routes = [
   { path: "finance-client", component: FinanceClientComponent },
   { path: "finance-client-print", component: FinanceClientComponent },
   { path: "debrief-global", component: FinanceDebriefGlobalComponent },
+  { path: "modifier-colis", component: ModifierColisComponent },
 
   {
     path: "gestion-colis",

@@ -217,10 +217,65 @@ router.get("/:id", (req, res) => {
 
 // get client by phone number
 router.get("/tel/:tel", (req, res) => {
-  Client.find({ tel: req.params.tel }, (err, docs) => {
-    if (!err) res.send(docs);
-    else {
-      console.log("Error in retrieving Clients: " + err);
+  if (req.params.tel.length != 8)
+    return res.status(400).send(`tel n'est pas valide: ${req.params.tel}`);
+
+  var data = [
+    {
+      $lookup: {
+        from: "delegations",
+        localField: "delegationId",
+        foreignField: "_id",
+        as: "delegations",
+      },
+    },
+    { $unwind: { path: "$delegations", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegations.villeId",
+        foreignField: "_id",
+        as: "villes",
+      },
+    },
+    { $unwind: { path: "$villes", preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        _id: 1,
+        nom: 1,
+        adresse: 1,
+        codePostale: 1,
+        tel: 1,
+        tel2: 1,
+        createdAt: 1,
+        fournisseurId: 1,
+        delegationId: "$delegations._id",
+        delegation: "$delegations.nom",
+        villeId: "$villes._id",
+        ville: "$villes.nom",
+        villeEtat: "$villes.etat",
+        updatedAt: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
+        },
+      },
+    },
+    {
+      $addFields: {
+        createdAtSearch: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
+        },
+      },
+    },
+    {
+      $match: { tel: parseInt(req.params.tel) },
+    },
+  ]
+
+  Client.aggregate(data).exec((err, doc) => {
+    if (!err) {
+      res.send(doc);
+    } else {
+      console.log("Erreur lors de la récupération du client: " + err);
       res.status(400).send(err.message);
     }
   });
@@ -271,7 +326,9 @@ router.post("/", (req, res) => {
           ).then(
             () => res.send(doc),
             (err) => {
-              console.log("Erreur lors de la mise à jour de la délegation: " + err);
+              console.log(
+                "Erreur lors de la mise à jour de la délegation: " + err
+              );
               res.status(400).send(err.message);
             }
           );
@@ -424,7 +481,9 @@ router.put("/:tel", async (req, res) => {
               );
               return res
                 .status(400)
-                .send("Erreur lors de la mise à jour de la délégation: " + err2);
+                .send(
+                  "Erreur lors de la mise à jour de la délégation: " + err2
+                );
             }
           );
         } else {
@@ -461,7 +520,7 @@ router.delete("/:id", (req, res) => {
           }
         }
       );
-      
+
       // var msg = "";
       // var error = "";
       // doc.fournisseurs.forEach((element) => {

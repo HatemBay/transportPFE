@@ -10,6 +10,8 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { NgbModal, NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
+import { AuthenticationService } from "src/app/services/authentication.service";
+import { PackageService } from "src/app/services/package.service";
 import { PickupService } from "src/app/services/pickup.service";
 import { UserService } from "src/app/services/user.service";
 
@@ -57,6 +59,8 @@ export class CbPickupsComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private pickupService: PickupService,
+    private packageService: PackageService,
+    private authService: AuthenticationService,
     private userService: UserService,
     public modalService: NgbModal,
     public activeModal: NgbActiveModal,
@@ -262,6 +266,19 @@ export class CbPickupsComponent implements OnInit {
         this.getDataJson(this.isAllocated, null, null, null, null, this.val);
         this.success = true;
       });
+    this.changeState(row.packages);
+  }
+
+  public changeState(packs) {
+    console.log(packs);
+    packs.forEach((element) => {
+      this.packageService
+        .updatePackageByCAB(element, {
+          etat: "en cours de ramassage",
+          userId: this.authService.getUserDetails()._id,
+        }) //* userId has no use for now (it could be added to control which user allocated the driver)
+        .subscribe();
+    });
   }
 
   // redirects to printable facture for pickup

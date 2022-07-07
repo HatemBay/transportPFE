@@ -40,6 +40,7 @@ var PackageSchema = new Schema(
       enum: [
         "nouveau",
         "pret",
+        "en cours de ramassage",
         "ramassé par livreur",
         "collecté",
         "en cours",
