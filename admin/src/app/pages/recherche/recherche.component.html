@@ -164,19 +164,19 @@
         <ng-container *ngFor="let package of packageData">
           <div class="card mb-4" style="position: relative;">
             <h1 class="card-header bg-primary text-white">{{package.CAB}}</h1>
-            <ng-container *ngIf="role == 'admin'">
-              <div style="position: absolute; right: 1%; top: 4%;">
+            <div style="position: absolute; right: 1%; top: 4%;">
+              <ng-container *ngIf="role != 'admin'">
                 <a (click)="modifyPackage(package)" class="btn btn-sm btn-success mr-3"><i class="fa fa-edit"></i></a>
                 <button class="btn btn-sm btn-danger mr-3" [routerLink]="" (click)="delete(package)"><i
                     class="fa fa-trash"></i></button>
+              </ng-container>
 
-                <!-- <button class="btn btn-sm btn-success mr-3" data-toggle="modal" data-target="#etatModal" onclick="etat_modal(36317525)"><i class="fa fa-check"></i></button> -->
+              <!-- <button class="btn btn-sm btn-success mr-3" data-toggle="modal" data-target="#etatModal" onclick="etat_modal(36317525)"><i class="fa fa-check"></i></button> -->
 
-                <a [routerLink]="" (click)="printPackage(package)" class="btn btn-sm btn-warning mr-3">
-                  <i class="fa fa-print"></i>
-                </a>
-              </div>
-            </ng-container>
+              <a [routerLink]="" (click)="printPackage(package)" class="btn btn-sm btn-warning mr-3">
+                <i class="fa fa-print"></i>
+              </a>
+            </div>
             <div class="card-body">
               <div class="row">
                 <div class="col-sm-12">
