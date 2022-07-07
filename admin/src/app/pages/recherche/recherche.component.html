@@ -165,7 +165,7 @@
           <div class="card mb-4" style="position: relative;">
             <h1 class="card-header bg-primary text-white">{{package.CAB}}</h1>
             <div style="position: absolute; right: 1%; top: 4%;">
-              <ng-container *ngIf="role != 'admin'">
+              <ng-container *ngIf="role == 'admin'">
                 <a (click)="modifyPackage(package)" class="btn btn-sm btn-success mr-3"><i class="fa fa-edit"></i></a>
                 <button class="btn btn-sm btn-danger mr-3" [routerLink]="" (click)="delete(package)"><i
                     class="fa fa-trash"></i></button>
