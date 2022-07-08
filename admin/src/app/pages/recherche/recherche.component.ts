@@ -54,6 +54,7 @@ export class RechercheComponent implements OnInit {
     { state: "retourné à l'expediteur", viewState: "Retourné à " },
     { state: "livré - payé - espèce", viewState: "Livré - payé - espèce " },
     { state: "livré - payé - chèque", viewState: "Livré - payé - chèque " },
+    { state: "modifié par admin", viewState: "Modifié par admin le" },
   ];
 
   constructor(

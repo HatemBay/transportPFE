@@ -143,6 +143,7 @@ export class DashboardComponent implements OnInit {
       var day = date.getDate();
       this.daysOfTheWeek.push(day + "/" + month);
     }
+    this.daysOfTheWeek = this.daysOfTheWeek.reverse();
   }
 
   // save changes in credentials
@@ -175,7 +176,7 @@ export class DashboardComponent implements OnInit {
       .pipe(
         map((data) => {
           this.villes = [...data.map((item) => item.ville)];
-          this.deliveryRates = [...data.map((item) => item.count)];
+          this.deliveryRates = [...data.map((item) => item.rate)];
         })
       )
       .toPromise();

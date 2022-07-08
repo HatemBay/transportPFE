@@ -223,11 +223,14 @@ export class PackageService {
     return this.http.get(url, { headers: this.headers });
   }
 
-  // Update package
+  //* Update package (will have an additional parameter that suggests that an admin did some package data modification
+  //* so there will be a good representative line in package historic)
   updatePackage(id: any, data: any): Observable<any> {
     let url = `${this.baseUri}/${id}`;
+    var queryParams = new HttpParams();
+    queryParams = queryParams.append("adminModification", "true");
     return this.http
-      .put(url, data, { headers: this.headers })
+      .put(url, data, { headers: this.headers, params: queryParams })
       .pipe(catchError(this.errorMgmt));
   }
 

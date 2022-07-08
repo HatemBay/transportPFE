@@ -330,7 +330,7 @@ export const chartExample1 = {
     ],
     datasets: [
       {
-        label: "Taux de livraison/ ville",
+        label: "Nouveau(x) colis",
         data: [0, 20, 120, 30, 15, 40, 20, 60, 60, 60, 40, 20],
       },
     ],

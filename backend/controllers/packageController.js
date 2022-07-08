@@ -11,6 +11,7 @@ const { Client } = require("../models/client");
 const { Fournisseur } = require("../models/fournisseur");
 const { Ville } = require("../models/ville");
 const { default: mongoose } = require("mongoose");
+const { Pickup } = require("../models/pickup");
 
 // Read all
 router.get("/by-daily-pickup/:pickupId", (req, res) => {
@@ -294,7 +295,9 @@ router.get("/all-info/:fid", async (req, res) => {
         etat: 1,
         clientId: "$clients._id",
         nomc: "$clients.nom",
+        villeId: "$villesClient._id",
         villec: "$villesClient.nom",
+        delegationId: "$delegationsClient._id",
         delegationc: "$delegationsClient.nom",
         adressec: "$clients.adresse",
         codePostalec: "$clients.codePostale",
@@ -995,7 +998,9 @@ router.get("/all-info-admin/:id", (req, res) => {
         etat: 1,
         clientId: "$clients._id",
         nomc: "$clients.nom",
+        villeId: "$villesClient._id",
         villec: "$villesClient.nom",
+        delegationId: "$delegationsClient._id",
         delegationc: "$delegationsClient.nom",
         adressec: "$clients.adresse",
         codePostalec: "$clients.codePostale",
@@ -1121,7 +1126,9 @@ router.get("/all-info-admin-cab/:cab", (req, res) => {
         remarque: 1,
         clientId: "$clients._id",
         nomc: "$clients.nom",
+        villeId: "$villesClient._id",
         villec: "$villesClient.nom",
+        delegationId: "$delegationsClient._id",
         delegationc: "$delegationsClient.nom",
         adressec: "$clients.adresse",
         codePostalec: "$clients.codePostale",
@@ -1444,7 +1451,9 @@ router.put("/:id", (req, res) => {
   ).then(
     (doc) => {
       const historique = new Historique();
-      historique.action = doc.etat;
+      if (req.query.adminModification && req.query.adminModification != null) {
+        historique.action = "modifié par admin";
+      }
       historique.packageId = doc._id;
       return historique.save().then(
         (historique) => {
@@ -1834,22 +1843,39 @@ router.get("/count/today", (req, res) => {
 });
 
 router.get("/count/over-week", async (req, res) => {
-  const queryObj = {};
+  var queryObj = {};
   var count = [];
-
   const dateS = new Date();
 
   startYear = dateS.getFullYear();
   startMonth = dateS.getMonth();
   startDay = dateS.getDate();
 
+  // for (var i = 0; i < 7; i++) {
+  //   var todaysPackages = 0;
+  //   const todaysPickups = await Pickup.find({
+  //     createdAt: {
+  //       $gte: new Date(startYear, startMonth, startDay, 0, 0, 0, 0),
+  //       $lte: new Date(startYear, startMonth, startDay, 23, 59, 59, 999),
+  //     },
+  //   }).then((res) => res);
+
+  //   todaysPickups.forEach((element) => {
+  //     todaysPackages += element.packages.length;
+  //   });
+
+  //   count.push(todaysPackages);
+  //   startDay--;
+  // }
+
   for (var i = 0; i < 7; i++) {
     queryObj["createdAt"] = {
       $gte: new Date(startYear, startMonth, startDay, 0, 0, 0, 0),
       $lte: new Date(startYear, startMonth, startDay, 23, 59, 59, 999),
     };
+    queryObj["action"] = "pret";
     startDay--;
-    count.push(await Package.find(queryObj).count());
+    count.push(await Historique.find(queryObj).count());
   }
   res.status(200).send(count.reverse());
 });
@@ -1878,7 +1904,7 @@ router.get("/count/over-year", async (req, res) => {
 router.get("/count/delivery-rate", async (req, res) => {
   const number = req.query.number || 5;
   const villes = await Ville.find().then((data) => {
-    return data;
+    return data.map((item) => item.nom);
   });
 
   var stats = [];
@@ -1945,24 +1971,64 @@ router.get("/count/delivery-rate", async (req, res) => {
 
     data.push({
       $match: {
-        villec: ville.nom,
+        villec: ville,
       },
     });
     const deliveries = await Package.aggregate(data).then(
       (data) => data.length
     );
-    if (deliveries !== 0) sample.count = (totalDeliveries / deliveries) * 100;
-    else sample.count = 0;
-    sample.ville = ville.nom;
+    if (deliveries !== 0)
+      sample.rate = ((deliveries / totalDeliveries) * 100).toFixed(2);
+    else sample.rate = 0;
+    sample.ville = ville;
     stats.push(sample);
     data.pop({
       $match: {
-        villec: ville.nom,
+        villec: ville,
       },
     });
   }
 
-  stats = stats.sort((a, b) => b.count - a.count).slice(0, number);
+  stats = stats.sort((a, b) => b.rate - a.rate).slice(0, number);
+  return res.send(stats);
+});
+
+router.get("/count/top-providers", async (req, res) => {
+  const number = req.query.number || 5;
+  var providers = new Array();
+  await Fournisseur.find().then((data) => {
+    providers = data.map((item) => {
+      return { nom: item.nom, id: item._id };
+    });
+  });
+
+  console.log(providers);
+  var stats = [];
+
+  const totalDemands = await Package.count({
+    etat: {
+      $nin: ["nouveau"],
+    },
+  });
+
+  for (let provider of providers) {
+    var sample = {};
+
+    const demands = await Package.count({
+      etat: {
+        $nin: ["nouveau"],
+      },
+      fournisseurId: provider.id,
+    });
+    sample.demands = demands;
+    if (demands !== 0)
+      sample.rate = ((demands / totalDemands) * 100).toFixed(2);
+    else sample.count = 0;
+    sample.provider = provider.nom;
+    stats.push(sample);
+  }
+
+  stats = stats.sort((a, b) => b.rate - a.rate).slice(0, number);
   return res.send(stats);
 });
 

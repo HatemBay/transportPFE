@@ -20,6 +20,7 @@ var HistoriqueSchema = new Schema(
         "retourné à l'expediteur",
         "livré - payé - espèce",
         "livré - payé - chèque",
+        "modifié par admin",
       ],
       required: true,
       default: "nouveau",
