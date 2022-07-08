@@ -93,7 +93,7 @@ export class CbDebriefComponent implements OnInit {
         this.onDateFormValueChange(data)
       );
 
-      this.getRoadmaps(null, null, null, null, null, this.date, this.date);
+      this.getRoadmaps(null, null, null, null, null, null, null);
     } else if (this.routePath == "debrief-detail") {
       this.columns = [
         { prop: "nomd", name: "Chauffeur" },

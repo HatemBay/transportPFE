@@ -9,10 +9,10 @@ import {
 import { PackageService } from "src/app/services/package.service";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { FormGroup, FormBuilder } from "@angular/forms";
-import { HistoriqueService } from "src/app/services/historique.service";
 import { VilleService } from "src/app/services/ville.service";
 import { ClientService } from "src/app/services/client.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
+import { HistoriqueService } from "src/app/services/historique.service";
 
 @Component({
   selector: "app-recherche",
@@ -40,7 +40,7 @@ export class RechercheComponent implements OnInit {
   submit: boolean = false;
   historic: any = [
     { state: "nouveau", viewState: "Colis créé le " },
-    { state: "pret", viewState: "Colis modifié le " },
+    { state: "pret", viewState: "Colis pret le " },
     { state: "en cours de ramassage", viewState: "attribué à ramassage le " },
     { state: "collecté", viewState: "Collecté" },
     { state: "ramassé par livreur", viewState: "Rammasé par livreur le " },

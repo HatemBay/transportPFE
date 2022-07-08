@@ -9,6 +9,7 @@ const { Historique } = require("../models/historique");
 const { User } = require("../models/users");
 const { Client } = require("../models/client");
 const { Fournisseur } = require("../models/fournisseur");
+const { Ville } = require("../models/ville");
 const { default: mongoose } = require("mongoose");
 
 // Read all
@@ -1872,6 +1873,97 @@ router.get("/count/over-year", async (req, res) => {
     count.push(await Package.find(queryObj).count());
   }
   res.status(200).send(count.reverse());
+});
+
+router.get("/count/delivery-rate", async (req, res) => {
+  const number = req.query.number || 5;
+  const villes = await Ville.find().then((data) => {
+    return data;
+  });
+
+  var stats = [];
+  data = [
+    {
+      $lookup: {
+        from: "clients",
+        localField: "clientId",
+        foreignField: "_id",
+        as: "clients",
+      },
+    },
+    { $unwind: "$clients" },
+    {
+      $lookup: {
+        from: "delegations",
+        localField: "clients.delegationId",
+        foreignField: "_id",
+        as: "delegationsClient",
+      },
+    },
+    {
+      $unwind: { path: "$delegationsClient", preserveNullAndEmptyArrays: true },
+    },
+    {
+      $lookup: {
+        from: "villes",
+        localField: "delegationsClient.villeId",
+        foreignField: "_id",
+        as: "villesClient",
+      },
+    },
+    { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        etat: 1,
+        villec: "$villesClient.nom",
+      },
+    },
+    {
+      $match: {
+        etat: {
+          $in: [
+            "retourné à l'expediteur",
+            "livré - payé - espèce",
+            "livré - payé - chèque",
+          ],
+        },
+      },
+    },
+  ];
+
+  const totalDeliveries = await Package.count({
+    etat: {
+      $in: [
+        "retourné à l'expediteur",
+        "livré - payé - espèce",
+        "livré - payé - chèque",
+      ],
+    },
+  });
+  for (let ville of villes) {
+    var sample = {};
+
+    data.push({
+      $match: {
+        villec: ville.nom,
+      },
+    });
+    const deliveries = await Package.aggregate(data).then(
+      (data) => data.length
+    );
+    if (deliveries !== 0) sample.count = (totalDeliveries / deliveries) * 100;
+    else sample.count = 0;
+    sample.ville = ville.nom;
+    stats.push(sample);
+    data.pop({
+      $match: {
+        villec: ville.nom,
+      },
+    });
+  }
+
+  stats = stats.sort((a, b) => b.count - a.count).slice(0, number);
+  return res.send(stats);
 });
 
 /********************** STATISTICS **********************/

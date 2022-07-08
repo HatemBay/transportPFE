@@ -142,7 +142,7 @@ export class CbFeuilleRouteComponent implements OnInit {
 
     // this.references = references.split("\n");
 
-    // *testing phase
+    // *checking for errors
     for (let [index, element] of this.refs.entries()) {
       if (element.length > 0) {
         if (!isNaN(element) && element.length === 10) {
@@ -155,16 +155,14 @@ export class CbFeuilleRouteComponent implements OnInit {
                 value: element,
                 state: "",
               });
-            }
-            //TODO: to be changed to all states representing steps after 'en cours'
-            else if (
+            } else if (
               [
-                "en cours",
-                "livré (espèce)",
-                "livré (chèque)",
-                "annulé",
+                "pret",
+                "en cours de ramassage",
+                "ramassé par livreur",
+                "collecté",
                 "reporté",
-              ].indexOf(data.etat) !== -1
+              ].indexOf(data.etat) === -1
             ) {
               this.index.push({
                 index: index,

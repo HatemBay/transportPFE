@@ -2,6 +2,7 @@ import { DatePipe } from "@angular/common";
 import { ChangeDetectorRef, Component, Input, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import Chart from "chart.js";
+import { map } from "rxjs";
 import { PackageService } from "src/app/services/package.service";
 // core components
 import {
@@ -19,9 +20,12 @@ import {
 export class DashboardComponent implements OnInit {
   public datasets: any;
   public dataLabels: any;
-  public data: any;
-  public labels: any;
-  public salesChart;
+  public salesChartData: any;
+  public salesChartLabels: any;
+  public ordersChartData: any;
+  public ordersChartLabels: any;
+  public salesChart: any;
+  public ordersChart: any;
   public clicked: boolean = true;
   public clicked1: boolean = false;
   myDate = new Date();
@@ -39,6 +43,8 @@ export class DashboardComponent implements OnInit {
   livre: any;
   statsWeek: Array<number>;
   statsYear: Array<number>;
+  deliveryRates: Array<number>;
+  villes: Array<string>;
   months = [
     "Jan",
     "Feb",
@@ -82,20 +88,24 @@ export class DashboardComponent implements OnInit {
 
     this.statsWeek = await this.getStatsWeek();
     this.statsYear = await this.getStatsYear();
+    await this.getStatsDeliveryRate();
+
+    console.log(this.deliveryRates);
+    console.log(this.villes);
 
     this.setLabelsForStats();
 
     this.datasets = [this.statsYear, this.statsWeek];
     this.dataLabels = [this.months, this.daysOfTheWeek];
 
-    this.data = this.datasets[0];
-    this.labels = this.dataLabels[0];
+    this.salesChartData = this.datasets[0];
+    this.salesChartLabels = this.dataLabels[0];
 
     var chartOrders = document.getElementById("chart-orders");
 
     parseOptions(Chart, chartOptions());
 
-    var ordersChart = new Chart(chartOrders, {
+    this.ordersChart = new Chart(chartOrders, {
       type: "bar",
       options: chartExample2.options,
       data: chartExample2.data,
@@ -108,7 +118,8 @@ export class DashboardComponent implements OnInit {
       options: chartExample1.options,
       data: chartExample1.data,
     });
-    this.updateOptions();
+    this.updateSalesChartOptions();
+    this.updateOrdersChartOptions();
   }
 
   //sets a table of months to display in chart
@@ -119,8 +130,6 @@ export class DashboardComponent implements OnInit {
     for (var element of splice.reverse()) {
       this.months.unshift(element);
     }
-    console.log(this.months);
-
     var date = new Date();
     var year = date.getFullYear();
     var month = date.getMonth() + 1;
@@ -142,10 +151,16 @@ export class DashboardComponent implements OnInit {
     this.startDate = data.startDate;
   }
 
-  public updateOptions() {
-    this.salesChart.data.datasets[0].data = this.data;
-    this.salesChart.data.labels = this.labels;
+  public updateSalesChartOptions() {
+    this.salesChart.data.datasets[0].data = this.salesChartData;
+    this.salesChart.data.labels = this.salesChartLabels;
     this.salesChart.update();
+  }
+
+  public updateOrdersChartOptions() {
+    this.ordersChart.data.datasets[0].data = this.deliveryRates;
+    this.ordersChart.data.labels = this.villes;
+    this.ordersChart.update();
   }
 
   public async getStatsWeek() {
@@ -153,6 +168,17 @@ export class DashboardComponent implements OnInit {
   }
   public async getStatsYear() {
     return await this.packageService.statsYear().toPromise();
+  }
+  public async getStatsDeliveryRate() {
+    return await this.packageService
+      .statsDeliveryRate()
+      .pipe(
+        map((data) => {
+          this.villes = [...data.map((item) => item.ville)];
+          this.deliveryRates = [...data.map((item) => item.count)];
+        })
+      )
+      .toPromise();
   }
 
   // returns statistics

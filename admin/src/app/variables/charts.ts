@@ -330,7 +330,7 @@ export const chartExample1 = {
     ],
     datasets: [
       {
-        label: "Performance",
+        label: "Taux de livraison/ ville",
         data: [0, 20, 120, 30, 15, 40, 20, 60, 60, 60, 40, 20],
       },
     ],
@@ -344,10 +344,7 @@ export const chartExample2 = {
         {
           ticks: {
             callback: function (value) {
-              if (!(value % 10)) {
-                //return '$' + value + 'k'
-                return value;
-              }
+              return value + "%";
             },
           },
         },
@@ -372,7 +369,7 @@ export const chartExample2 = {
     labels: ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     datasets: [
       {
-        label: "Sales",
+        label: "Taux de livraison",
         data: [25, 20, 30, 22, 17, 29],
         maxBarThickness: 10,
       },

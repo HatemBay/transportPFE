@@ -125,11 +125,9 @@ router.get("/", (req, res) => {
     });
   }
 
-  if (noLimit !== null) {
-    data.push({
-      $sort: sort,
-    });
-  }
+  data.push({
+    $sort: sort,
+  });
 
   // if (req.query.search) {
   //   data.push({
@@ -166,10 +164,17 @@ router.get("/", (req, res) => {
             item.nomd?.toLowerCase().includes(req.query.search.toLowerCase())
         );
       }
-      return res.send({
-        length: roadmaps.length,
-        data: roadmaps.slice(skip).slice(0, limit),
-      });
+      if (noLimit && noLimit !== null) {
+        return res.send({
+          length: roadmaps.length,
+          data: roadmaps,
+        });
+      } else {
+        return res.send({
+          length: roadmaps.length,
+          data: roadmaps.slice(skip).slice(0, limit),
+        });
+      }
     } else {
       res
         .status(400)
@@ -246,7 +251,9 @@ router.get("/:id", (req, res) => {
   Roadmap.aggregate(data).exec((err, roadmap) => {
     if (!err) res.send(roadmap);
     else
-      console.log("Erreur lors de la récupération de la feuille de route: " + err);
+      console.log(
+        "Erreur lors de la récupération de la feuille de route: " + err
+      );
   });
 });
 
@@ -311,7 +318,9 @@ router.post("/", (req, res) => {
           );
         },
         (err) => {
-          console.log("Erreur lors de la création de la feuille de route: " + err);
+          console.log(
+            "Erreur lors de la création de la feuille de route: " + err
+          );
           return res.status(400).send(err.message);
         }
       );
@@ -344,7 +353,9 @@ router.put("/:id", (req, res) => {
       );
     },
     (err) => {
-      console.log("Erreur lors de la mise à jour de la feuille de route: " + err);
+      console.log(
+        "Erreur lors de la mise à jour de la feuille de route: " + err
+      );
       return res.status(400).send(err.message);
     }
   );
@@ -354,7 +365,9 @@ router.put("/:id", (req, res) => {
       return res.status(200).send(roadmap);
     },
     (err) => {
-      console.log("Erreur lors de la mise à jour de la feuille de route: " + err);
+      console.log(
+        "Erreur lors de la mise à jour de la feuille de route: " + err
+      );
       return res
         .status(400)
         .send("Erreur lors de la mise à jour de la feuille de route: " + err);
