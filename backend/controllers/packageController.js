@@ -1851,23 +1851,6 @@ router.get("/count/over-week", async (req, res) => {
   startMonth = dateS.getMonth();
   startDay = dateS.getDate();
 
-  // for (var i = 0; i < 7; i++) {
-  //   var todaysPackages = 0;
-  //   const todaysPickups = await Pickup.find({
-  //     createdAt: {
-  //       $gte: new Date(startYear, startMonth, startDay, 0, 0, 0, 0),
-  //       $lte: new Date(startYear, startMonth, startDay, 23, 59, 59, 999),
-  //     },
-  //   }).then((res) => res);
-
-  //   todaysPickups.forEach((element) => {
-  //     todaysPackages += element.packages.length;
-  //   });
-
-  //   count.push(todaysPackages);
-  //   startDay--;
-  // }
-
   for (var i = 0; i < 7; i++) {
     queryObj["createdAt"] = {
       $gte: new Date(startYear, startMonth, startDay, 0, 0, 0, 0),
@@ -1875,7 +1858,7 @@ router.get("/count/over-week", async (req, res) => {
     };
     queryObj["action"] = "pret";
     startDay--;
-    count.push(await Historique.find(queryObj).count());
+    count.push(await Historique.count(queryObj));
   }
   res.status(200).send(count.reverse());
 });
@@ -1888,15 +1871,15 @@ router.get("/count/over-year", async (req, res) => {
 
   startYear = dateS.getFullYear();
   startMonth = dateS.getMonth();
-  startDay = dateS.getDate();
 
   for (var i = 0; i < 12; i++) {
     queryObj["createdAt"] = {
       $gte: new Date(startYear, startMonth, 1, 0, 0, 0, 0),
       $lte: new Date(startYear, startMonth + 1, 0, 23, 59, 59, 999),
     };
+    queryObj["action"] = "pret";
     startMonth--;
-    count.push(await Package.find(queryObj).count());
+    count.push(await Historique.count(queryObj));
   }
   res.status(200).send(count.reverse());
 });
@@ -2002,7 +1985,6 @@ router.get("/count/top-providers", async (req, res) => {
     });
   });
 
-  console.log(providers);
   var stats = [];
 
   const totalDemands = await Package.count({

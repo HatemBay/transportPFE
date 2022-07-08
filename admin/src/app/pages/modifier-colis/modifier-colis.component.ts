@@ -103,13 +103,10 @@ export class ModifierColisComponent implements OnInit {
     });
   }
 
-  //************************ PATH = NOUVEAU-COLIS / MODIFIER-COLIS ************************
+  //************************ PATH = MODIFIER-COLIS ************************
   getActors() {
     this.packageService.getPackage(this.packageId).subscribe((data) => {
       if (data[0].clientId == this.clientId) {
-        console.log("data3");
-        console.log(data[0]);
-
         this.packageForm.patchValue({
           tel: data[0].telc,
           nom: data[0].nomc,
@@ -348,7 +345,7 @@ export class ModifierColisComponent implements OnInit {
     return this.packageId && this.clientId;
   }
 
-  //************************ PATH = NOUVEAU-COLIS / MODIFIER-COLIS ************************
+  //************************ PATH = MODIFIER-COLIS ************************
   //************************ PATH = DETAILS-COLIS ************************
   public getPackage() {
     this.packageService.getPackage(this.packageId).subscribe((data) => {

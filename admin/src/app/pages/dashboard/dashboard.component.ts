@@ -35,6 +35,7 @@ export class DashboardComponent implements OnInit {
   dateF: Date;
   dateForm: FormGroup;
   allPackages: any;
+  data: any[];
   nouveau: any;
   collecte: any;
   enCours: any;
@@ -45,6 +46,7 @@ export class DashboardComponent implements OnInit {
   statsYear: Array<number>;
   deliveryRates: Array<number>;
   villes: Array<string>;
+  topProvidersStats: any[];
   months = [
     "Jan",
     "Feb",
@@ -59,6 +61,7 @@ export class DashboardComponent implements OnInit {
     "Nov",
     "Dec",
   ];
+  classColors = [];
   daysOfTheWeek: any = [];
 
   constructor(
@@ -66,7 +69,16 @@ export class DashboardComponent implements OnInit {
     private packageService: PackageService,
     private datePipe: DatePipe,
     private cdRef: ChangeDetectorRef
-  ) {}
+  ) {
+    this.classColors = [
+      "bg-gradient-danger",
+      "bg-gradient-success",
+      "bg-gradient-primary",
+      "bg-gradient-info",
+      "bg-gradient-warning",
+      "bg-gradient-secondary",
+    ];
+  }
 
   ngOnInit() {
     this.initiateStatData();
@@ -89,6 +101,7 @@ export class DashboardComponent implements OnInit {
     this.statsWeek = await this.getStatsWeek();
     this.statsYear = await this.getStatsYear();
     await this.getStatsDeliveryRate();
+    await this.getStatsTopProviders();
 
     console.log(this.deliveryRates);
     console.log(this.villes);
@@ -181,14 +194,30 @@ export class DashboardComponent implements OnInit {
       )
       .toPromise();
   }
+  public async getStatsTopProviders() {
+    return await this.packageService
+      .statsTopProviders()
+      .pipe(
+        map((data) => {
+          this.topProvidersStats = data;
+        })
+      )
+      .toPromise();
+  }
 
   // returns statistics
-  public getStats(startDate, endDate) {
-    this.packageService
+  public async getStats(startDate, endDate) {
+    await this.packageService
       .countAllPackagesAdmin(null, startDate, endDate)
-      .subscribe((data) => {
-        this.allPackages = data.count;
-      });
+      .pipe(
+        map((data) => {
+          this.allPackages = data.count;
+        })
+      )
+      .toPromise();
+
+    this.nouveau = this.data.filter((item) => item.etat != "nouveau");
+
     this.packageService
       .countAllPackagesAdmin("nouveau", startDate, endDate)
       .subscribe((data) => {
@@ -232,5 +261,24 @@ export class DashboardComponent implements OnInit {
 
   search() {
     this.getStats(this.startDate, this.today);
+  }
+
+  getRates(stat: any): any {
+    let styles = {
+      width: stat.rate + "%",
+    };
+    return styles;
+  }
+  getClass(i: number): string {
+    var index = this.adjustLength(i);
+    return this.classColors[index];
+  }
+
+  adjustLength(i: number): number {
+    if (i > this.classColors.length) {
+      i = i - this.classColors.length;
+      return this.adjustLength(i);
+    }
+    return i;
   }
 }

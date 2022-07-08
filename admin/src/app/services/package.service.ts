@@ -350,6 +350,22 @@ export class PackageService {
       );
   }
 
+  statsTopProviders(number?: any): Observable<any> {
+    let url = `${this.baseUri}/count/top-providers`;
+    var queryParams = new HttpParams();
+    if (number) {
+      queryParams = queryParams.append("number", number || "");
+    }
+    return this.http
+      .get(url, { headers: this.headers, params: queryParams })
+      .pipe(
+        map((res: any) => {
+          return res || {};
+        }),
+        catchError(this.errorMgmt)
+      );
+  }
+
   // Error handling
   errorMgmt(error: HttpErrorResponse) {
     let errorMessage = "";
