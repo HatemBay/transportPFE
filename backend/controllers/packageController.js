@@ -1736,7 +1736,6 @@ router.get("/count/all-daily", (req, res) => {
 //count all packages
 router.get("/count/all-period", (req, res) => {
   var state = req.query.etat || null;
-  var driverId = req.query.driverId || null;
   var query;
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
@@ -1750,8 +1749,12 @@ router.get("/count/all-period", (req, res) => {
   var endDay = null;
 
   const queryObj = {};
-  if (state) {
+  if (state === "nouveau") {
     queryObj["etat"] = state;
+  } else if (state && state !== null) {
+    queryObj["etat"] = state;
+  } else {
+    queryObj["etat"] = { $nin: ["nouveau"] };
   }
 
   if (startDate && endDate) {
@@ -1766,43 +1769,11 @@ router.get("/count/all-period", (req, res) => {
     endMonth = dateE.getMonth();
     endDay = dateE.getDate();
 
-    queryObj["createdAt"] = {
+    queryObj["updatedAt"] = {
       $gte: new Date(startYear, startMonth, startDay),
       $lte: new Date(endYear, endMonth, endDay + 1),
     };
   }
-
-  // if (driverId) {
-  //   queryObj["userId"] = driverId;
-  // }
-
-  // if (startDate && endDate) {
-  //   if (state) {
-  //     query = Package.find({
-  //       etat: state,
-  //       createdAt: {
-  //         $gte: new Date(startYear, startMonth, startDay),
-  //         $lte: new Date(endYear, endMonth, endDay + 1),
-  //       },
-  //     });
-  //   } else {
-  //     query = Package.find({
-  //       createdAt: {
-  //         $gte: new Date(startYear, startMonth, startDay),
-  //         $lte: new Date(endYear, endMonth, endDay + 1),
-  //       },
-  //     });
-  //   }
-  // } else {
-  //   if (state) {
-  //     console.log(state);
-  //     query = Package.find({
-  //       etat: state,
-  //     });
-  //   } else {
-  //     query = Package.find({});
-  //   }
-  // }
 
   query = Package.find(queryObj);
 

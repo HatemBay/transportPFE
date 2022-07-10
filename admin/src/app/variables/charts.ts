@@ -303,10 +303,10 @@ export const chartExample1 = {
           },
           ticks: {
             callback: function (value) {
-              return value;
-              // if (!(value % 10)) {
-              //   return value;
-              // }
+              // return value;
+              if (!(value % 1)) {
+                return value;
+              }
             },
           },
         },

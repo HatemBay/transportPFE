@@ -1,3 +1,4 @@
+import { element } from "protractor";
 import { DatePipe } from "@angular/common";
 import { ChangeDetectorRef, Component, Input, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
@@ -41,7 +42,92 @@ export class DashboardComponent implements OnInit {
   enCours: any;
   annule: any;
   paye: any;
-  livre: any;
+  stats: any = [
+    {
+      state: "pret",
+      count: 0,
+      icon: "fas fa-plus-circle",
+      bgColor: "bg-warning",
+    },
+    {
+      state: "en cours de ramassage",
+      count: 0,
+      icon: "fas fa-user",
+      bgColor: "bg-danger",
+    },
+    {
+      state: "ramassé par livreur",
+      count: 0,
+      icon: "fas fa-user",
+      bgColor: "bg-warning",
+    },
+    {
+      state: "collecté",
+      count: 0,
+      icon: "fas fa-box",
+      bgColor: "bg-warning",
+    },
+    {
+      state: "en cours",
+      count: 0,
+      icon: "fas fa-shipping-fast",
+      bgColor: "bg-yellow",
+    },
+    {
+      state: "livré (espèce)",
+      count: 0,
+      icon: "fas fa-check",
+      bgColor: "bg-yellow",
+    },
+    {
+      state: "livré (chèque)",
+      count: 0,
+      icon: "fas fa-check",
+      bgColor: "bg-yellow",
+    },
+    {
+      state: "reporté",
+      count: 0,
+      icon: "fas fa-undo-alt",
+      bgColor: "bg-yellow",
+    },
+    { state: "annulé", count: 0, icon: "fas fa-times", bgColor: "bg-yellow" },
+    {
+      state: "retourné",
+      count: 0,
+      icon: "fas fa-check-circle",
+      bgColor: "bg-yellow",
+    },
+    {
+      state: "hidden",
+      count: 0,
+      icon: "fas fa-times",
+      bgColor: "bg-danger",
+    },
+    {
+      state: "retourné à l'expediteur",
+      count: 0,
+      icon: "fas fa-times",
+      bgColor: "bg-danger",
+    },
+    {
+      state: "livré - payé - espèce",
+      count: 0,
+      icon: "fas fa-dollar-sign",
+      bgColor: "bg-success",
+    },
+    {
+      state: "livré - payé - chèque",
+      count: 0,
+      icon: "fas fa-check-square",
+      bgColor: "bg-success",
+    },
+  ];
+  livrePayeCheque: number;
+  livrePayeEspece: number;
+  retourneExpediteur: number;
+  retourne: number;
+  livre: number;
   statsWeek: Array<number>;
   statsYear: Array<number>;
   deliveryRates: Array<number>;
@@ -216,44 +302,131 @@ export class DashboardComponent implements OnInit {
       )
       .toPromise();
 
-    this.nouveau = this.data.filter((item) => item.etat != "nouveau");
+    await this.packageService
+      .countAllPackagesAdmin("pret", startDate, endDate)
+      .pipe(
+        map((data) => {
+          const objIndex = this.stats.findIndex((obj) => obj.state === "pret");
+          this.stats[objIndex].count = data.count;
+          console.log(this.stats[objIndex]);
+        })
+      )
+      .toPromise();
 
     this.packageService
-      .countAllPackagesAdmin("nouveau", startDate, endDate)
-      .subscribe((data) => {
-        this.nouveau = data.count;
-      });
+      .countAllPackagesAdmin("en cours de ramassage", startDate, endDate)
+      .pipe(
+        map((data) => {
+          const objIndex = this.stats.findIndex(
+            (obj) => obj.state === "en cours de ramassage"
+          );
+          this.stats[objIndex].count = data.count;
+          console.log(this.stats[objIndex]);
+        })
+      )
+      .toPromise();
+
+    console.log("2");
+    console.log(this.stats);
+    this.packageService
+      .countAllPackagesAdmin("ramassé par livreur", startDate, endDate)
+      .pipe(
+        map((data) => {
+          const objIndex = this.stats.findIndex(
+            (obj) => obj.state === "ramassé par livreur"
+          );
+          this.stats[objIndex].count = data.count;
+          console.log(this.stats[objIndex]);
+        })
+      )
+      .toPromise();
+
     this.packageService
       .countAllPackagesAdmin("collecté", startDate, endDate)
       .subscribe((data) => {
-        this.collecte = data.count;
+        const objIndex = this.stats.findIndex(
+          (obj) => obj.state === "collecté"
+        );
+        this.stats[objIndex].count = data.count;
       });
     this.packageService
       .countAllPackagesAdmin("en cours", startDate, endDate)
       .subscribe((data) => {
-        this.enCours = data.count;
+        const objIndex = this.stats.findIndex(
+          (obj) => obj.state === "en cours"
+        );
+        this.stats[objIndex].count = data.count;
       });
+    this.packageService
+      .countAllPackagesAdmin("livré (espèce)", startDate, endDate)
+      .subscribe((data) => {
+        const objIndex = this.stats.findIndex(
+          (obj) => obj.state === "livré (espèce)"
+        );
+        this.stats[objIndex].count = data.count;
+      });
+    this.packageService
+      .countAllPackagesAdmin("livré (chèque)", startDate, endDate)
+      .subscribe((data) => {
+        const objIndex = this.stats.findIndex(
+          (obj) => obj.state === "livré (chèque)"
+        );
+        this.stats[objIndex].count = data.count;
+      });
+    this.packageService
+      .countAllPackagesAdmin("reporté", startDate, endDate)
+      .subscribe((data) => {
+        const objIndex = this.stats.findIndex((obj) => obj.state === "reporté");
+        this.stats[objIndex].count = data.count;
+      });
+    console.log("8");
+    console.log(this.stats);
     this.packageService
       .countAllPackagesAdmin("annulé", startDate, endDate)
       .subscribe((data) => {
-        this.annule = data.count;
+        const objIndex = this.stats.findIndex((obj) => obj.state === "annulé");
+        this.stats[objIndex].count = data.count;
       });
     this.packageService
-      .countAllPackagesAdmin("payé", startDate, endDate)
+      .countAllPackagesAdmin("retourné", startDate, endDate)
       .subscribe((data) => {
-        this.paye = data.count;
+        const objIndex = this.stats.findIndex(
+          (obj) => obj.state === "retourné"
+        );
+        this.stats[objIndex].count = data.count;
       });
     this.packageService
-      .countAllPackagesAdmin("livré", startDate, endDate)
+      .countAllPackagesAdmin("retourné à l'expediteur", startDate, endDate)
       .subscribe((data) => {
-        this.livre = data.count;
+        const objIndex = this.stats.findIndex(
+          (obj) => obj.state === "retourné à l'expediteur"
+        );
+        this.stats[objIndex].count = data.count;
       });
+    this.packageService
+      .countAllPackagesAdmin("livré - payé - chèque", startDate, endDate)
+      .subscribe((data) => {
+        const objIndex = this.stats.findIndex(
+          (obj) => obj.state === "livré - payé - chèque"
+        );
+        this.stats[objIndex].count = data.count;
+      });
+    this.packageService
+      .countAllPackagesAdmin("livré - payé - espèce", startDate, endDate)
+      .subscribe((data) => {
+        const objIndex = this.stats.findIndex(
+          (obj) => obj.state === "livré - payé - espèce"
+        );
+        this.stats[objIndex].count = data.count;
+      });
+
+    console.log(this.stats);
   }
 
   public setDates() {
     this.today = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
     const thisDate = this.myDate.getDate();
-    this.myDate.setDate(this.myDate.getMonth() - 2);
+    this.myDate.setMonth(this.myDate.getMonth() - 1);
     this.myDate.setDate(thisDate);
 
     this.startDate = this.datePipe.transform(this.myDate, "yyyy-MM-dd");
@@ -280,5 +453,12 @@ export class DashboardComponent implements OnInit {
       return this.adjustLength(i);
     }
     return i;
+  }
+
+  getIcon(stat) {
+    return stat.icon;
+  }
+  getColor(stat) {
+    return stat.bgColor;
   }
 }
