@@ -144,7 +144,6 @@ export class DashboardComponent implements OnInit {
     private fb: FormBuilder,
     private packageService: PackageService,
     private datePipe: DatePipe,
-    private cdRef: ChangeDetectorRef
   ) {
     this.classColors = [
       "bg-gradient-danger",

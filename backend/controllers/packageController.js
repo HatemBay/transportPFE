@@ -1860,7 +1860,7 @@ router.get("/count/over-week", async (req, res) => {
     };
     data.push(jsonData);
     startDay--;
-    count.push(await Historique.aggregate(data).then((data) => data.count));
+    count.push(await Historique.aggregate(data).then((data) => data.length));
     data.pop(jsonData);
   }
   res.status(200).send(count.reverse());
