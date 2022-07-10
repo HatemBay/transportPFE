@@ -1733,9 +1733,11 @@ router.get("/count/all-daily", (req, res) => {
   });
 });
 
+//*allPeriod
 //count all packages
 router.get("/count/all-period", (req, res) => {
   var state = req.query.etat || null;
+  var fid = req.query.fournisseurId || null;
   var query;
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
@@ -1749,12 +1751,17 @@ router.get("/count/all-period", (req, res) => {
   var endDay = null;
 
   const queryObj = {};
-  if (state === "nouveau") {
-    queryObj["etat"] = state;
-  } else if (state && state !== null) {
-    queryObj["etat"] = state;
+  if (fid && fid !== null) {
+    queryObj["fournisseurId"] = fid;
+    if (state) queryObj["etat"] = state;
   } else {
-    queryObj["etat"] = { $nin: ["nouveau"] };
+    if (state === "nouveau") {
+      queryObj["etat"] = state;
+    } else if (state && state !== null) {
+      queryObj["etat"] = state;
+    } else {
+      queryObj["etat"] = { $nin: ["nouveau"] };
+    }
   }
 
   if (startDate && endDate) {
@@ -1822,14 +1829,39 @@ router.get("/count/over-week", async (req, res) => {
   startMonth = dateS.getMonth();
   startDay = dateS.getDate();
 
+  data = [
+    {
+      $lookup: {
+        from: "packages",
+        localField: "packageId",
+        foreignField: "_id",
+        as: "packages",
+      },
+    },
+    { $unwind: "$packages" },
+    {
+      $project: {
+        action: 1,
+        createdAt: 1,
+        fournisseurId: "$packages.fournisseurId",
+      },
+    },
+  ];
+
   for (var i = 0; i < 7; i++) {
-    queryObj["createdAt"] = {
-      $gte: new Date(startYear, startMonth, startDay, 0, 0, 0, 0),
-      $lte: new Date(startYear, startMonth, startDay, 23, 59, 59, 999),
+    const jsonData = {
+      $match: {
+        action: "pret",
+        createdAt: {
+          $gte: new Date(startYear, startMonth, startDay, 0, 0, 0, 0),
+          $lte: new Date(startYear, startMonth, startDay, 23, 59, 59, 999),
+        },
+      },
     };
-    queryObj["action"] = "pret";
+    data.push(jsonData);
     startDay--;
-    count.push(await Historique.count(queryObj));
+    count.push(await Historique.aggregate(data).then((data) => data.count));
+    data.pop(jsonData);
   }
   res.status(200).send(count.reverse());
 });
@@ -1856,7 +1888,9 @@ router.get("/count/over-year", async (req, res) => {
 });
 
 router.get("/count/delivery-rate", async (req, res) => {
+  const queryObj = {};
   const number = req.query.number || 5;
+  const fid = req.query.fournisseurId || null;
   const villes = await Ville.find().then((data) => {
     return data.map((item) => item.nom);
   });
@@ -1895,6 +1929,7 @@ router.get("/count/delivery-rate", async (req, res) => {
     {
       $project: {
         etat: 1,
+        fournisseurId: 1,
         villec: "$villesClient.nom",
       },
     },
@@ -1911,23 +1946,33 @@ router.get("/count/delivery-rate", async (req, res) => {
     },
   ];
 
-  const totalDeliveries = await Package.count({
-    etat: {
-      $in: [
-        "retourné à l'expediteur",
-        "livré - payé - espèce",
-        "livré - payé - chèque",
-      ],
-    },
-  });
+  if (fid && fid !== null) {
+    queryObj["fournisseurId"] = fid;
+    data.push({
+      $match: {
+        fournisseurId: mongoose.Types.ObjectId(fid),
+      },
+    });
+  }
+
+  queryObj["etat"] = {
+    $in: [
+      "retourné à l'expediteur",
+      "livré - payé - espèce",
+      "livré - payé - chèque",
+    ],
+  };
+  const totalDeliveries = await Package.count(queryObj);
   for (let ville of villes) {
     var sample = {};
 
-    data.push({
+    const jsonData = {
       $match: {
         villec: ville,
       },
-    });
+    };
+    data.push(jsonData);
+
     const deliveries = await Package.aggregate(data).then(
       (data) => data.length
     );
@@ -1936,11 +1981,7 @@ router.get("/count/delivery-rate", async (req, res) => {
     else sample.rate = 0;
     sample.ville = ville;
     stats.push(sample);
-    data.pop({
-      $match: {
-        villec: ville,
-      },
-    });
+    data.pop(jsonData);
   }
 
   stats = stats.sort((a, b) => b.rate - a.rate).slice(0, number);
@@ -1950,6 +1991,7 @@ router.get("/count/delivery-rate", async (req, res) => {
 router.get("/count/top-providers", async (req, res) => {
   const number = req.query.number || 5;
   var providers = new Array();
+
   await Fournisseur.find().then((data) => {
     providers = data.map((item) => {
       return { nom: item.nom, id: item._id };

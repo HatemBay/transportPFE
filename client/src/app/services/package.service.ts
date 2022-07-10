@@ -128,39 +128,23 @@ export class PackageService {
       .pipe(catchError(this.errorMgmt));
   }
 
-  // Count packages
   countAllPackages(
     etat?: any,
-    startYear?: any,
-    startMonth?: any,
-    startDay?: any,
-    endYear?: any,
-    endMonth?: any,
-    endDay?: any
+    startDate?: any,
+    endDate?: any
   ): Observable<any> {
-    let url = `${this.baseUri}/count-for-provider/${this.userId}`;
+    let url = `${this.baseUri}/count/all-period`;
     var queryParams = new HttpParams();
     if (etat) {
-      queryParams = queryParams.append("etat", etat || "");
+      queryParams = queryParams.append("etat", etat);
     }
-    if (startYear) {
-      queryParams = queryParams.append("startYear", startYear || "");
+    if (startDate) {
+      queryParams = queryParams.append("startDate", startDate);
     }
-    if (startMonth) {
-      queryParams = queryParams.append("startMonth", startMonth || "");
+    if (endDate) {
+      queryParams = queryParams.append("endDate", endDate);
     }
-    if (startDay) {
-      queryParams = queryParams.append("startDay", startDay || "");
-    }
-    if (endYear) {
-      queryParams = queryParams.append("endYear", endYear || "");
-    }
-    if (endMonth) {
-      queryParams = queryParams.append("endMonth", endMonth || "");
-    }
-    if (endDay) {
-      queryParams = queryParams.append("endDay", endDay || "");
-    }
+    queryParams = queryParams.append("fournisseurId", this.userId);
 
     return this.http
       .get(url, { headers: this.headers, params: queryParams })
@@ -171,6 +155,7 @@ export class PackageService {
         catchError(this.errorMgmt)
       );
   }
+
   // Count packages for a client
   // not working
   countByClient(id: any): Observable<any> {
@@ -181,6 +166,49 @@ export class PackageService {
       }),
       catchError(this.errorMgmt)
     );
+  }
+
+  // get package count daily over a week
+  statsWeek(): Observable<any> {
+    let url = `${this.baseUri}/count/over-week`;
+    var queryParams = new HttpParams();
+    queryParams = queryParams.append("fournisseurId", this.userId);
+    return this.http.get(url, { headers: this.headers }).pipe(
+      map((res: any) => {
+        return res || {};
+      }),
+      catchError(this.errorMgmt)
+    );
+  }
+
+  // get package count monthly over a year
+  statsYear(): Observable<any> {
+    let url = `${this.baseUri}/count/over-year`;
+    var queryParams = new HttpParams();
+    queryParams = queryParams.append("fournisseurId", this.userId);
+    return this.http.get(url, { headers: this.headers }).pipe(
+      map((res: any) => {
+        return res || {};
+      }),
+      catchError(this.errorMgmt)
+    );
+  }
+
+  statsDeliveryRate(number?: any): Observable<any> {
+    let url = `${this.baseUri}/count/delivery-rate`;
+    var queryParams = new HttpParams();
+    if (number) {
+      queryParams = queryParams.append("number", number || "");
+    }
+    queryParams = queryParams.append("fournisseurId", this.userId);
+    return this.http
+      .get(url, { headers: this.headers, params: queryParams })
+      .pipe(
+        map((res: any) => {
+          return res || {};
+        }),
+        catchError(this.errorMgmt)
+      );
   }
 
   // Error handling

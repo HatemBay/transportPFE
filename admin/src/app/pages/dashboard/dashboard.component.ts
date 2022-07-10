@@ -37,11 +37,6 @@ export class DashboardComponent implements OnInit {
   dateForm: FormGroup;
   allPackages: any;
   data: any[];
-  nouveau: any;
-  collecte: any;
-  enCours: any;
-  annule: any;
-  paye: any;
   stats: any = [
     {
       state: "pret",
@@ -123,11 +118,6 @@ export class DashboardComponent implements OnInit {
       bgColor: "bg-success",
     },
   ];
-  livrePayeCheque: number;
-  livrePayeEspece: number;
-  retourneExpediteur: number;
-  retourne: number;
-  livre: number;
   statsWeek: Array<number>;
   statsYear: Array<number>;
   deliveryRates: Array<number>;
@@ -221,6 +211,12 @@ export class DashboardComponent implements OnInit {
     this.updateOrdersChartOptions();
   }
 
+  // save changes in credentials
+  private onDateFormValueChange(data: any): void {
+    this.today = data.today;
+    this.startDate = data.startDate;
+  }
+
   //sets a table of months to display in chart
   setLabelsForStats() {
     var monthIndex = new Date().getMonth();
@@ -243,12 +239,6 @@ export class DashboardComponent implements OnInit {
       this.daysOfTheWeek.push(day + "/" + month);
     }
     this.daysOfTheWeek = this.daysOfTheWeek.reverse();
-  }
-
-  // save changes in credentials
-  private onDateFormValueChange(data: any): void {
-    this.today = data.today;
-    this.startDate = data.startDate;
   }
 
   public updateSalesChartOptions() {
