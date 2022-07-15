@@ -41,7 +41,10 @@ export class RechercheComponent implements OnInit {
   historic: any = [
     { state: "nouveau", viewState: "Colis créé le " },
     { state: "pret", viewState: "Colis pret le " },
-    { state: "en cours de ramassage", viewState: "attribué à ramassage le " },
+    {
+      state: "en cours de ramassage",
+      viewState: "Attribué pour ramassage ramassage le ",
+    },
     { state: "collecté", viewState: "Collecté" },
     { state: "ramassé par livreur", viewState: "Rammasé par livreur le " },
     { state: "en cours", viewState: "En cours" },
@@ -50,7 +53,8 @@ export class RechercheComponent implements OnInit {
     { state: "livré (chèque)", viewState: "Livré le " },
     { state: "annulé", viewState: "Annulé le " },
     { state: "payé", viewState: "Payé le " },
-    { state: "retourné", viewState: "Retourné" },
+    { state: "en cours de retour", viewState: "Attribué pour retour le " },
+    { state: "retourné", viewState: "Retourné à " },
     { state: "retourné à l'expediteur", viewState: "Retourné à " },
     { state: "livré - payé - espèce", viewState: "Livré - payé - espèce " },
     { state: "livré - payé - chèque", viewState: "Livré - payé - chèque " },

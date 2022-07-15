@@ -157,7 +157,7 @@
                 </small>
               </ng-container>
               <ng-container
-                *ngIf="userForm.controls['tel'].errors?.['min'] || userForm.controls['tel'].errors?.['max']">
+                *ngIf="clientForm.controls['tel'].errors?.['min'] || clientForm.controls['tel'].errors?.['max']">
                 <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
                 <small class="text-danger">
                   Téléphone est invalide.
@@ -280,7 +280,7 @@
                       </small>
                     </ng-container>
                     <ng-container
-                      *ngIf="userForm.controls['tel'].errors?.['min'] || userForm.controls['tel'].errors?.['max']">
+                      *ngIf="clientModifyForm.controls['tel'].errors?.['min'] || clientModifyForm.controls['tel'].errors?.['max']">
                       <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
                       <small class="text-danger">
                         Téléphone est invalide.

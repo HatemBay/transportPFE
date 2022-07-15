@@ -124,11 +124,11 @@
                     <ng-container
                       *ngIf="package.etat == ('livré - payé - chèque' || 'livré - payé - espèce') || package.etat.indexOf('expediteur') !== -1; else inCycle;">
                       <label class="form-label h5 text-warning">Dernier etat : {{package.etat}}</label>
+                      <ng-container *ngIf="package.etat.indexOf('expediteur') !== -1"> - {{package.nomf}}</ng-container>
                     </ng-container>
                     <ng-template #inCycle>
                       <label class="form-label h5 text-success">Dernier etat : {{package.etat}}
-                        <ng-container *ngIf="package.etat == 'collecté'"> - {{package.filiere}}</ng-container>
-                        <ng-container *ngIf="package.etat == 'retourné à'">{{package.nomf}}</ng-container>
+                        <ng-container *ngIf="package.etat === 'collecté'"> - {{package.filiere}}</ng-container>
                       </label>
                     </ng-template>
                   </div>

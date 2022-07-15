@@ -88,6 +88,12 @@ export class DashboardComponent implements OnInit {
     },
     { state: "annulé", count: 0, icon: "fas fa-times", bgColor: "bg-yellow" },
     {
+      state: "en cours de retour",
+      count: 0,
+      icon: "fas fa-shipping-fast",
+      bgColor: "bg-yellow",
+    },
+    {
       state: "retourné",
       count: 0,
       icon: "fas fa-check-circle",
@@ -143,7 +149,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private packageService: PackageService,
-    private datePipe: DatePipe,
+    private datePipe: DatePipe
   ) {
     this.classColors = [
       "bg-gradient-danger",
@@ -177,9 +183,6 @@ export class DashboardComponent implements OnInit {
     this.statsYear = await this.getStatsYear();
     await this.getStatsDeliveryRate();
     await this.getStatsTopProviders();
-
-    console.log(this.deliveryRates);
-    console.log(this.villes);
 
     this.setLabelsForStats();
 
@@ -291,123 +294,130 @@ export class DashboardComponent implements OnInit {
       )
       .toPromise();
 
-    await this.packageService
-      .countAllPackagesAdmin("pret", startDate, endDate)
-      .pipe(
-        map((data) => {
-          const objIndex = this.stats.findIndex((obj) => obj.state === "pret");
-          this.stats[objIndex].count = data.count;
-          console.log(this.stats[objIndex]);
-        })
-      )
-      .toPromise();
+    for await (let [key, val] of Object.entries(this.stats)) {
+      await this.packageService
+        .countAllPackagesAdmin(this.stats[key].state, startDate, endDate)
+        .pipe(
+          map((data) => {
+            // const objIndex = this.stats.findIndex(
+            //   (obj) => obj.state === "pret"
+            // );
+            this.stats[key].count = data.count;
+          })
+        )
+        .toPromise();
+    }
 
-    this.packageService
-      .countAllPackagesAdmin("en cours de ramassage", startDate, endDate)
-      .pipe(
-        map((data) => {
-          const objIndex = this.stats.findIndex(
-            (obj) => obj.state === "en cours de ramassage"
-          );
-          this.stats[objIndex].count = data.count;
-          console.log(this.stats[objIndex]);
-        })
-      )
-      .toPromise();
+    // await this.packageService
+    //   .countAllPackagesAdmin("pret", startDate, endDate)
+    //   .pipe(
+    //     map((data) => {
+    //       const objIndex = this.stats.findIndex((obj) => obj.state === "pret");
+    //       this.stats[objIndex].count = data.count;
+    //     })
+    //   )
+    //   .toPromise();
 
-    console.log("2");
-    console.log(this.stats);
-    this.packageService
-      .countAllPackagesAdmin("ramassé par livreur", startDate, endDate)
-      .pipe(
-        map((data) => {
-          const objIndex = this.stats.findIndex(
-            (obj) => obj.state === "ramassé par livreur"
-          );
-          this.stats[objIndex].count = data.count;
-          console.log(this.stats[objIndex]);
-        })
-      )
-      .toPromise();
+    // this.packageService
+    //   .countAllPackagesAdmin("en cours de ramassage", startDate, endDate)
+    //   .pipe(
+    //     map((data) => {
+    //       const objIndex = this.stats.findIndex(
+    //         (obj) => obj.state === "en cours de ramassage"
+    //       );
+    //       this.stats[objIndex].count = data.count;
+    //     })
+    //   )
+    //   .toPromise();
 
-    this.packageService
-      .countAllPackagesAdmin("collecté", startDate, endDate)
-      .subscribe((data) => {
-        const objIndex = this.stats.findIndex(
-          (obj) => obj.state === "collecté"
-        );
-        this.stats[objIndex].count = data.count;
-      });
-    this.packageService
-      .countAllPackagesAdmin("en cours", startDate, endDate)
-      .subscribe((data) => {
-        const objIndex = this.stats.findIndex(
-          (obj) => obj.state === "en cours"
-        );
-        this.stats[objIndex].count = data.count;
-      });
-    this.packageService
-      .countAllPackagesAdmin("livré (espèce)", startDate, endDate)
-      .subscribe((data) => {
-        const objIndex = this.stats.findIndex(
-          (obj) => obj.state === "livré (espèce)"
-        );
-        this.stats[objIndex].count = data.count;
-      });
-    this.packageService
-      .countAllPackagesAdmin("livré (chèque)", startDate, endDate)
-      .subscribe((data) => {
-        const objIndex = this.stats.findIndex(
-          (obj) => obj.state === "livré (chèque)"
-        );
-        this.stats[objIndex].count = data.count;
-      });
-    this.packageService
-      .countAllPackagesAdmin("reporté", startDate, endDate)
-      .subscribe((data) => {
-        const objIndex = this.stats.findIndex((obj) => obj.state === "reporté");
-        this.stats[objIndex].count = data.count;
-      });
-    console.log("8");
-    console.log(this.stats);
-    this.packageService
-      .countAllPackagesAdmin("annulé", startDate, endDate)
-      .subscribe((data) => {
-        const objIndex = this.stats.findIndex((obj) => obj.state === "annulé");
-        this.stats[objIndex].count = data.count;
-      });
-    this.packageService
-      .countAllPackagesAdmin("retourné", startDate, endDate)
-      .subscribe((data) => {
-        const objIndex = this.stats.findIndex(
-          (obj) => obj.state === "retourné"
-        );
-        this.stats[objIndex].count = data.count;
-      });
-    this.packageService
-      .countAllPackagesAdmin("retourné à l'expediteur", startDate, endDate)
-      .subscribe((data) => {
-        const objIndex = this.stats.findIndex(
-          (obj) => obj.state === "retourné à l'expediteur"
-        );
-        this.stats[objIndex].count = data.count;
-      });
-    this.packageService
-      .countAllPackagesAdmin("livré - payé - chèque", startDate, endDate)
-      .subscribe((data) => {
-        const objIndex = this.stats.findIndex(
-          (obj) => obj.state === "livré - payé - chèque"
-        );
-        this.stats[objIndex].count = data.count;
-      });
-    this.packageService
-      .countAllPackagesAdmin("livré - payé - espèce", startDate, endDate)
-      .subscribe((data) => {
-        const objIndex = this.stats.findIndex(
-          (obj) => obj.state === "livré - payé - espèce"
-        );
-        this.stats[objIndex].count = data.count;
-      });
+    // this.packageService
+    //   .countAllPackagesAdmin("ramassé par livreur", startDate, endDate)
+    //   .pipe(
+    //     map((data) => {
+    //       const objIndex = this.stats.findIndex(
+    //         (obj) => obj.state === "ramassé par livreur"
+    //       );
+    //       this.stats[objIndex].count = data.count;
+    //     })
+    //   )
+    //   .toPromise();
+
+    // this.packageService
+    //   .countAllPackagesAdmin("collecté", startDate, endDate)
+    //   .subscribe((data) => {
+    //     const objIndex = this.stats.findIndex(
+    //       (obj) => obj.state === "collecté"
+    //     );
+    //     this.stats[objIndex].count = data.count;
+    //   });
+    // this.packageService
+    //   .countAllPackagesAdmin("en cours", startDate, endDate)
+    //   .subscribe((data) => {
+    //     const objIndex = this.stats.findIndex(
+    //       (obj) => obj.state === "en cours"
+    //     );
+    //     this.stats[objIndex].count = data.count;
+    //   });
+    // this.packageService
+    //   .countAllPackagesAdmin("livré (espèce)", startDate, endDate)
+    //   .subscribe((data) => {
+    //     const objIndex = this.stats.findIndex(
+    //       (obj) => obj.state === "livré (espèce)"
+    //     );
+    //     this.stats[objIndex].count = data.count;
+    //   });
+    // this.packageService
+    //   .countAllPackagesAdmin("livré (chèque)", startDate, endDate)
+    //   .subscribe((data) => {
+    //     const objIndex = this.stats.findIndex(
+    //       (obj) => obj.state === "livré (chèque)"
+    //     );
+    //     this.stats[objIndex].count = data.count;
+    //   });
+    // this.packageService
+    //   .countAllPackagesAdmin("reporté", startDate, endDate)
+    //   .subscribe((data) => {
+    //     const objIndex = this.stats.findIndex((obj) => obj.state === "reporté");
+    //     this.stats[objIndex].count = data.count;
+    //   });
+    // this.packageService
+    //   .countAllPackagesAdmin("annulé", startDate, endDate)
+    //   .subscribe((data) => {
+    //     const objIndex = this.stats.findIndex((obj) => obj.state === "annulé");
+    //     this.stats[objIndex].count = data.count;
+    //   });
+    // this.packageService
+    //   .countAllPackagesAdmin("retourné", startDate, endDate)
+    //   .subscribe((data) => {
+    //     const objIndex = this.stats.findIndex(
+    //       (obj) => obj.state === "retourné"
+    //     );
+    //     this.stats[objIndex].count = data.count;
+    //   });
+    // this.packageService
+    //   .countAllPackagesAdmin("retourné à l'expediteur", startDate, endDate)
+    //   .subscribe((data) => {
+    //     const objIndex = this.stats.findIndex(
+    //       (obj) => obj.state === "retourné à l'expediteur"
+    //     );
+    //     this.stats[objIndex].count = data.count;
+    //   });
+    // this.packageService
+    //   .countAllPackagesAdmin("livré - payé - chèque", startDate, endDate)
+    //   .subscribe((data) => {
+    //     const objIndex = this.stats.findIndex(
+    //       (obj) => obj.state === "livré - payé - chèque"
+    //     );
+    //     this.stats[objIndex].count = data.count;
+    //   });
+    // this.packageService
+    //   .countAllPackagesAdmin("livré - payé - espèce", startDate, endDate)
+    //   .subscribe((data) => {
+    //     const objIndex = this.stats.findIndex(
+    //       (obj) => obj.state === "livré - payé - espèce"
+    //     );
+    //     this.stats[objIndex].count = data.count;
+    //   });
 
     console.log(this.stats);
   }

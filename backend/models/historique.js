@@ -15,6 +15,7 @@ var HistoriqueSchema = new Schema(
         "livré (espèce)",
         "livré (chèque)",
         "annulé",
+        "en cours de retour",
         "retourné",
         "reporté",
         "retourné à l'expediteur",

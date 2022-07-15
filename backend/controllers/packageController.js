@@ -1291,7 +1291,11 @@ router.get("/all-info-search/admin", (req, res) => {
         createdAt: 1,
         updatedAt: 1,
       },
-    },
+    }, {
+      $match: {
+        etat: {$nin: ['nouveau']}
+      }
+    }
   ];
 
   // var regex = /[0-9]*2391203218[0-9]*/;
@@ -1434,6 +1438,18 @@ router.post("/", (req, res) => {
       res.status(400).send(err.message);
     });
 });
+
+//* add field
+// router.put("/", (req, res) => {
+//   Package.updateMany(
+//     {etat: 'retourné'},
+//     {
+//       $set: { etat: 'annulé' },
+//     }
+//   ).then((doc) => {
+//     return res.status(200).send(doc);
+//   });
+// });
 
 // update package
 router.put("/:id", (req, res) => {

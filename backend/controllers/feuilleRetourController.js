@@ -226,14 +226,13 @@ router.post("/", (req, res) => {
           .send("Erreur dans la récupération du nombre du feuille de retour");
       }
 
-      const feuilleRetour = new FeuilleRetour();
+      let feuilleRetour = new FeuilleRetour();
       if (feuilleRetours.length > 0) {
         feuilleRetour.feuilleRetourNb = feuilleRetours[0].feuilleRetourNb + 1;
       }
-
       var packages = [];
 
-      for (const package of req.body.packages) {
+      for await (const package of req.body.packages) {
         packages.push(await Package.findOne({ CAB: package.CAB }));
       }
       var packageIds = [];
@@ -246,15 +245,15 @@ router.post("/", (req, res) => {
       feuilleRetour.packages = packageIds;
 
       feuilleRetour.save().then(
-        (feuilleRetour) => {
+        (doc) => {
           User.findByIdAndUpdate(
             req.body.driverId,
-            { $push: { feuilleRetours: feuilleRetour._id } },
+            { $push: { feuilleRetours: doc._id } },
             { new: true, useFindAndModify: false }
           ).then(
             () => {
               () => {
-                return res.status(201).send(feuilleRetour);
+                return res.status(201).send(doc);
               },
                 (err3) => {
                   console.log(

@@ -27,11 +27,11 @@ passport.use(
           return done(err);
         }
         if (!user) {
-          return done(null, false, { message: "Vous n'etes pas enregistré" });
+          return done("Email ou mot de passe incorrecte(s)", false);
         }
         // If credentials are correct, return the user object
         if (!user.validPassword(user.salt, user.hash, password)) {
-          return done(null, false, { message: "Mot de passe incorrecte" });
+          return done("Email ou mot de passe incorrecte(s)", false);
         }
         return done(null, user);
       });
@@ -54,21 +54,18 @@ passport.use(
         queryObj["email"] = username;
       }
       // console.log("uname: " + password);
-      Fournisseur.findOne(
-        { queryObj },
-        function (err, user) {
-          if (err) {
-            return done(err);
-          }
-          if (!user) {
-            return done(null, false, { message: "Vous n'etes pas enregistré" });
-          }
-          // If credentials are correct, return the user object
-          if (!user.validPassword(user.salt, user.hash, password))
-            return done(null, false, { message: "Mot de passe incorrecte" });
-          return done(null, user);
+      Fournisseur.findOne({ queryObj }, function (err, user) {
+        if (err) {
+          return done(err);
         }
-      );
+        if (!user) {
+          return done(null, false, { message: "Vous n'etes pas enregistré" });
+        }
+        // If credentials are correct, return the user object
+        if (!user.validPassword(user.salt, user.hash, password))
+          return done(null, false, { message: "Mot de passe incorrecte" });
+        return done(null, user);
+      });
     }
   )
 );

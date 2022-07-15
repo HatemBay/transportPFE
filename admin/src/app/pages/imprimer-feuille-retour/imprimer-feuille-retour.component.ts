@@ -1,6 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { map } from "rxjs";
 import { FeuilleRetourService } from "src/app/services/feuille-retour.service";
+import { HistoriqueService } from "src/app/services/historique.service";
 import { PackageService } from "src/app/services/package.service";
 import { RoadmapService } from "src/app/services/roadmap.service";
 
@@ -20,7 +22,8 @@ export class ImprimerFeuilleRetourComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private feuilleRetourService: FeuilleRetourService,
-    private packageService: PackageService
+    private packageService: PackageService,
+    private historiqueService: HistoriqueService
   ) {
     this.routePath = this.route.snapshot.routeConfig.path;
     this.CABs = this.route.snapshot.queryParamMap.get("CABs");
@@ -29,22 +32,35 @@ export class ImprimerFeuilleRetourComponent implements OnInit {
     console.log(this.CABs);
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
     const packageCABs = JSON.parse(this.CABs);
+
+    // for await (let element of packageCABs) {
+    //   await this.getPackageData(element);
+    // }
+    // for await (let element of this.packages) {
+    //   await this.changeState(element._id);
+    // }
 
     packageCABs.forEach((element) => {
       this.getPackageData(element);
       this.changeState(element);
     });
+
     if (!JSON.parse(this.nb)) this.getLastFeuilleRetourNb();
     else this.feuilleRetourNb = this.nb;
   }
 
-  getPackageData(element: any) {
-    this.packageService.getFullPackageByCAB(element).subscribe((data) => {
-      this.packages.push(data[0]);
-      console.log(data[0]);
-    });
+  async getPackageData(element: any) {
+    return await this.packageService
+      .getFullPackageByCAB(element)
+      .pipe(
+        map((data) => {
+          this.packages.push(data[0]);
+          console.log(data[0]);
+        })
+      )
+      .toPromise();
   }
 
   getLastFeuilleRetourNb() {
@@ -55,9 +71,20 @@ export class ImprimerFeuilleRetourComponent implements OnInit {
     });
   }
 
+  // public async recordHistorique(element: string) {
+  //   const date = new Date();
+  //   return await this.historiqueService
+  //     .createHistorique({
+  //       action: "retourné",
+  //       date: date,
+  //       packageId: element,
+  //     })
+  //     .toPromise();
+  // }
+
   public changeState(element: any) {
     this.packageService
-      .updatePackageByCAB(element, { etat: "retourné" })
+      .updatePackageByCAB(element, { etat: "en cours de retour" })
       .subscribe();
   }
 }

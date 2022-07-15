@@ -7,7 +7,6 @@ var Token = require("../models/token");
 var { validate, validateLogin } = require("../models/users");
 var crypto = require("crypto");
 var jwt = require("express-jwt");
-const { log } = require("console");
 
 const register = async (req, res) => {
   const { error } = validate(req.body);

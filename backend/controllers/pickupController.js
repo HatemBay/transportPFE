@@ -102,6 +102,7 @@ router.get("/", (req, res) => {
         _id: 1,
         pickupNb: 1,
         isAllocated: "$isAllocated",
+        isCollected: "$isCollected",
         fournisseurId: "$fournisseurs._id",
         nomf: "$fournisseurs.nom",
         telf: "$fournisseurs.tel",
@@ -125,12 +126,27 @@ router.get("/", (req, res) => {
       },
     },
   ];
+  if (req.query.driverId) {
+    data.push({
+      $match: {
+        driverId: ObjectId(req.query.driverId),
+      },
+    });
+  }
 
   if (req.query.isAllocated) {
     var isAllocated = req.query.isAllocated === "true";
     data.push({
       $match: {
         isAllocated: isAllocated,
+      },
+    });
+  }
+  if (req.query.isCollected) {
+    var isCollected = req.query.isCollected === "true";
+    data.push({
+      $match: {
+        isCollected: isCollected,
       },
     });
   }
@@ -198,13 +214,23 @@ router.get("/:id", (req, res) => {
     { $unwind: "$fournisseurs" },
     {
       $lookup: {
-        from: "drivers",
+        from: "users",
         localField: "driverId",
         foreignField: "_id",
         as: "drivers",
       },
     },
-    { $unwind: { path: "$drivers", preserveNullAndEmptyArrays: true } },
+    { $unwind: "$drivers" },
+    // { $unwind: { path: "$drivers", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "vehicules",
+        localField: "drivers.vehiculeId",
+        foreignField: "_id",
+        as: "vehicules",
+      },
+    },
+    { $unwind: { path: "$vehicules", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "delegations",
@@ -224,17 +250,27 @@ router.get("/:id", (req, res) => {
     },
     { $unwind: "$villes" },
     {
+      $lookup: {
+        from: "packages",
+        localField: "packages",
+        foreignField: "_id",
+        as: "packages",
+      },
+    },
+    {
       $project: {
         _id: 1,
         pickupNb: 1,
+        driverId: 1,
         isAllocated: "$isAllocated",
+        isCollected: "$isCollected",
         fournisseurId: "$fournisseurs._id",
         nomf: "$fournisseurs.nom",
         telf: "$fournisseurs.tel",
         tel2f: "$fournisseurs.tel2",
         delegationf: "$delegations.nom",
         villef: "$villes.nom",
-        nomd: "$drivers.nom",
+        driverId: "$drivers._id",
         packages: "$packages",
         nbPackages: { $size: "$packages" },
         createdAt: 1,
@@ -248,6 +284,7 @@ router.get("/:id", (req, res) => {
       $match: { _id: ObjectId(req.params.id) },
     },
   ];
+  
   Pickup.aggregate(data).exec((err, pickup) => {
     if (!err) res.send(pickup);
     else console.log("Erreur lors de la récupération du pickup: " + err);
@@ -395,6 +432,12 @@ router.put("/:id", (req, res) => {
       },
       { new: true }
     );
+  } else if (req.body.isCollected) {
+    query = Pickup.findByIdAndUpdate(req.params.id, {
+      $set: {
+        isCollected: 1,
+      },
+    });
   }
 
   query.then(

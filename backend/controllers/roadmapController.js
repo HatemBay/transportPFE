@@ -1,4 +1,5 @@
 const express = require("express");
+const { serializeUser } = require("passport");
 const { Package } = require("../models/package");
 
 var router = express.Router();
@@ -87,6 +88,7 @@ router.get("/", (req, res) => {
         _id: 1,
         roadmapNb: 1,
         driverId: 1,
+        isFinished: 1,
         nomd: "$drivers.nom",
         nomv: "$vehicules.serie",
         // whManagerId: 1,
@@ -121,6 +123,22 @@ router.get("/", (req, res) => {
     data.push({
       $match: {
         nomd: req.query.driver,
+      },
+    });
+  }
+  if (req.query.driverId) {
+    data.push({
+      $match: {
+        driverId: ObjectId(req.query.driverId),
+      },
+    });
+  }
+
+  if (req.query.isFinished) {
+    var isFinished = req.query.isFinished === "true";
+    data.push({
+      $match: {
+        isFinished: isFinished,
       },
     });
   }
@@ -327,6 +345,18 @@ router.post("/", (req, res) => {
     });
   // roadmap.roadmapNb = roadmapNb;
 });
+
+//* add field
+// router.put("/", (req, res) => {
+//   Roadmap.updateMany(
+//     {},
+//     {
+//       $set: { isFinished: false },
+//     }
+//   ).then((doc) => {
+//     return res.status(200).send(doc);
+//   });
+// });
 
 // modify roadmap
 router.put("/:id", (req, res) => {

@@ -81,7 +81,8 @@ export class FinanceClientComponent implements OnInit {
     this.date = new Date();
 
     this.fourn = this.route.snapshot.queryParamMap.get("fournisseur") || null;
-    this.toPrint = JSON.parse(this.route.snapshot.queryParamMap.get("toPrint")) || false;
+    this.toPrint =
+      JSON.parse(this.route.snapshot.queryParamMap.get("toPrint")) || false;
   }
 
   ngOnInit(): void {
@@ -90,8 +91,6 @@ export class FinanceClientComponent implements OnInit {
     this.fournisseursForm = this.fb.group({
       fournisseurs: ["", Validators.required],
     });
-
-
 
     this.getLastFinanceNb();
 
@@ -143,7 +142,8 @@ export class FinanceClientComponent implements OnInit {
         null,
         null
       );
-      this.fournisseur = await this.getProvider(this.fourn) || null;
+      this.fournisseur = (await this.getProvider(this.fourn)) || null;
+
       for (let pack of this.packages) {
         this.totalCOD += pack.c_remboursement;
       }
@@ -153,10 +153,10 @@ export class FinanceClientComponent implements OnInit {
 
       for (let pack of this.packages) {
         if (pack.etat === "livré (espèce)" || pack.etat === "livré (chèque)") {
-          this.totalLivraison += this.fournisseur[0].fraisLivraison;
+          this.totalLivraison += this.fournisseur.fraisLivraison;
           livré = [...livré, pack];
         } else if (pack.etat === "retourné") {
-          this.totalRetour += this.fournisseur[0].fraisRetour;
+          this.totalRetour += this.fournisseur.fraisRetour;
           retourné = [...retourné, pack];
         }
       }
@@ -166,6 +166,7 @@ export class FinanceClientComponent implements OnInit {
       this.rows2 = retourné;
 
       this.fournisseursForm.patchValue({ fournisseurs: this.fourn });
+
       this.toPrint = true;
     }
     // this.getPackagesByProvider(
@@ -219,8 +220,8 @@ export class FinanceClientComponent implements OnInit {
 
   //get packages from selected provider
   async getPackages() {
-    this.display = "default";
-    this.display2 = "block";
+    // this.display = "default";
+    // this.display2 = "block";
     this.toPrint = true;
     this.initiateData();
     this.fourn = this.fournisseursForm.value.fournisseurs;

@@ -321,14 +321,21 @@ export class CbFeuilleRetourComponent implements OnInit {
   }
 
   printNew() {
+    console.log(this.g.driverId.value);
+
     this.feuilleRetourService
       .createFeuilleRetour({
         driverId: this.g.driverId.value,
         packages: this.selected,
       })
-      .subscribe(() => {
-        this.success = true;
-      });
+      .subscribe(
+        () => {
+          this.success = true;
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
 
     var CABs: Array<number> = [];
     for (var el of this.selected) {
@@ -356,6 +363,7 @@ export class CbFeuilleRetourComponent implements OnInit {
     WindowPrt.setTimeout(function () {
       WindowPrt.focus();
       WindowPrt.print();
+      location.reload();
       // WindowPrt.close();
     }, 1000);
     this.getPackages();
