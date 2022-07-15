@@ -78,4 +78,11 @@ export class LoginComponent {
       }
     );
   }
+
+  //TODO: make an interface to insert email and demand reset
+  forgotPassword() {
+    this.auth
+      .forgotPasswordProvider({ email: this.credentials.email })
+      .subscribe((res) => res);
+  }
 }

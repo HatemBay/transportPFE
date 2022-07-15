@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { finalize, map } from 'rxjs/operators';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { Router } from "@angular/router";
+import { BehaviorSubject, Observable } from "rxjs";
+import { finalize, map } from "rxjs/operators";
 
 export interface UserDetails {
   _id: string;
@@ -36,7 +36,7 @@ export interface TokenPayload {
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class AuthenticationService {
   //private fields
@@ -52,28 +52,28 @@ export class AuthenticationService {
   }
 
   private saveToken(token: string): void {
-    localStorage.setItem('mean-token', token);
+    localStorage.setItem("mean-token", token);
     this.token = token;
   }
 
   private getToken(): string {
     if (!this.token) {
-      this.token = localStorage.getItem('mean-token')!;
+      this.token = localStorage.getItem("mean-token")!;
     }
     return this.token;
   }
 
   public logout(): void {
-    this.token = '';
-    window.localStorage.removeItem('mean-token');
-    this.router.navigateByUrl('/login');
+    this.token = "";
+    window.localStorage.removeItem("mean-token");
+    this.router.navigateByUrl("/login");
   }
 
   public getUserDetails(): UserDetails | null {
     const token = this.getToken();
     let payload;
     if (token) {
-      payload = token.split('.')[1];
+      payload = token.split(".")[1];
       payload = window.atob(payload);
       // console.log(JSON.parse(payload));
 
@@ -93,13 +93,13 @@ export class AuthenticationService {
   }
 
   private request(
-    method: 'post' | 'get',
-    type: 'login-user' | 'register',
+    method: "post" | "get",
+    type: "login-user" | "register",
     user?: TokenPayload
   ): Observable<any> {
     let base: Observable<any>;
 
-    if (method === 'post') {
+    if (method === "post") {
       base = this.http.post(`http://localhost:3000/api/${type}`, user);
     } else {
       base = this.http.get(`/api/${type}`, {
@@ -122,17 +122,26 @@ export class AuthenticationService {
 
   public register(user: TokenPayload): Observable<any> {
     this.isLoadingSubject.next(true);
-    return this.request('post', 'register', user).pipe(
+    return this.request("post", "register", user).pipe(
       finalize(() => this.isLoadingSubject.next(false))
     );
   }
 
   public login(user: TokenPayload): Observable<any> {
     this.isLoadingSubject.next(true);
-    return this.request('post', 'login-user', user).pipe(
+    return this.request("post", "login-user", user).pipe(
       finalize(() => this.isLoadingSubject.next(false))
     );
+  }
 
+  public forgotPasswordUser(data: any): Observable<any> {
+    const url = `http://localhost:3000/api/user/forgotPasswordUser`;
+    return this.http.put(url, data).pipe(
+      // map((res: Response) => {
+      map((res: any) => {
+        return res || {};
+      })
+    );
   }
 
   // public profile(): Observable<any> {

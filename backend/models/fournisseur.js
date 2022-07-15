@@ -90,6 +90,7 @@ FournisseurSchema.methods.setPassword = (password, res) => {
 FournisseurSchema.methods.validPassword = (salt, fournisseurHash, password) => {
   // const fournisseur = this;
   // console.log("tf:" + salt);
+  console.log("slm 3asba");
   var hash = crypto
     .pbkdf2Sync(password, salt, 1000, 64, "sha512")
     .toString("hex");

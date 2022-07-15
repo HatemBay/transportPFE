@@ -1,9 +1,9 @@
 var passport = require("passport");
 var LocalStrategy = require("passport-local").Strategy;
 var mongoose = require("mongoose");
-const { isNumeric } = require("tslint");
-var User = mongoose.model("User");
-var Fournisseur = mongoose.model("Fournisseur");
+const { Fournisseur } = require("../models/fournisseur");
+const { User } = require("../models/users");
+var crypto = require("crypto");
 
 //user login
 passport.use(
@@ -11,9 +11,10 @@ passport.use(
   new LocalStrategy(
     {
       usernameField: "email",
+      passwordField: "password",
     },
     function (username, password, done) {
-      const queryObj = {};
+      let queryObj = {};
       if (!isNaN(username)) {
         queryObj["tel"] = parseInt(username);
       } else {
@@ -45,27 +46,34 @@ passport.use(
   new LocalStrategy(
     {
       usernameField: "email",
+      passwordField: "password",
     },
-    function (username, password, done) {
-      const queryObj = {};
+    async function (username, password, done) {
+      let queryObj = {};
       if (!isNaN(username)) {
         queryObj["tel"] = parseInt(username);
       } else {
         queryObj["email"] = username;
       }
       // console.log("uname: " + password);
-      Fournisseur.findOne({ queryObj }, function (err, user) {
-        if (err) {
-          return done(err);
-        }
-        if (!user) {
-          return done(null, false, { message: "Vous n'etes pas enregistré" });
-        }
-        // If credentials are correct, return the user object
-        if (!user.validPassword(user.salt, user.hash, password))
-          return done(null, false, { message: "Mot de passe incorrecte" });
-        return done(null, user);
+      var fournisseur = new Fournisseur();
+      fournisseur = await Fournisseur.findOne(queryObj).then((user) => {
+        console.log(user.email);
+        return user;
       });
+      // if (fourn) {
+      //   return done(err);
+      // }
+      if (!fournisseur) {
+        return done("Vous n'etes pas enregistré", false);
+      }
+      const hash = crypto
+        .pbkdf2Sync(password, fournisseur.salt, 1000, 64, "sha512")
+        .toString("hex");
+
+      if (!fournisseur.hash === hash)
+        return done("Mot de passe incorrecte", false);
+      return done(null, fournisseur);
     }
   )
 );

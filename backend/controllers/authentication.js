@@ -1,12 +1,12 @@
 var passport = require("passport");
 var mongoose = require("mongoose");
-var User = mongoose.model("User");
-var User = mongoose.model("User");
 var sendEmail = require("../utils/email");
 var Token = require("../models/token");
 var { validate, validateLogin } = require("../models/users");
 var crypto = require("crypto");
 var jwt = require("express-jwt");
+const { Fournisseur } = require("../models/fournisseur");
+const { User } = require("../models/users");
 
 const register = async (req, res) => {
   const { error } = validate(req.body);
@@ -104,6 +104,7 @@ const loginProvider = (req, res) => {
       token = user.generateJWT();
       // console.log("username:" + user.nom);
       res.status(200);
+      console.log("login successful");
       res.json({
         token: token,
         message: "login successful",
@@ -111,10 +112,116 @@ const loginProvider = (req, res) => {
     } else {
       // If user is not found
       const { error } = validateLogin(req.body);
-      if (error) return res.status(400).send(error.details[0].message);
+      if (error) {
+        console.log("erreur: " + error.details[0].message);
+        return res.status(400).send(error.details[0].message);
+      }
       res.status(401).json(info);
     }
   })(req, res);
+};
+
+const forgotPasswordFourn = async (req, res) => {
+  const email = req.body.email;
+  var fournisseur = new Fournisseur();
+
+  fournisseur = await Fournisseur.findOne({ email: email }).then((doc) => {
+    if (doc && doc !== null) {
+      return doc;
+    } else {
+      console.log("Cet Email n'est pas enregistré");
+      return res.status(400).send("Cet Email n'est pas enregistré");
+    }
+  });
+  var generatedPassword = "";
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  const generatedPasswordLength = 12;
+  for (var i = 0; i < generatedPasswordLength; i++) {
+    generatedPassword += characters.charAt(
+      Math.floor(Math.random() * charactersLength)
+    );
+  }
+  const encrypted = fournisseur.setPassword(generatedPassword, res);
+  fournisseur.salt = encrypted[0];
+  fournisseur.hash = encrypted[1];
+  Fournisseur.findOneAndUpdate(
+    { email: email },
+    {
+      salt: fournisseur.salt,
+      hash: fournisseur.hash,
+    }
+  ).then((doc) => console.log(doc));
+  await sendEmail(
+    "llaattiinno6@gmail.com",
+    "Your new password",
+    generatedPassword
+  ).then((doc, err) => {
+    if (!err) {
+      return res
+        .status(200)
+        .send("Mot de passe réinitialisé avec succès: " + doc);
+    }
+    console.log(
+      "erreur lors de la réinitialisation du mot de passe: " + err.message
+    );
+    return res
+      .status(400)
+      .send("erreur lors de la réinitialisation du mot de passe: " + err);
+  });
+};
+
+const forgotPasswordUser = async (req, res) => {
+  const email = req.body.email;
+  var user = new User();
+
+  var generatedPassword = "";
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  const generatedPasswordLength = 12;
+
+  user = await User.findOne({ email: email }).then((doc) => {
+    if (doc && doc !== null) {
+      return doc;
+    } else {
+      console.log("Cet Email n'est pas enregistré");
+      return res.status(400).send("Cet Email n'est pas enregistré");
+    }
+  });
+  for (var i = 0; i < generatedPasswordLength; i++) {
+    generatedPassword += characters.charAt(
+      Math.floor(Math.random() * charactersLength)
+    );
+  }
+  const encrypted = user.setPassword(generatedPassword, res);
+  user.salt = encrypted[0];
+  user.hash = encrypted[1];
+  User.findOneAndUpdate(
+    { email: email },
+    {
+      salt: user.salt,
+      hash: user.hash,
+    }
+  ).then((doc) => console.log(doc));
+  await sendEmail(
+    "llaattiinno6@gmail.com",
+    "Your new password",
+    generatedPassword
+  ).then((doc, err) => {
+    if (!err) {
+      return res
+        .status(200)
+        .send("Mot de passe réinitialisé avec succès: " + doc);
+    }
+    console.log(
+      "erreur lors de la réinitialisation du mot de passe: " + err.message
+    );
+    return res
+      .status(400)
+      .send("erreur lors de la réinitialisation du mot de passe: " + err);
+  });
 };
 
 // email verification
@@ -196,5 +303,7 @@ module.exports = {
   authRole,
   auth,
   grantAccess,
-  allowIfLoggedin
+  allowIfLoggedin,
+  forgotPasswordFourn,
+  forgotPasswordUser,
 };

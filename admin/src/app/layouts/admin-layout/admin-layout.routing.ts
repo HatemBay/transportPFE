@@ -23,53 +23,190 @@ import { CbFeuilleRetourComponent } from "src/app/pages/cb-feuille-retour/cb-feu
 import { CbDebriefComponent } from "src/app/pages/cb-debrief/cb-debrief.component";
 import { ModifierColisComponent } from "src/app/pages/modifier-colis/modifier-colis.component";
 import { FinanceClientComponent } from "src/app/pages/finance-client/finance-client.component";
-import { FinanceDebriefGlobalComponent } from 'src/app/pages/finance-debrief-global/finance-debrief-global.component';
+import { FinanceDebriefGlobalComponent } from "src/app/pages/finance-debrief-global/finance-debrief-global.component";
+import { AuthGuard } from "src/app/services/auth.guard";
 
 export const AdminLayoutRoutes: Routes = [
-  { path: "dashboard", component: DashboardComponent },
-  { path: "colis-jour", component: ColisJourComponent },
-  { path: "user-profile", component: UserProfileComponent },
-  { path: "recherche", component: RechercheComponent },
-  { path: "recherche-av", component: RechercheComponent },
-  { path: "recherche-av-sub", component: RechercheComponent },
-  { path: "modifier-colis", component: ModifierColisComponent },
-  { path: "icons", component: IconsComponent },
-  { path: "modifier-colis", component: ColisJourComponent },
-  { path: "carnet-adresses", component: CarnetAdresseComponent },
-  { path: "gestion-filiere", component: GestionFiliereComponent },
-  { path: "gestion-personel", component: GestionPersonelComponent },
-  { path: "modifier-personel", component: GestionPersonelComponent },
-  { path: "gestion-client", component: GestionClientComponent },
-  { path: "modifier-client", component: GestionClientComponent },
-  { path: "gestion-vehicule", component: GestionVehiculeComponent },
-  { path: "modifier-vehicule", component: GestionVehiculeComponent },
-  { path: "gestion-ville", component: GestionVilleComponent },
-  { path: "gestion-delegation", component: GestionDelegationComponent },
-  { path: "pickup", component: CbPickupsComponent },
-  { path: "pickup-historique", component: CbPickupsComponent },
-  { path: "ramassage", component: CbRamassageComponent },
-  { path: "collecte", component: CbCollecteComponent },
-  { path: "feuille-de-route", component: CbFeuilleRouteComponent },
-  { path: "feuille-de-route-historique", component: CbFeuilleRouteComponent },
-  { path: "feuille-de-retour", component: CbFeuilleRetourComponent },
-  { path: "feuille-de-retour-historique", component: CbFeuilleRetourComponent },
-  { path: "debrief-list", component: CbDebriefComponent },
-  { path: "debrief-bilan", component: CbDebriefComponent },
-  { path: "debrief-detail", component: CbDebriefComponent },
-  { path: "debrief-detaillé", component: CbDebriefComponent },
-  { path: "finance-client", component: FinanceClientComponent },
-  { path: "finance-client-print", component: FinanceClientComponent },
-  { path: "debrief-global", component: FinanceDebriefGlobalComponent },
-  { path: "modifier-colis", component: ModifierColisComponent },
+  {
+    path: "dashboard",
+    canActivate: [AuthGuard],
+    component: DashboardComponent,
+  },
+  {
+    path: "colis-jour",
+    canActivate: [AuthGuard],
+    component: ColisJourComponent,
+  },
+  {
+    path: "user-profile",
+    canActivate: [AuthGuard],
+    component: UserProfileComponent,
+  },
+  {
+    path: "recherche",
+    canActivate: [AuthGuard],
+    component: RechercheComponent,
+  },
+  {
+    path: "recherche-av",
+    canActivate: [AuthGuard],
+    component: RechercheComponent,
+  },
+  {
+    path: "recherche-av-sub",
+    canActivate: [AuthGuard],
+    component: RechercheComponent,
+  },
+  {
+    path: "modifier-colis",
+    canActivate: [AuthGuard],
+    component: ModifierColisComponent,
+  },
+  { path: "icons", canActivate: [AuthGuard], component: IconsComponent },
+  {
+    path: "modifier-colis",
+    canActivate: [AuthGuard],
+    component: ColisJourComponent,
+  },
+  {
+    path: "carnet-adresses",
+    canActivate: [AuthGuard],
+    component: CarnetAdresseComponent,
+  },
+  {
+    path: "gestion-filiere",
+    canActivate: [AuthGuard],
+    component: GestionFiliereComponent,
+  },
+  {
+    path: "gestion-personel",
+    canActivate: [AuthGuard],
+    component: GestionPersonelComponent,
+  },
+  {
+    path: "modifier-personel",
+    canActivate: [AuthGuard],
+    component: GestionPersonelComponent,
+  },
+  {
+    path: "gestion-client",
+    canActivate: [AuthGuard],
+    component: GestionClientComponent,
+  },
+  {
+    path: "modifier-client",
+    canActivate: [AuthGuard],
+    component: GestionClientComponent,
+  },
+  {
+    path: "gestion-vehicule",
+    canActivate: [AuthGuard],
+    component: GestionVehiculeComponent,
+  },
+  {
+    path: "modifier-vehicule",
+    canActivate: [AuthGuard],
+    component: GestionVehiculeComponent,
+  },
+  {
+    path: "gestion-ville",
+    canActivate: [AuthGuard],
+    component: GestionVilleComponent,
+  },
+  {
+    path: "gestion-delegation",
+    canActivate: [AuthGuard],
+    component: GestionDelegationComponent,
+  },
+  { path: "pickup", canActivate: [AuthGuard], component: CbPickupsComponent },
+  {
+    path: "pickup-historique",
+    canActivate: [AuthGuard],
+    component: CbPickupsComponent,
+  },
+  {
+    path: "ramassage",
+    canActivate: [AuthGuard],
+    component: CbRamassageComponent,
+  },
+  {
+    path: "collecte",
+    canActivate: [AuthGuard],
+    component: CbCollecteComponent,
+  },
+  {
+    path: "feuille-de-route",
+    canActivate: [AuthGuard],
+    component: CbFeuilleRouteComponent,
+  },
+  {
+    path: "feuille-de-route-historique",
+    canActivate: [AuthGuard],
+    component: CbFeuilleRouteComponent,
+  },
+  {
+    path: "feuille-de-retour",
+    canActivate: [AuthGuard],
+    component: CbFeuilleRetourComponent,
+  },
+  {
+    path: "feuille-de-retour-historique",
+    canActivate: [AuthGuard],
+    component: CbFeuilleRetourComponent,
+  },
+  {
+    path: "debrief-list",
+    canActivate: [AuthGuard],
+    component: CbDebriefComponent,
+  },
+  {
+    path: "debrief-bilan",
+    canActivate: [AuthGuard],
+    component: CbDebriefComponent,
+  },
+  {
+    path: "debrief-detail",
+    canActivate: [AuthGuard],
+    component: CbDebriefComponent,
+  },
+  {
+    path: "debrief-detaillé",
+    canActivate: [AuthGuard],
+    component: CbDebriefComponent,
+  },
+  {
+    path: "finance-client",
+    canActivate: [AuthGuard],
+    component: FinanceClientComponent,
+  },
+  {
+    path: "finance-client-print",
+    canActivate: [AuthGuard],
+    component: FinanceClientComponent,
+  },
+  {
+    path: "debrief-global",
+    canActivate: [AuthGuard],
+    component: FinanceDebriefGlobalComponent,
+  },
+  {
+    path: "modifier-colis",
+    canActivate: [AuthGuard],
+    component: ModifierColisComponent,
+  },
 
   {
     path: "gestion-colis",
     component: GestionColisComponent,
-    canActivate: [RoleGuard],
+    canActivate: [RoleGuard, AuthGuard],
     data: {
       expectedRoles: ["admin"],
     },
   },
-  { path: "finance", component: FinanceComponent },
-  { path: "finance-f-h", component: FinanceComponent },
+  { path: "finance", canActivate: [AuthGuard], component: FinanceComponent },
+  {
+    path: "finance-f-h",
+    canActivate: [AuthGuard],
+    component: FinanceComponent,
+  },
 ];
