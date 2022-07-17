@@ -17,6 +17,7 @@ import { AuthenticationService } from "src/app/services/authentication.service";
 import { PackageService, IPackage } from "src/app/services/package.service";
 import { DelegationService } from "src/app/services/delegation.service";
 import { VilleService } from "src/app/services/ville.service";
+import { HistoriqueService } from "src/app/services/historique.service";
 // import {  } from "@smarthtmlelements/smart-elements"
 
 @Component({
@@ -36,14 +37,38 @@ export class NouveauColisComponent implements OnInit {
   checkIds: boolean = false;
   error: string = "none";
   package: any = [];
+  historique: any = [];
   submit: boolean = false;
   villes: Object;
   delegations: Object;
+  historic: any = [
+    { state: "nouveau", viewState: "Colis créé le " },
+    { state: "pret", viewState: "Colis pret le " },
+    {
+      state: "en cours de ramassage",
+      viewState: "Attribué pour ramassage ramassage le ",
+    },
+    { state: "collecté", viewState: "Collecté" },
+    { state: "ramassé par livreur", viewState: "Rammasé par livreur le " },
+    { state: "en cours", viewState: "En cours" },
+    { state: "reporté", viewState: "Reporté" },
+    { state: "livré (espèce)", viewState: "Livré le " },
+    { state: "livré (chèque)", viewState: "Livré le " },
+    { state: "annulé", viewState: "Annulé le " },
+    { state: "payé", viewState: "Payé le " },
+    { state: "en cours de retour", viewState: "Attribué pour retour le " },
+    { state: "retourné", viewState: "Retourné à " },
+    { state: "retourné à l'expediteur", viewState: "Retourné à " },
+    { state: "livré - payé - espèce", viewState: "Livré - payé - espèce " },
+    { state: "livré - payé - chèque", viewState: "Livré - payé - chèque " },
+    { state: "modifié par admin", viewState: "Modifié par admin le" },
+  ];
 
   constructor(
     private fb: FormBuilder,
     public clientService: ClientService,
     private packageService: PackageService,
+    private historiqueService: HistoriqueService,
     private delegationService: DelegationService,
     private villeService: VilleService,
     private auth: AuthenticationService,
@@ -92,15 +117,14 @@ export class NouveauColisComponent implements OnInit {
         await this.checkPackage();
 
         if (this.checkData() && this.packageState == "nouveau") {
-          console.log("in");
-
           this.getActors();
           // this.clientData = this.datacl[0]
         }
       }
     }
     if (this.routePath == "details-colis") {
-      this.getPackage();
+      await this.getPackage();
+      this.getHistorique();
     }
   }
   get f() {
@@ -109,7 +133,7 @@ export class NouveauColisComponent implements OnInit {
 
   onChanges(): void {
     this.packageForm.get("villeId").valueChanges.subscribe((val) => {
-      this.getDelegations(val);
+      if (val !== null) this.getDelegations(val);
     });
   }
 
@@ -131,16 +155,13 @@ export class NouveauColisComponent implements OnInit {
         data[0].clientId == this.clientId &&
         data[0].fournisseurId == this.auth.getUserDetails()._id
       ) {
-        console.log("data3");
-        console.log(data[0]);
-
         this.packageForm.patchValue({
           tel: data[0].telc,
           nom: data[0].nomc,
           villeId: data[0].villeId,
           delegationId: data[0].delegationId,
           adresse: data[0].adressec,
-          codePostale: data[0].codepostalc,
+          codePostale: data[0].codePostalec,
           tel2: data[0].tel2c,
           c_remboursement: data[0].c_remboursement,
           service: data[0].service,
@@ -151,6 +172,9 @@ export class NouveauColisComponent implements OnInit {
           remarque: data[0].remarque,
         });
         this.checkIds = true;
+        console.log("slmslmslmmmmmm");
+
+        console.log(this.packageForm.value);
       } else {
         console.log("wrong data");
         console.log(data[0]);
@@ -171,8 +195,6 @@ export class NouveauColisComponent implements OnInit {
     this.clientService
       .getClientByPhone(this.packageForm.value.tel)
       .subscribe((result) => {
-        console.log("result");
-        console.log(result[0]._id);
         if (result == []) {
           this.clientService
             .createClient(JSON.stringify(this.packageForm.value))
@@ -202,21 +224,18 @@ export class NouveauColisComponent implements OnInit {
               (err) => {
                 this.error = err.message.error;
                 const client = err.message.object;
-                console.log(this.error);
-                console.log(err.message.object);
 
                 if (this.error.indexOf("tel_1") !== -1) {
                   this.clientService
                     .getClientByPhone(client.tel)
                     .subscribe((result) => {
                       // *if we're gonna test the other fields while we entered the phone number
-                      console.log("ehe");
                       if (
                         //*add ville & delegation tests after settling them
                         this.packageForm.value.nom == result[0].nom &&
                         this.packageForm.value.adresse == result[0].adresse &&
                         this.packageForm.value.codePostale ==
-                          result[0].codepostal &&
+                          result[0].codePostale &&
                         this.packageForm.value.tel2 == result[0].tel2
                       ) {
                         this.packageForm.value.clientId = result[0]._id;
@@ -248,8 +267,8 @@ export class NouveauColisComponent implements OnInit {
           this.clientService
             .createClient(JSON.stringify(this.packageForm.value))
             .subscribe(
-              (res) => {
-                this.packageForm.value.clientId = result[0]._id;
+              (result) => {
+                this.packageForm.value.clientId = result._id;
                 this.packageService
                   .createPackage(JSON.stringify(this.packageForm.value))
                   .subscribe(() => {
@@ -266,21 +285,20 @@ export class NouveauColisComponent implements OnInit {
               (err) => {
                 this.error = err.message.error;
                 const client = err.message.object;
-                console.log(this.error);
-                console.log(err.message.object);
 
                 if (this.error.indexOf("tel_1") !== -1) {
                   this.clientService
                     .getClientByPhone(client.tel)
                     .subscribe((result) => {
+                      console.log(result[0]);
+
                       // *if we're gonna test the other fields while we entered the phone number
-                      console.log("ehe");
                       if (
                         //*add ville & delegation tests after settling them
                         this.packageForm.value.nom == result[0].nom &&
                         this.packageForm.value.adresse == result[0].adresse &&
                         this.packageForm.value.codePostale ==
-                          result[0].codepostal &&
+                          result[0].codePostale &&
                         this.packageForm.value.tel2 == result[0].tel2
                       ) {
                         this.packageForm.value.clientId = result[0]._id;
@@ -314,21 +332,20 @@ export class NouveauColisComponent implements OnInit {
 
   update() {
     this.submit = true;
-    console.log(this.packageForm.value);
-    console.log(JSON.stringify(this.packageForm.value));
+    this.packageForm.value.fournisseurId = this.auth.getUserDetails()._id;
 
     this.clientService
       .updateClient(this.clientId, JSON.stringify(this.packageForm.value))
       .subscribe((res) => {
-        // console.log(res);
         this.packageForm.value.clientId = this.clientId;
         console.log("client updated");
+
+        console.log(this.packageForm.value);
 
         this.packageService
           .updatePackage(this.packageId, JSON.stringify(this.packageForm.value))
           .subscribe(
             (res) => {
-              // console.log(res);
               console.log("package updated");
 
               var edited: boolean = true;
@@ -373,7 +390,6 @@ export class NouveauColisComponent implements OnInit {
         })
       )
       .toPromise();
-    console.log(this.packageState);
   }
 
   async checkData(): Promise<boolean> {
@@ -382,15 +398,28 @@ export class NouveauColisComponent implements OnInit {
 
   //************************ PATH = NOUVEAU-COLIS / MODIFIER-COLIS ************************
   //************************ PATH = DETAILS-COLIS ************************
-  public getPackage() {
-    this.packageService.getFullPackage(this.packageId).subscribe((data) => {
-      this.package = data[0];
-      console.log("data:");
-      console.log(data);
+  public async getPackage() {
+    return await this.packageService
+      .getFullPackage(this.packageId)
+      .pipe(
+        map((data) => {
+          this.package = data[0];
+        })
+      )
+      .toPromise();
+  }
 
-      console.log("package:");
-      console.log(this.package);
-    });
+  public getHistorique() {
+    this.historiqueService
+      .getHistoriqueByPackageId(this.packageId)
+      .subscribe((data) => {
+        this.historique = data;
+      });
+  }
+
+  public getIndex(historique) {
+    var index = this.historic.findIndex((p) => p.state == historique?.action);
+    return index;
   }
 
   //************************ PATH = DETAILS-COLIS ************************
@@ -401,46 +430,36 @@ export class NouveauColisComponent implements OnInit {
       this.clientService
         .getClients(null, null, null, null, event.target.value, "tels")
         .subscribe((data) => {
-          console.log(data.data);
-
           this.clients = data.data;
         });
     }
   }
 
   importClient(event) {
-    console.log("event");
-    console.log(event.target.value);
-    var id;
-    this.clients.forEach((element) => {
+    for (const element of this.clients) {
       if (element.tel == event.target.value) {
-        id = element._id;
-        console.log(element);
-
         this.packageForm.patchValue({
           tel: element.tel,
           nom: element.nom,
           villeId: element.villeId,
           delegationId: element.delegationId,
           adresse: element.adresse,
-          codePostale: element.codepostal,
+          codePostale: element.codePostale,
           tel2: element.tel2,
         });
+        break;
       }
-    });
-    // this.clientService.getClient(id).subscribe((data) => {
-    //   console.log("data");
-    //   console.log(data[0]);
-
-    //   this.packageForm.patchValue({
-    //     tel: data[0].telc,
-    //     nom: data[0].nomc,
-    //     ville: data[0].villec,
-    //     delegation: data[0].delegationc,
-    //     adresse: data[0].adressec,
-    //     codePostale: data[0].codepostalc,
-    //     tel2: data[0].tel2c,
-    //   });
-    // });
+      //* the next code will clear other inputs when another phone number is selecetd
+      // else {
+      //   this.packageForm.patchValue({
+      //     nom: null,
+      //     villeId: null,
+      //     delegationId: null,
+      //     adresse: null,
+      //     codePostale: null,
+      //     tel2: null,
+      //   });
+      // }
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { NavigationExtras, Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
-import { forkJoin, subscribeOn } from "rxjs";
+import { forkJoin, map, subscribeOn } from "rxjs";
 import { ClientService } from "src/app/services/client.service";
 import { PackageService } from "src/app/services/package.service";
 
@@ -33,8 +33,32 @@ export class CarnetAdresseComponent implements OnInit {
     { value: 100 },
   ];
   selected: any = [];
-
-  constructor(private clientService: ClientService, private router: Router) {}
+  allPackages: any;
+  stats: any = [
+    {
+      state: "retourné à l'expediteur",
+      count: 0,
+      icon: "fas fa-times",
+      bgColor: "bg-danger",
+    },
+    {
+      state: "livré - payé - espèce",
+      count: 0,
+      icon: "fas fa-dollar-sign",
+      bgColor: "bg-success",
+    },
+    {
+      state: "livré - payé - chèque",
+      count: 0,
+      icon: "fas fa-check-square",
+      bgColor: "bg-success",
+    },
+  ];
+  constructor(
+    private clientService: ClientService,
+    private packageService: PackageService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     // Initial columns, can be used for data list which is will be filtered
@@ -48,6 +72,7 @@ export class CarnetAdresseComponent implements OnInit {
     ];
 
     this.getDataJson();
+    this.getStats();
     // this.findAll();
   }
 
@@ -134,4 +159,31 @@ export class CarnetAdresseComponent implements OnInit {
   //   var source = forkJoin(query);
   //   source.subscribe((data) => {return data});
   // }
+
+  // returns card statistics
+  public async getStats() {
+    this.packageService.countAllPackages(null).subscribe((data) => {
+      this.allPackages = data.count;
+    });
+
+    for await (let [key, val] of Object.entries(this.stats)) {
+      await this.packageService
+        .countAllPackages(this.stats[key].state)
+        .pipe(
+          map((data) => {
+            // const objIndex = this.stats.findIndex(
+            //   (obj) => obj.state === "pret"
+            // );
+            this.stats[key].count = data.count;
+          })
+        )
+        .toPromise();
+    }
+  }
+  getIcon(stat) {
+    return stat.icon;
+  }
+  getColor(stat) {
+    return stat.bgColor;
+  }
 }

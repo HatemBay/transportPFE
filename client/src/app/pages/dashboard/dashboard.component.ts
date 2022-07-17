@@ -297,7 +297,7 @@ export class DashboardComponent implements OnInit {
     //   .toPromise();
   }
 
-  // returns statistics
+  // returns card statistics
   public async getStats(startDate, endDate) {
     this.packageService
       .countAllPackages(null, startDate, endDate)

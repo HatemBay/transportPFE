@@ -35,7 +35,7 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: "/liste-colis",
-    title: "Liste de colis crées",
+    title: "Liste de colis",
     icon: "ni-bullet-list-67 text-red",
     class: "",
   },

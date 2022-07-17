@@ -230,7 +230,7 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Poids</label>
+                  <label class="form-label">Poids (Kg)</label>
                   <input formControlName="poids" [value]="packageForm.poids" name="poids" type="number"
                     class="form-control">
                 </div>
@@ -244,12 +244,12 @@
                   <textarea formControlName="remarque" [value]="packageForm.remarque" name="remarque"
                     class="form-control" rows="3"></textarea>
                 </div>
-                <div class="form-group">
+                <!-- <div class="form-group">
                   <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="customControlAutosizing">
                     <label class="custom-control-label" for="customControlAutosizing">Décharge facture</label>
                   </div>
-                </div>
+                </div> -->
               </div>
             </div>
             <div class="form-footer text-right">
@@ -257,6 +257,13 @@
                 class="btn btn-primary px-5" [disabled]="packageForm.invalid">Créer nouveau</button>
               <button *ngIf="checkData() && checkIds" (click)="onPreviousClick()" class="btn btn-primary px-5"
                 [disabled]="packageForm.invalid">Modifier</button>
+              <ng-container *ngIf="error.indexOf('avec ce client') !== -1">
+                <br>
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  {{error}}
+                </small>
+              </ng-container>
             </div>
           </form>
         </div>
@@ -313,11 +320,25 @@
 
                     <div class="col-sm-4 offset-1">
                       <div class="form-group">
-                        <label class="form-label h5">Etat</label>
+                        <label class="form-label h5">Historique</label>
                       </div>
                       <div class="form-group">
-                        <label class="form-label">Colis créé le {{package.createdAt | date:'dd-MM-yyyy à h:mm'}}
-                        </label>
+                        <ng-container *ngFor="let item of historique">
+                          <ng-container *ngIf="getIndex(item) !== -1">
+                            <div class="form-group">
+                              <label class="form-label">{{historic[getIndex(item)]?.viewState}}
+                                {{item?.createdAt | date:'yyy/MM/dd à HH:MM'}}
+                              </label>
+                            </div>
+                          </ng-container>
+                        </ng-container>
+                        <!-- <ng-container *ngFor="let item of historique">
+                          <ng-container *ngIf="item.action === 'nouveau'">
+                            <label class="form-label">Colis {{item.action}} le {{item.createdAt |
+                              date:'dd-MM-yyyy à h:mm'}}
+                            </label>
+                          </ng-container>
+                        </ng-container> -->
                       </div>
                     </div>
                   </div>

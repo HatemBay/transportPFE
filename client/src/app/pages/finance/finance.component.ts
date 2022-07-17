@@ -26,7 +26,27 @@ export class FinanceComponent implements OnInit {
     { value: 100 },
   ];
   selected: any = [];
-
+  allPackages: any;
+  stats: any = [
+    {
+      state: "retourné à l'expediteur",
+      count: 0,
+      icon: "fas fa-times",
+      bgColor: "bg-danger",
+    },
+    {
+      state: "livré - payé - espèce",
+      count: 0,
+      icon: "fas fa-dollar-sign",
+      bgColor: "bg-success",
+    },
+    {
+      state: "livré - payé - chèque",
+      count: 0,
+      icon: "fas fa-check-square",
+      bgColor: "bg-success",
+    },
+  ];
   temp: any = [];
   rows: any = [];
   public columns: Array<object>;
@@ -50,6 +70,7 @@ export class FinanceComponent implements OnInit {
       { prop: "codePostale", name: "CodePostale" },
     ];
 
+    this.getStats();
     this.initiateData();
   }
 
@@ -194,4 +215,30 @@ export class FinanceComponent implements OnInit {
 
     this.router.navigate(["/finance-f-h"], navigationExtras);
   }
+    // returns card statistics
+    public async getStats() {
+      this.packageService.countAllPackages(null).subscribe((data) => {
+        this.allPackages = data.count;
+      });
+
+      for await (let [key, val] of Object.entries(this.stats)) {
+        await this.packageService
+          .countAllPackages(this.stats[key].state)
+          .pipe(
+            map((data) => {
+              // const objIndex = this.stats.findIndex(
+              //   (obj) => obj.state === "pret"
+              // );
+              this.stats[key].count = data.count;
+            })
+          )
+          .toPromise();
+      }
+    }
+    getIcon(stat) {
+      return stat.icon;
+    }
+    getColor(stat) {
+      return stat.bgColor;
+    }
 }

@@ -3,6 +3,7 @@ import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { PackageService } from "src/app/services/package.service";
 import { ClientService } from "src/app/services/client.service";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
+import { map } from "rxjs";
 
 @Component({
   selector: "app-tables",
@@ -14,6 +15,7 @@ export class ListeColisComponent implements OnInit {
   @ViewChild(DatatableComponent) table: DatatableComponent;
   @ViewChild(alert) alert: any;
 
+  allPackages: any;
   success: boolean = false;
 
   public currentPageLimit: number = 10;
@@ -26,7 +28,26 @@ export class ListeColisComponent implements OnInit {
     { value: 50 },
     { value: 100 },
   ];
-
+  stats: any = [
+    {
+      state: "retourné à l'expediteur",
+      count: 0,
+      icon: "fas fa-times",
+      bgColor: "bg-danger",
+    },
+    {
+      state: "livré - payé - espèce",
+      count: 0,
+      icon: "fas fa-dollar-sign",
+      bgColor: "bg-success",
+    },
+    {
+      state: "livré - payé - chèque",
+      count: 0,
+      icon: "fas fa-check-square",
+      bgColor: "bg-success",
+    },
+  ];
   temp: any = [];
   rows: any = [];
   selected: any = [];
@@ -59,6 +80,7 @@ export class ListeColisComponent implements OnInit {
     ];
 
     this.getDataJson();
+    this.getStats();
     // this.findAll();
     // console.log(this.temp[0]);
   }
@@ -210,5 +232,32 @@ export class ListeColisComponent implements OnInit {
       WindowPrt.print();
       // WindowPrt.close();
     }, 1000);
+  }
+
+  // returns card statistics
+  public async getStats() {
+    this.packageService.countAllPackages(null).subscribe((data) => {
+      this.allPackages = data.count;
+    });
+
+    for await (let [key, val] of Object.entries(this.stats)) {
+      await this.packageService
+        .countAllPackages(this.stats[key].state)
+        .pipe(
+          map((data) => {
+            // const objIndex = this.stats.findIndex(
+            //   (obj) => obj.state === "pret"
+            // );
+            this.stats[key].count = data.count;
+          })
+        )
+        .toPromise();
+    }
+  }
+  getIcon(stat) {
+    return stat.icon;
+  }
+  getColor(stat) {
+    return stat.bgColor;
   }
 }
