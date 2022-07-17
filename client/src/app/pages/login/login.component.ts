@@ -5,7 +5,6 @@ import {
   TokenPayload,
 } from "../../services/authentication.service";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Observable, Subscription } from "rxjs";
 
 @Component({
   selector: "app-login",
@@ -21,13 +20,19 @@ export class LoginComponent {
   loginForm: FormGroup;
   hasError: boolean;
   errorMessage: string;
+  reset = false;
 
   constructor(
     private fb: FormBuilder,
     private auth: AuthenticationService,
     private router: Router,
+    private route: ActivatedRoute,
     private cdRef: ChangeDetectorRef
-  ) {}
+  ) {
+    this.reset =
+      JSON.parse(this.route.snapshot.queryParamMap.get("passReset")) || false;
+    console.log(this.reset);
+  }
 
   ngOnInit(): void {
     //redirection if user is authenticated
@@ -79,10 +84,7 @@ export class LoginComponent {
     );
   }
 
-  //TODO: make an interface to insert email and demand reset
   forgotPassword() {
-    this.auth
-      .forgotPasswordProvider({ email: this.credentials.email })
-      .subscribe((res) => res);
+    this.router.navigate(["/mdp-oublie"]);
   }
 }

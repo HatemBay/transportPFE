@@ -133,8 +133,8 @@ export class AuthenticationService {
     );
   }
 
-  forgotPasswordProvider(data: any): Observable<any> {
-    const url = `http://localhost:3000/api/user/forgotPasswordProvider`;
+  forgotPasswordFourn(data: any): Observable<any> {
+    const url = `http://localhost:3000/api/fournisseur/forgotPasswordFourn`;
     return this.http.put(url, data).pipe(
       // map((res: Response) => {
       map((res: any) => {

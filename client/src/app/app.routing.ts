@@ -1,3 +1,4 @@
+import { ForgotPasswordComponent } from "./pages/forgot-password/forgot-password.component";
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { BrowserModule } from "@angular/platform-browser";
@@ -34,10 +35,27 @@ const routes: Routes = [
     path: "login",
     component: LoginComponent,
   },
-  { path: "imprimer-colis-gestion", canActivate: [AuthGuard], component: ImprimerComponent },
-  { path: "imprimer-colis", canActivate: [AuthGuard], component: ImprimerComponent },
-  { path: "imprimer-pickup", canActivate: [AuthGuard], component: ImprimerPickupComponent },
-  { path: "imprimer-finance", canActivate: [AuthGuard], component: ImprimerFinanceComponent },
+  {
+    path: "imprimer-colis-gestion",
+    canActivate: [AuthGuard],
+    component: ImprimerComponent,
+  },
+  {
+    path: "imprimer-colis",
+    canActivate: [AuthGuard],
+    component: ImprimerComponent,
+  },
+  {
+    path: "imprimer-pickup",
+    canActivate: [AuthGuard],
+    component: ImprimerPickupComponent,
+  },
+  {
+    path: "imprimer-finance",
+    canActivate: [AuthGuard],
+    component: ImprimerFinanceComponent,
+  },
+  { path: "mdp-oublie", component: ForgotPasswordComponent },
   {
     path: "**",
     redirectTo: "dashboard",

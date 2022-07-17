@@ -27,12 +27,12 @@ export const ROUTES: RouteInfo[] = [
     icon: "ni-pin-3 text-orange",
     class: "",
   },
-  // {
-  //   path: "/user-profile",
-  //   title: "User profile",
-  //   icon: "ni-single-02 text-yellow",
-  //   class: "",
-  // },
+  {
+    path: "/user-profile",
+    title: "Mon profil",
+    icon: "ni-single-02 text-yellow",
+    class: "",
+  },
   {
     path: "/liste-colis",
     title: "Liste de colis crées",
@@ -62,6 +62,25 @@ export const ROUTES: RouteInfo[] = [
     title: "Décharge",
     icon: "ni-circle-08 text-pink",
     class: "",
+  },
+  // Hidden items (used to display their title in ui)
+  {
+    path: "/details-colis",
+    title: "Details colis",
+    icon: "ni-single-02 text-yellow",
+    class: "d-none",
+  },
+  {
+    path: "/modifier-colis",
+    title: "Modifier colis",
+    icon: "ni-single-02 text-yellow",
+    class: "d-none",
+  },
+  {
+    path: "/finance-f-h",
+    title: "Historique",
+    icon: "ni-single-02 text-yellow",
+    class: "d-none",
   },
 ];
 

@@ -18,6 +18,7 @@ import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
 import { NgxBarcodeModule } from "ngx-barcode";
 import { ImprimerPickupComponent } from "./pages/imprimer-pickup/imprimer-pickup.component";
 import { ImprimerFinanceComponent } from "./pages/imprimer-finance/imprimer-finance.component";
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 
 @NgModule({
   imports: [
@@ -39,6 +40,7 @@ import { ImprimerFinanceComponent } from "./pages/imprimer-finance/imprimer-fina
     ImprimerComponent,
     ImprimerPickupComponent,
     ImprimerFinanceComponent,
+    ForgotPasswordComponent,
   ],
   providers: [DatePipe],
   bootstrap: [AppComponent],
