@@ -32,7 +32,13 @@ export class FournisseurService {
       .pipe(catchError(this.errorMgmt));
   }
   // Get all fournisseurs
-  getFournisseurs(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any): Observable<any> {
+  getFournisseurs(
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any
+  ): Observable<any> {
     const url = `${this.baseUri}/`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
@@ -86,16 +92,31 @@ export class FournisseurService {
     );
   }
   // Error handling
-  errorMgmt(error: HttpErrorResponse) {
-    let errorMessage = "";
+  // errorMgmt(error: HttpErrorResponse) {
+  //   let errorMessage = "";
+  //   if (error.error instanceof ErrorEvent) {
+  //     // Get fournisseur-side error
+  //     errorMessage = error.error.message;
+  //   } else {
+  //     // Get server-side error
+  //     errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+  //   }
+  //   console.log(errorMessage);
+  //   return throwError(errorMessage);
+  // }
+
+   // Error handling
+   errorMgmt(error: HttpErrorResponse) {
+    let errorMessage;
     if (error.error instanceof ErrorEvent) {
-      // Get fournisseur-side error
-      errorMessage = error.error.message;
+      // Get client-side error
+      errorMessage = { message: error.message };
     } else {
       // Get server-side error
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      errorMessage = { code: error.status, message: error.error };
     }
     console.log(errorMessage);
     return throwError(errorMessage);
   }
+
 }

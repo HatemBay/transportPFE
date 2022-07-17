@@ -59,19 +59,19 @@ var UserSchema = new Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Package",
-      }
+      },
     ],
     roadmaps: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Roadmap",
-      }
+      },
     ],
     returnSheets: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeuilleRetour",
-      }
+      },
     ],
   },
   {

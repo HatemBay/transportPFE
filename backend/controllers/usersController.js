@@ -3,7 +3,7 @@ const express = require("express");
 var router = express.Router();
 var ObjectId = require("mongoose").Types.ObjectId;
 
-var { User, validate } = require("../models/users");
+var { User } = require("../models/users");
 var { Filiere } = require("../models/filiere");
 const { Delegation } = require("../models/delegation");
 
@@ -58,47 +58,34 @@ router.get("/", (req, res) => {
     {
       $sort: sort,
     },
-    {
-      $skip: skip,
-    },
-    {
-      $limit: limit,
-    }
   ];
   User.aggregate(data).exec((err, users) => {
     if (!err) {
       if (req.query.search && req.query.search.length > 2) {
-        res.send(
-          users.filter(
-            (item) =>
-              item.codePostale?.toString().includes(req.query.search) ||
-              item.tel?.toString().includes(req.query.search) ||
-              item.createdAtSearch.toString().includes(req.query.search) ||
-              item.nom.toLowerCase().includes(req.query.search.toLowerCase()) ||
-              item.nomf
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.role
-                .toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.ville
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.delegation
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.adresse
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.nomf
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase()) ||
-              item.adressef
-                ?.toLowerCase()
-                .includes(req.query.search.toLowerCase())
-          )
+        users = users.filter(
+          (item) =>
+            item.codePostale?.toString().includes(req.query.search) ||
+            item.tel?.toString().includes(req.query.search) ||
+            item.createdAtSearch.toString().includes(req.query.search) ||
+            item.nom.toLowerCase().includes(req.query.search.toLowerCase()) ||
+            item.nomf?.toLowerCase().includes(req.query.search.toLowerCase()) ||
+            item.role.toLowerCase().includes(req.query.search.toLowerCase()) ||
+            item.ville
+              ?.toLowerCase()
+              .includes(req.query.search.toLowerCase()) ||
+            item.delegation
+              ?.toLowerCase()
+              .includes(req.query.search.toLowerCase()) ||
+            item.adresse
+              ?.toLowerCase()
+              .includes(req.query.search.toLowerCase()) ||
+            item.nomf?.toLowerCase().includes(req.query.search.toLowerCase()) ||
+            item.adressef
+              ?.toLowerCase()
+              .includes(req.query.search.toLowerCase())
         );
-      } else res.send(users);
+      }
+      res.send(users.slice(skip).slice(0, limit));
     } else {
       console.log("Erreur lors de la récupération des utilisateurs: " + err);
       res
@@ -107,6 +94,23 @@ router.get("/", (req, res) => {
     }
   });
 });
+
+//* add field
+// router.put("/", (req, res) => {
+//   User.updateMany(
+//     {},
+//     {
+//       $set: {
+//         adresse: "baghded street",
+//       },
+//     }
+//   ).then(
+//     (doc) => {
+//       return res.status(200).send(doc);
+//     },
+//     (err) => console.log(err)
+//   );
+// });
 
 // get chauffeurs with no vehicules
 // can get modified
@@ -214,8 +218,9 @@ router.put("/:id", (req, res) => {
   });
 
   const user = new User();
-  var encrypted = user.setPassword(req.body.password, res);
-  if (!encrypted) return;
+  if (req.body.password) {
+    var encrypted = user.setPassword(req.body.password, res);
+  }
 
   req.body.salt = encrypted[0];
   req.body.hash = encrypted[1];
@@ -260,11 +265,13 @@ router.put("/:id", (req, res) => {
               );
               res
                 .status(400)
-                .send("Erreur lors de la mise à jour de la délégation: " + err2);
+                .send(
+                  "Erreur lors de la mise à jour de la délégation: " + err2
+                );
             }
           );
         } else {
-          res.status(400).send(doc);
+          res.status(200).send(doc);
         }
       } else {
         console.log("Erreur lors de mise à jour de l'utilisateur: " + err);

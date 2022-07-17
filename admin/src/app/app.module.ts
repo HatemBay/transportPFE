@@ -21,6 +21,7 @@ import { SafePipe } from "./safe.pipe";
 import { ImprimerRoadmapComponent } from "./pages/imprimer-roadmap/imprimer-roadmap.component";
 import { ImprimerFinanceComponent } from "./pages/imprimer-finance/imprimer-finance.component";
 import { ImprimerFeuilleRetourComponent } from "./pages/imprimer-feuille-retour/imprimer-feuille-retour.component";
+import { ForgotPassComponent } from './pages/forgot-pass/forgot-pass.component';
 @NgModule({
   imports: [
     ReactiveFormsModule,
@@ -44,6 +45,7 @@ import { ImprimerFeuilleRetourComponent } from "./pages/imprimer-feuille-retour/
     ImprimerFeuilleRetourComponent,
     SafePipe,
     ImprimerFinanceComponent,
+    ForgotPassComponent,
   ],
   providers: [DatePipe, NgbActiveModal],
   bootstrap: [AppComponent],

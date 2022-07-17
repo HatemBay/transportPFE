@@ -41,7 +41,7 @@ export class GestionClientComponent implements OnInit {
   clientForm: any;
   clientModifyForm: any;
   clientId: any;
-  error: string;
+  error = "none";
   villeId: any;
   villes: Object;
   delegations: Object;
@@ -73,6 +73,8 @@ export class GestionClientComponent implements OnInit {
         { prop: "ville", name: "Ville" },
         { prop: "delegation", name: "Délegation" },
         { prop: "adresse", name: "Adresse" },
+        { prop: "fraisLivraison", name: "Frais de livraison" },
+        { prop: "fraisRetour", name: "Frais de retour" },
       ];
 
       this.clientForm = this.fb.group({
@@ -85,12 +87,19 @@ export class GestionClientComponent implements OnInit {
             Validators.max(99999999),
           ],
         ],
-        email: "",
+        email: [
+          "",
+          [
+            Validators.required,
+            Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$"),
+          ],
+        ],
         villeId: ["", Validators.required],
         delegationId: ["", Validators.required],
         adresse: ["", Validators.required],
-        fraisLivraison: "",
-        fraisRetour: "",
+        codePostale: ["", Validators.required],
+        fraisLivraison: ["", Validators.required],
+        fraisRetour: ["", Validators.required],
       });
 
       //detect changes in form controls
@@ -109,10 +118,19 @@ export class GestionClientComponent implements OnInit {
             Validators.max(99999999),
           ],
         ],
-        email: "",
+        email: [
+          "",
+          [
+            Validators.required,
+            Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$"),
+          ],
+        ],
         villeId: ["", Validators.required],
         delegationId: ["", Validators.required],
         adresse: ["", Validators.required],
+        codePostale: ["", Validators.required],
+        fraisLivraison: ["", Validators.required],
+        fraisRetour: ["", Validators.required],
       });
       this.fournisseurService
         .getFournisseur(this.clientId)
@@ -126,6 +144,9 @@ export class GestionClientComponent implements OnInit {
             villeId: data[0].villeId,
             delegationId: data[0].delegationId,
             adresse: data[0].adresse,
+            codePostale: data[0].codePostale,
+            fraisLivraison: data[0].fraisLivraison,
+            fraisRetour: data[0].fraisRetour,
           });
         });
       //detect changes in form controls
@@ -133,12 +154,24 @@ export class GestionClientComponent implements OnInit {
     }
   }
 
+  show() {
+    console.log(this.clientForm.value);
+  }
+
   onChanges(): void {
+    this.clientForm.get("tel").valueChanges.subscribe((val) => {
+      this.error = "none";
+    });
     this.clientForm.get("villeId").valueChanges.subscribe((val) => {
-      this.getDelegations(val);
+      if (val !== null) {
+        this.getDelegations(val);
+      }
     });
   }
   onChangesModify(): void {
+    this.clientModifyForm.get("tel").valueChanges.subscribe((val) => {
+      this.error = "none";
+    });
     this.clientModifyForm.get("villeId").valueChanges.subscribe((val) => {
       this.getDelegations(val);
     });
@@ -235,9 +268,9 @@ export class GestionClientComponent implements OnInit {
     this.modalService.open(this.editModal);
   }
 
-  closeModal(modal) {
+  async closeModal(modal) {
     this.clientForm.value.nom = this.clientForm.value.nom.toLowerCase();
-    this.clientForm.password = this.DEFAULT_PASSWORD;
+    this.clientForm.value.password = this.DEFAULT_PASSWORD;
 
     console.log(this.clientForm.value);
 
@@ -245,7 +278,7 @@ export class GestionClientComponent implements OnInit {
       (res) => {
         this.error = "none";
         this.clientForm.reset();
-        this.delegations = "";
+        this.delegations = [];
         this.getDataJson();
         modal.close("Cross click");
       },
@@ -256,8 +289,10 @@ export class GestionClientComponent implements OnInit {
   }
 
   dismissModal(modal) {
+    console.log("sqdqdqs");
+
     this.clientForm.reset();
-    this.delegations = "";
+    this.delegations = [];
     modal.dismiss("Cross click");
   }
 
@@ -301,10 +336,15 @@ export class GestionClientComponent implements OnInit {
     console.log(this.clientModifyForm.value);
     this.fournisseurService
       .updateFournisseur(this.clientId, this.clientModifyForm.value)
-      .subscribe((data) => {
-        console.log(data);
-        this.router.navigate(["/gestion-client"]);
-      });
+      .subscribe(
+        (data) => {
+          console.log(data);
+          this.router.navigate(["/gestion-client"]);
+        },
+        (err) => {
+          this.error = err.message;
+        }
+      );
   }
 
   //SHOW DEFAULT PASSWORD

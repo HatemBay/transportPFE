@@ -2034,7 +2034,7 @@ router.get("/count/top-providers", async (req, res) => {
     sample.demands = demands;
     if (demands !== 0)
       sample.rate = ((demands / totalDemands) * 100).toFixed(2);
-    else sample.count = 0;
+    else sample.rate = "0";
     sample.provider = provider.nom;
     stats.push(sample);
   }

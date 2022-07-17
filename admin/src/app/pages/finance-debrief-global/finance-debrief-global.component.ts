@@ -153,16 +153,28 @@ export class FinanceDebriefGlobalComponent implements OnInit {
       console.log("roadmaps");
       console.log(roadmaps);
 
+      //TODO: get package ids and see if their historics contains one of the states
       for (let roadmap of roadmaps) {
         row.nbPackages += roadmap.nbPackages;
         for (let pack of roadmap.packages) {
-          if (pack.etat == "livré (espèce)") {
+          if (
+            pack.etat == "livré (espèce)" ||
+            pack.etat == "livré - payé - espèce"
+          ) {
             row.livréEspece += 1;
-          } else if (pack.etat == "livré (chèque)") {
+          } else if (
+            pack.etat == "livré (chèque)" ||
+            pack.etat == "livré - payé - chèque"
+          ) {
             row.livréCheque += 1;
           } else if (pack.etat == "reporté") {
             row.reporté += 1;
-          } else if (pack.etat == "annulé") {
+          } else if (
+            pack.etat == "annulé" ||
+            pack.etat == "en cours de retour" ||
+            pack.etat == "retourné" ||
+            pack.etat == "retourné à l'expéditeur"
+          ) {
             row.annulé += 1;
           }
         }

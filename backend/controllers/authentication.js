@@ -155,13 +155,11 @@ const forgotPasswordFourn = async (req, res) => {
   ).then((doc) => console.log(doc));
   await sendEmail(
     "llaattiinno6@gmail.com",
-    "Your new password",
-    generatedPassword
+    "Votre mot de passe à été réinitialisé",
+    "Voici votre nouveau mot de passe: " + generatedPassword
   ).then((doc, err) => {
     if (!err) {
-      return res
-        .status(200)
-        .send("Mot de passe réinitialisé avec succès: " + doc);
+      return res.status(200).send("Mot de passe réinitialisé avec succès: ");
     }
     console.log(
       "erreur lors de la réinitialisation du mot de passe: " + err.message
@@ -181,15 +179,14 @@ const forgotPasswordUser = async (req, res) => {
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   var charactersLength = characters.length;
   const generatedPasswordLength = 12;
-
-  user = await User.findOne({ email: email }).then((doc) => {
-    if (doc && doc !== null) {
-      return doc;
-    } else {
-      console.log("Cet Email n'est pas enregistré");
-      return res.status(400).send("Cet Email n'est pas enregistré");
-    }
+  const userVerify = await User.findOne({ email: email }).then((doc) => {
+    return doc;
   });
+  if (userVerify === null) {
+    console.log("Cet Email n'est pas enregistré");
+    return res.status(400).send("Cet Email n'est pas enregistré");
+  }
+
   for (var i = 0; i < generatedPasswordLength; i++) {
     generatedPassword += characters.charAt(
       Math.floor(Math.random() * charactersLength)
@@ -204,24 +201,27 @@ const forgotPasswordUser = async (req, res) => {
       salt: user.salt,
       hash: user.hash,
     }
-  ).then((doc) => console.log(doc));
-  await sendEmail(
+  ).then((doc) => console.log("password updated"));
+  return await sendEmail(
     "llaattiinno6@gmail.com",
-    "Your new password",
-    generatedPassword
-  ).then((doc, err) => {
-    if (!err) {
+    "Votre mot de passe à été réinitialisé",
+    "Voici votre nouveau mot de passe: " + generatedPassword
+  ).then(
+    () => {
+      console.log(res.text);
+      res.append("message", "slm");
+      res.append("error", "slm");
+      return res.status(200).send("Mot de passe réinitialisé avec succès");
+    },
+    (err) => {
+      console.log(
+        "erreur lors de la réinitialisation du mot de passe: " + err.message
+      );
       return res
-        .status(200)
-        .send("Mot de passe réinitialisé avec succès: " + doc);
+        .status(400)
+        .send("erreur lors de la réinitialisation du mot de passe: " + err);
     }
-    console.log(
-      "erreur lors de la réinitialisation du mot de passe: " + err.message
-    );
-    return res
-      .status(400)
-      .send("erreur lors de la réinitialisation du mot de passe: " + err);
-  });
+  );
 };
 
 // email verification

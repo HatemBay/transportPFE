@@ -33,7 +33,7 @@ export class CbCollecteComponent implements OnInit {
   rows: any = [];
   references: Array<number> = [];
   public columns: Array<object>;
-  count: any;
+  count: number = 0;
   init: boolean = false;
   referenceForm: any;
   val: string;
@@ -56,7 +56,7 @@ export class CbCollecteComponent implements OnInit {
       reference: ["", Validators.required],
     });
 
-    this.getDataJson();
+    // this.getDataJson();
   }
 
   get f() {
@@ -69,14 +69,28 @@ export class CbCollecteComponent implements OnInit {
     page?: any,
     sortBy?: any,
     sort?: any,
-    search?: any
+    search?: any,
+    refImport?: any
   ) {
     this.packageService
-      .getFullPackages(limit, page, sortBy, sort, search, null, null, this.references)
+      .getFullPackages(
+        limit,
+        page,
+        sortBy,
+        sort,
+        search,
+        null,
+        null,
+        this.references
+      )
       .subscribe((data) => {
         const len = this.rows.length;
+        this.count = data.length;
+
         this.rows = this.temp = data.data;
-        if (this.rows.length === len) this.references.splice(-1);
+        //*the function tests on the last package id in references so to avoid tests when filtering or sorting we added
+        //*refImport to indicate that the a reference was imported and is being tested currently
+        if (this.rows.length === len && refImport) this.references.splice(-1);
         for (const item of this.rows) {
           item.c_remboursement = parseFloat(
             item.c_remboursement.toString()
@@ -92,8 +106,7 @@ export class CbCollecteComponent implements OnInit {
       this.currentPageLimit,
       event.page,
       event.sorts[0].prop,
-      event.newValue,
-      null
+      event.newValue
     );
   }
 
@@ -144,12 +157,16 @@ export class CbCollecteComponent implements OnInit {
         return this.f.reference.setValue("");
       }
       const state = await this.getPackageState(this.f.reference.value);
-      if (state !== "pret" && state !== "ramassé par livreur") {
+      if (
+        state !== "pret" &&
+        state !== "ramassé par livreur" &&
+        state !== "en cours de ramassage"
+      ) {
         alert(this.f.reference.value + ": colis dans un état avancé !!!");
         return this.f.reference.setValue("");
       }
       this.references.push(this.f.reference.value);
-      this.getDataJson(null, null, null, null, this.val);
+      this.getDataJson(null, null, null, null, this.val, "true");
       this.f.reference.setValue("");
     }
   }

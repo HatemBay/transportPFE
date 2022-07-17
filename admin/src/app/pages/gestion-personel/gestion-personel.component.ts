@@ -67,7 +67,7 @@ export class GestionPersonelComponent implements OnInit {
     this.routePath = this.route.snapshot.routeConfig.path;
 
     this.userId = this.route.snapshot.queryParamMap.get("Id");
-    this.id = this.auth.getUserDetails()._id
+    this.id = this.auth.getUserDetails()._id;
   }
 
   ngOnInit(): void {
@@ -92,14 +92,23 @@ export class GestionPersonelComponent implements OnInit {
             Validators.max(99999999),
           ],
         ],
-        email: "",
+        email: [
+          "",
+          [
+            Validators.required,
+            Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$"),
+          ],
+        ],
       });
 
       this.getDataJson();
       this.getFilieres();
+      this.onChanges();
+
       // adding super admin control protection => && this.userId != this.auth.getUserDetails()._id
     } else if (this.routePath == "modifier-personel") {
       this.userModifyForm = this.fb.group({
+        filiereId: ["", Validators.required],
         role: ["", Validators.required],
         nom: ["", Validators.required],
         tel: [
@@ -110,20 +119,27 @@ export class GestionPersonelComponent implements OnInit {
             Validators.max(99999999),
           ],
         ],
-        password: ["", Validators.required],
-        email: "",
+        email: [
+          "",
+          [
+            Validators.required,
+            Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$"),
+          ],
+        ],
       });
       this.userService.getUser(this.userId).subscribe((data) => {
         console.log(data);
 
         this.userModifyForm.patchValue({
+          filiereId: data.filiereId,
           role: data.role,
           nom: data.nom,
           tel: data.tel,
-          password: data.password,
           email: data.email,
         });
       });
+      this.getFilieres();
+      this.onChangesModify();
     }
   }
 
@@ -133,6 +149,18 @@ export class GestionPersonelComponent implements OnInit {
 
   get g() {
     return this.userModifyForm.controls;
+  }
+
+  onChanges(): void {
+    this.userForm.get("email").valueChanges.subscribe((val) => {
+      this.error = "none";
+    });
+  }
+
+  onChangesModify(): void {
+    this.userModifyForm.get("email").valueChanges.subscribe((val) => {
+      this.error = "none";
+    });
   }
 
   getFilieres() {
@@ -228,7 +256,6 @@ export class GestionPersonelComponent implements OnInit {
       (err) => {
         this.error = err.message;
         console.log(typeof this.error);
-
         console.log(this.error);
       }
     );
@@ -266,10 +293,17 @@ export class GestionPersonelComponent implements OnInit {
     console.log(this.userModifyForm.value);
     this.userService
       .updateUser(this.userId, this.userModifyForm.value)
-      .subscribe((data) => {
-        console.log(data);
-        this.router.navigate(["/gestion-personel"]);
-      });
+      .subscribe(
+        (data) => {
+          console.log(data);
+          this.router.navigate(["/gestion-personel"]);
+        },
+        (err) => {
+          this.error = err.message;
+          console.log(typeof this.error);
+          console.log(this.error);
+        }
+      );
   }
 
   //SHOW DEFAULT PASSWORD

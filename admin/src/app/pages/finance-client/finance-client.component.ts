@@ -101,7 +101,7 @@ export class FinanceClientComponent implements OnInit {
       today: this.today,
       startDate: this.startDate,
     });
-
+    this.getFinancesData();
     this.dateForm.valueChanges.subscribe((data) =>
       this.onDateFormValueChange(data)
     );
@@ -212,6 +212,7 @@ export class FinanceClientComponent implements OnInit {
       .getFinances(limit, page, sortBy, sort, search, startDate, endDate)
       .pipe(
         map((data) => {
+          this.count = data.length;
           return data.data;
         })
       )

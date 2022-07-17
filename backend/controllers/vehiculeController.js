@@ -109,7 +109,7 @@ router.get("/:id", (req, res) => {
 });
 
 // create vehicle
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const file = req["files"].CG;
   const data = JSON.parse(req.body.form);
   console.log(file);
@@ -134,7 +134,7 @@ router.post("/", (req, res) => {
 
   var imgPath = "uploads/" + file.name;
 
-  sampleFile.mv(imgPath, function (err) {
+  await sampleFile.mv(imgPath, function (err) {
     if (err) {
       console.log("Error saving image" + err);
       return res.status(500).send("Error saving image" + err);
@@ -170,7 +170,7 @@ router.post("/", (req, res) => {
 });
 
 // update vehicle
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send(`no record with given id: ${req.params.id}`);
 
@@ -196,7 +196,7 @@ router.put("/:id", (req, res) => {
 
     var imgPath = "uploads/" + file.name;
 
-    sampleFile.mv(imgPath, function (err) {
+    await sampleFile.mv(imgPath, function (err) {
       if (err) {
         console.log("Error saving image" + err);
         return res.status(500).send("Error saving image" + err);
@@ -247,12 +247,16 @@ router.put("/:id", (req, res) => {
                   );
                   res
                     .status(400)
-                    .send("Erreur lors de la mise à jour du chauffeur: " + err3);
+                    .send(
+                      "Erreur lors de la mise à jour du chauffeur: " + err3
+                    );
                 }
               });
             },
             (err2) => {
-              console.log("Erreur lors de la mise à jour du chauffeur: " + err2);
+              console.log(
+                "Erreur lors de la mise à jour du chauffeur: " + err2
+              );
               res
                 .status(400)
                 .send("Erreur lors de la mise à jour du chauffeur: " + err2);

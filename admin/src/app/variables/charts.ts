@@ -304,7 +304,7 @@ export const chartExample1 = {
           ticks: {
             callback: function (value) {
               // return value;
-              if (!(value % 1)) {
+              if (!(value % 1) || value == 0) {
                 return value;
               }
             },

@@ -197,13 +197,28 @@
             </ng-container>
           </div>
           <div class="form-group">
-            <label>Email</label>
+            <label>Email (*)</label>
             <input formControlName="email" type="text" required="" class="form-control">
-            <ng-container *ngIf="error != 'none' && error.indexOf('email_1') !== -1">
-              <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
-              <small class="text-danger">
-                Email existe déjà.
-              </small>
+            <ng-container
+              *ngIf="userForm.controls['tel'].invalid && (userForm.controls['tel'].dirty || userForm.controls['tel'].touched)">
+              <ng-container *ngIf="userForm.controls['email'].errors?.['required']; else invalide">
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  Email est requis.
+                </small>
+              </ng-container>
+              <ng-template #invalide>
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  Email non valide.
+                </small>
+              </ng-template>
+              <ng-container *ngIf="error != 'none' && error.indexOf('email_1') !== -1">
+                <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                <small class="text-danger">
+                  Email existe déjà.
+                </small>
+              </ng-container>
             </ng-container>
           </div>
         </div>
@@ -228,29 +243,104 @@
             <form [formGroup]="userModifyForm" (ngSubmit)="save()">
               <div class="modal-body">
                 <div class="form-group">
-                  <label>Type</label>
+                  <label class="form-label">Filière (*)</label>
+                  <select formControlName="filiereId" class="form-control" name="ville_cl" id="ville_cl">
+                    <option hidden="" value="">-- Choisir --</option>
+                    <option *ngFor="let filiere of filieres" [value]="filiere._id">
+                      {{ filiere.nom | titlecase }} </option>
+                  </select>
+                  <ng-container
+                    *ngIf="userModifyForm.controls['filiereId'].invalid && (userModifyForm.controls['filiereId'].dirty || userModifyForm.controls['filiereId'].touched)">
+                    <ng-container *ngIf="userModifyForm.controls['filiereId'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Filière est requise.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                </div>
+                <div class="form-group">
+                  <label>Type (*)</label>
                   <select formControlName="role" class="form-control" name="type">
                     <option value="chef bureau">Chef de bureau</option>
                     <option value="financier">Financier</option>
                     <option value="commercial">Commercial</option>
                     <option value="chauffeur">Chauffeur</option>
                   </select>
+                  <ng-container
+                    *ngIf="userModifyForm.controls['role'].invalid && (userModifyForm.controls['role'].dirty || userModifyForm.controls['role'].touched)">
+                    <ng-container *ngIf="userModifyForm.controls['role'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Type est requis.
+                      </small>
+                    </ng-container>
+                  </ng-container>
                 </div>
                 <div class="form-group">
-                  <label>Nom &amp; Prénom</label>
+                  <label>Nom & Prénom (*)</label>
                   <input formControlName="nom" type="text" required="" class="form-control">
+                  <ng-container
+                    *ngIf="userModifyForm.controls['nom'].invalid && (userModifyForm.controls['nom'].dirty || userModifyForm.controls['nom'].touched)">
+                    <ng-container *ngIf="userModifyForm.controls['nom'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Nom & prénom sont requis.
+                      </small>
+                    </ng-container>
+                  </ng-container>
                 </div>
                 <div class="form-group">
-                  <label>Téléphone</label>
+                  <label>Téléphone (*)</label>
                   <input formControlName="tel" type="text" required="" class="form-control">
+                  <ng-container
+                    *ngIf="userModifyForm.controls['tel'].invalid && (userModifyForm.controls['tel'].dirty || userModifyForm.controls['tel'].touched)">
+                    <ng-container *ngIf="userModifyForm.controls['tel'].errors?.['required']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Téléphone est requis.
+                      </small>
+                    </ng-container>
+                    <ng-container
+                      *ngIf="userModifyForm.controls['tel'].errors?.['min'] || userModifyForm.controls['tel'].errors?.['max']">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Téléphone est invalide.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+                  <ng-container *ngIf="error != 'none' && error.indexOf('tel_1') !== -1">
+                    <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                    <small class="text-danger">
+                      Téléphone existe déjà.
+                    </small>
+                  </ng-container>
                 </div>
                 <div class="form-group">
-                  <label>Mot de passe</label>
-                  <input formControlName="password" type="text" required="" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label>Email</label>
+                  <label>Email (*)</label>
                   <input formControlName="email" type="text" class="form-control" name="email">
+                  <ng-container
+                    *ngIf="userModifyForm.controls['tel'].invalid && (userModifyForm.controls['tel'].dirty || userModifyForm.controls['tel'].touched)">
+                    <ng-container *ngIf="userModifyForm.controls['email'].errors?.['required']; else invalide">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Email est requis.
+                      </small>
+                    </ng-container>
+                    <ng-template #invalide>
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Email non valide.
+                      </small>
+                    </ng-template>
+                    <ng-container *ngIf="error != 'none' && error.indexOf('email_1') !== -1">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        Email existe déjà.
+                      </small>
+                    </ng-container>
+                  </ng-container>
+
                 </div>
               </div>
               <div class="modal-footer">

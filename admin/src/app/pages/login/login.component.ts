@@ -21,13 +21,18 @@ export class LoginComponent {
   loginForm: FormGroup;
   hasError: boolean;
   errorMessage: string;
+  reset = false;
 
   constructor(
     private fb: FormBuilder,
     private auth: AuthenticationService,
     private router: Router,
+    private route: ActivatedRoute,
     private cdRef: ChangeDetectorRef
-  ) {}
+  ) {
+    this.reset =
+      JSON.parse(this.route.snapshot.queryParamMap.get("passReset")) || false;
+  }
 
   ngOnInit(): void {
     //redirection if user is authenticated
@@ -80,8 +85,6 @@ export class LoginComponent {
   }
   //TODO: make an interface to insert email and demand reset
   forgotPassword() {
-    this.auth
-      .forgotPasswordUser({ email: this.credentials.email })
-      .subscribe((res) => res);
+    this.router.navigate(["/mdp-oublie"]);
   }
 }

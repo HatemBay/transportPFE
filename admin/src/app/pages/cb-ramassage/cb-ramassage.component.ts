@@ -32,7 +32,7 @@ export class CbRamassageComponent implements OnInit {
   rows: any = [];
   references: Array<number> = [];
   public columns: Array<object>;
-  count: any;
+  count: number = 0;
   init: boolean = false;
   referenceForm: any;
   val: string;
@@ -54,7 +54,7 @@ export class CbRamassageComponent implements OnInit {
       reference: ["", Validators.required],
     });
 
-    this.getDataJson();
+    // this.getDataJson();
   }
 
   get f() {
@@ -62,7 +62,7 @@ export class CbRamassageComponent implements OnInit {
   }
 
   // get data from backend
-  getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any) {
+  getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any, refImport?:any) {
     this.packageService
       .getFullPackages(
         limit,
@@ -78,6 +78,7 @@ export class CbRamassageComponent implements OnInit {
         (data) => {
           const len = this.rows.length;
           this.rows = this.temp = data.data;
+          this.count = data.length;
           if (this.rows.length === len) this.references.splice(-1);
           for (const item of this.rows) {
             item.c_remboursement = parseFloat(
@@ -151,7 +152,7 @@ export class CbRamassageComponent implements OnInit {
       }
       if (this.f.reference.value) {
         const state = await this.getPackageState(this.f.reference.value);
-        if (state !== "pret") {
+        if (state !== "pret" && state !== "en cours de ramassage") {
           alert(this.f.reference.value + ": colis dans un état avancé !!!");
           return this.f.reference.setValue("");
         }
@@ -159,7 +160,7 @@ export class CbRamassageComponent implements OnInit {
       }
       console.log("slm");
 
-      this.getDataJson(null, null, null, null, this.val);
+      this.getDataJson(null, null, null, null, this.val, 'true');
       this.f.reference.setValue("");
     }
   }

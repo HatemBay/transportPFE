@@ -28,15 +28,17 @@ router.post("/", (req, res) => {
   fournisseur.save().then(
     (fournisseur) => {
       Delegation.findByIdAndUpdate(
-        { _id: doc.delegationId },
-        { $push: { fournisseurs: doc._id } },
+        { _id: fournisseur.delegationId },
+        { $push: { fournisseurs: fournisseur._id } },
         { new: true, useFindAndModify: false }
       ).then(
         () => {
           return res.status(200).send(fournisseur);
         },
         (err2) => {
-          console.log("Erreur lors de la mise à jour de la délegation: " + err2);
+          console.log(
+            "Erreur lors de la mise à jour de la délegation: " + err2
+          );
           return res.status(400).send(err2.message);
         }
       );
@@ -243,7 +245,8 @@ router.put("/:id", (req, res) => {
                 { new: true, useFindAndModify: false }
               ).exec((err3) => {
                 if (!err3) {
-                  res.send(doc);
+                  console.log("succes");
+                  res.status(200).send(doc);
                 } else {
                   console.log(
                     "Erreur lors de la mise à jour de la délégation: " + err3
@@ -258,11 +261,13 @@ router.put("/:id", (req, res) => {
               );
               res
                 .status(400)
-                .send("Erreur lors de la mise à jour de la délégation: " + err2);
+                .send(
+                  "Erreur lors de la mise à jour de la délégation: " + err2
+                );
             }
           );
         } else {
-          res.status(400).send(doc);
+          res.status(200).send(doc);
         }
       } else {
         console.log("Erreur lors de mise à jour du fournisseur: " + err);
@@ -289,7 +294,9 @@ router.delete("/:id", (req, res) => {
               message: "Fournisseur supprimé",
             });
           } else {
-            console.log("Erreur lors de la mise à jour de la délegation: " + err2);
+            console.log(
+              "Erreur lors de la mise à jour de la délegation: " + err2
+            );
             res.status(400).send(err2.message);
           }
         }

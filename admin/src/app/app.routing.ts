@@ -1,4 +1,4 @@
-import { ImprimerFinanceComponent } from './pages/imprimer-finance/imprimer-finance.component';
+import { ImprimerFinanceComponent } from "./pages/imprimer-finance/imprimer-finance.component";
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { BrowserModule } from "@angular/platform-browser";
@@ -10,6 +10,7 @@ import { AuthGuard } from "./services/auth.guard";
 import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
 import { ImprimerRoadmapComponent } from "./pages/imprimer-roadmap/imprimer-roadmap.component";
 import { ImprimerFeuilleRetourComponent } from "./pages/imprimer-feuille-retour/imprimer-feuille-retour.component";
+import { ForgotPassComponent } from "./pages/forgot-pass/forgot-pass.component";
 
 const routes: Routes = [
   {
@@ -34,6 +35,10 @@ const routes: Routes = [
   {
     path: "login",
     component: LoginComponent,
+  },
+  {
+    path: "mdp-oublie",
+    component: ForgotPassComponent,
   },
   {
     path: "imprimer-colis",
