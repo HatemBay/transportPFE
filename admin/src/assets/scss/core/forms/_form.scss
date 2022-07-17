@@ -63,7 +63,7 @@ textarea[resize="horizontal"] {
 
 .form-control-alternative {
     box-shadow: $input-alternative-box-shadow;
-    border: 0;
+    border: 1px solid #cad1d7;
     transition: box-shadow .15s ease;
 
     &:focus {

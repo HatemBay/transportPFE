@@ -261,7 +261,7 @@
                   <h5 class="card-title">Etat du colis</h5>
                   <hr>
                   <ng-container *ngFor="let historique of package.historique">
-                    <ng-container *ngIf="getIndex(historique)">
+                    <ng-container *ngIf="getIndex(historique) !== -1">
                       <div class="form-group col-12">
                         <ng-container *ngIf="role == 'admin'">
                           <button class="btn btn-danger btn-sm" title="Supprimer etat"

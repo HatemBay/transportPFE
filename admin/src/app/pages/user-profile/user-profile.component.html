@@ -7,6 +7,12 @@
   <!-- Header container -->
   <div class="row container-fluid">
     <div class="col-xl-6 center">
+      <div class="row justify-content-center">
+        <div *ngIf="passReset === true" class="alert alert-success ml-4 mr-4 col-lg-12 col-md-12">
+          <span class="closebtn" onclick="this.parentElement.style.display='none'; passReset = false;">&times;</span>
+          Mot de passe mis à jour
+        </div>
+      </div>
       <div class="card bg-secondary shadow">
         <div class="card-header bg-white border-0">
           <div class="row align-items-center">
@@ -17,21 +23,21 @@
         </div>
         <div class="card-body">
           <form [formGroup]="passwordResetForm" (ngSubmit)="changePassword()">
-            <h6 class="heading-small text-muted mb-4">User information</h6>
+            <h6 class="heading-small text-muted mb-4">Informations utilisateur</h6>
             <div class="pl-lg-4">
               <div class="row">
                 <div class="col-lg-6">
                   <div class="form-group">
-                    <label class="form-control-label" for="input-username">Username</label>
+                    <label class="form-control-label" for="input-username">Nom & Prénom</label>
                     <label type="text" id="input-username" class="form-control form-control-alternative"
-                      placeholder="Username">lucky.jesse</label>
+                      placeholder="Username">{{userInfo.nom}}</label>
                   </div>
                 </div>
                 <div class="col-lg-6">
                   <div class="form-group">
-                    <label class="form-control-label" for="input-email">Email address</label>
+                    <label class="form-control-label" for="input-email">Adresse Email</label>
                     <label type="email" id="input-email"
-                      class="form-control form-control-alternative">jesse@example.com</label>
+                      class="form-control form-control-alternative">{{userInfo.email}}</label>
                   </div>
                 </div>
               </div>
@@ -45,12 +51,24 @@
                   <div class="form-group">
                     <label class="form-control-label">Mot de passe</label>
                     <input formControlName="oldPassword" type="password" class="form-control form-control-alternative">
+                    <ng-container *ngIf="errorOldPass != ''">
+                      <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                      <small class="text-danger">
+                        {{errorOldPass}}
+                      </small>
+                    </ng-container>
                   </div>
                   <div class="form-group">
                     <label class="form-control-label">Nouveau mot de
                       passe</label>
                     <input formControlName="newPassword" type="password" class="form-control form-control-alternative">
                   </div>
+                  <ng-container *ngIf="errorNewPass != ''">
+                    <i class='fas fa-exclamation-triangle' style='color:#f5365c'></i>
+                    <small class="text-danger">
+                      {{errorNewPass}}
+                    </small>
+                  </ng-container>
                 </div>
               </div>
               <div class="text-center">

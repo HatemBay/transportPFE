@@ -45,7 +45,7 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: "/user-profile",
-    title: "User profile",
+    title: "Mon profil",
     icon: "ni-single-02 text-yellow",
     class: "",
     roles: [],

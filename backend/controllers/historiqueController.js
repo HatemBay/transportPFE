@@ -100,6 +100,15 @@ router.get("/:id", (req, res) => {
   });
 });
 
+router.get("/package/:id", (req, res) => {
+  if (!ObjectId.isValid(req.params.id))
+    return res.status(400).send(`no record with given id: ${req.params.id}`);
+  Historique.find({ packageId: req.params.id }, (err, doc) => {
+    if (!err) res.send(doc);
+    else console.log("Erreur lors de la récupération de l'historique: " + err);
+  });
+});
+
 router.post("/", (req, res) => {
   const historique = new Historique();
 

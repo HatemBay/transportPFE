@@ -218,7 +218,9 @@ router.put("/:id", (req, res) => {
   });
 
   const user = new User();
-  if (req.body.password) {
+  const password = req.body.password || "";
+  console.log(password);
+  if (password && password !== null && password !== "") {
     var encrypted = user.setPassword(req.body.password, res);
   }
 
@@ -279,6 +281,55 @@ router.put("/:id", (req, res) => {
           .status(400)
           .send("Erreur lors de mise à jour de l'utilisateur: " + err);
       }
+    }
+  );
+});
+
+// Reset user password
+router.put("/new-password/:id", async (req, res) => {
+  if (!ObjectId.isValid(req.params.id))
+    return res.status(400).send(`no record with given id: ${req.params.id}`);
+
+  const user = await User.findById(req.params.id).then((doc) => {
+    return doc;
+  });
+
+  const passwordVerify = user.validPassword(
+    user.salt,
+    user.hash,
+    req.body.oldPassword
+  );
+
+  if (passwordVerify === false) {
+    console.log("Mot de passe incorrecte");
+    return res.status(400).send("Mot de passe incorrecte");
+  }
+
+  if (req.body.newPassword === req.body.oldPassword) {
+    console.log("Veuillez insérer un nouveau mot de passe");
+    return res.status(400).send("Veuillez insérer un nouveau mot de passe");
+  }
+  user.setPassword(req.body.newPassword, res);
+
+  const newPassword = req.body.newPassword || "";
+  if (newPassword && newPassword !== null && newPassword !== "") {
+    var encrypted = user.setPassword(req.body.newPassword, res);
+  }
+  user.salt = encrypted[0];
+  user.hash = encrypted[1];
+  User.findByIdAndUpdate(user._id, {
+    salt: user.salt,
+    hash: user.hash,
+  }).then(
+    (doc) => {
+      console.log("Mot de passe modifié");
+      res.status(200).send(doc);
+    },
+    (err) => {
+      console.log(
+        "Erreur lors de modification de mot de passe: " + err.message
+      );
+      res.status(400).send(err);
     }
   );
 });

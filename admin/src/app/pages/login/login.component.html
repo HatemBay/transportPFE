@@ -19,9 +19,9 @@
 <div class="container mt--8 pb-5">
 
   <div class="row justify-content-center">
-    <div class="alert alert-success ml-4 mr-4 col-lg-5 col-md-7">
-      <span class="closebtn" onclick="this.parentElement.style.display='none'; added = false;">&times;</span>
-      Mot de passe mis à jour
+    <div *ngIf="reset === true" class="alert alert-success ml-4 mr-4 col-lg-5 col-md-7">
+      <span class="closebtn" onclick="this.parentElement.style.display='none'; reset = false;">&times;</span>
+      Mot de passe mis à jour, un nouveau mot de passe a été envoyé à votre email
     </div>
   </div>
   <div class="row justify-content-center">

@@ -100,7 +100,7 @@ app.use("/api/register", auth, register);
 app.use("/api/login-user", loginUser);
 app.use("/api/login-provider", loginProvider);
 app.use("/api/user/verify/:id/:token", auth, verify);
-app.use("/api/user/forgotPasswordFourn", forgotPasswordFourn);
+app.use("/api/fournisseur/forgotPasswordFourn", forgotPasswordFourn);
 app.use("/api/user/forgotPasswordUser", forgotPasswordUser);
 app.use("/api/excel-upload", upload);
 

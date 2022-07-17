@@ -269,7 +269,7 @@ router.get("/tel/:tel", (req, res) => {
     {
       $match: { tel: parseInt(req.params.tel) },
     },
-  ]
+  ];
 
   Client.aggregate(data).exec((err, doc) => {
     if (!err) {
@@ -307,7 +307,7 @@ router.post("/", (req, res) => {
   client.codePostale = req.body.codePostale;
   client.tel = req.body.tel;
   client.tel2 = req.body.tel2;
-  client.fournisseurId = req.body.fournisseurs;
+  client.fournisseurId = req.body.fournisseurId;
   // client.fournisseurs.push(req.body.fournisseurs);
   client.delegationId = req.body.delegationId;
   return client.save().then(
@@ -373,6 +373,7 @@ router.put("/:id", async (req, res) => {
         tel: req.body.tel,
         tel2: req.body.tel2,
         delegationId: req.body.delegationId,
+        fournisseurId: req.body.fournisseurId,
       },
     },
     { new: true },
@@ -444,6 +445,7 @@ router.put("/:tel", async (req, res) => {
         tel: req.body.tel,
         tel2: req.body.tel2,
         delegationId: req.body.delegationId,
+        fournisseurId: req.body.fournisseurId,
       },
     },
     { new: true },

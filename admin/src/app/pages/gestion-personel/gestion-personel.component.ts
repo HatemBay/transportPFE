@@ -126,6 +126,7 @@ export class GestionPersonelComponent implements OnInit {
             Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$"),
           ],
         ],
+        password: "",
       });
       this.userService.getUser(this.userId).subscribe((data) => {
         console.log(data);

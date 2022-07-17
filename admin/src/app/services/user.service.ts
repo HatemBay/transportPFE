@@ -76,8 +76,15 @@ export class UserService {
   }
 
   // Update user
-  updateUser(id: any, data: any, cid?: any): Observable<any> {
+  updateUser(id: any, data: any): Observable<any> {
     let url = `${this.baseUri}/${id}`;
+    return this.http
+      .put(url, data, { headers: this.headers })
+      .pipe(catchError(this.errorMgmt));
+  }
+
+  changePassword(id: any, data: any): Observable<any> {
+    let url = `${this.baseUri}/new-password/${id}`;
     return this.http
       .put(url, data, { headers: this.headers })
       .pipe(catchError(this.errorMgmt));

@@ -83,7 +83,6 @@ export class LoginComponent {
       }
     );
   }
-  //TODO: make an interface to insert email and demand reset
   forgotPassword() {
     this.router.navigate(["/mdp-oublie"]);
   }

@@ -18067,8 +18067,8 @@ textarea[resize='horizontal']
 .form-control-alternative
 {
     transition: box-shadow .15s ease;
-
-    border: 0;
+    border: 1px solid #cad1d7;
+    /* border: 0; */
     box-shadow: 0 1px 3px rgba(50, 50, 93, .15), 0 1px 0 rgba(0, 0, 0, .02);
 }
 .form-control-alternative:focus

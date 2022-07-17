@@ -74,6 +74,12 @@ export class FournisseurService {
       .put(url, data, { headers: this.headers })
       .pipe(catchError(this.errorMgmt));
   }
+  changePassword(id: any, data: any): Observable<any> {
+    let url = `${this.baseUri}/new-password/${id}`;
+    return this.http
+      .put(url, data, { headers: this.headers })
+      .pipe(catchError(this.errorMgmt));
+  }
   // Delete fournisseur
   deleteFournisseur(id: any): Observable<any> {
     let url = `${this.baseUri}/${id}`;

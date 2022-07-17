@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { AuthenticationService } from "src/app/services/authentication.service";
+import { UserService } from "src/app/services/user.service";
 
 @Component({
   selector: "app-user-profile",
@@ -9,7 +10,18 @@ import { AuthenticationService } from "src/app/services/authentication.service";
 })
 export class UserProfileComponent implements OnInit {
   passwordResetForm: FormGroup;
-  constructor(public auth: AuthenticationService, private fb: FormBuilder) {}
+  userInfo: any;
+  passReset = false;
+  errorOldPass = "";
+  errorNewPass = "";
+
+  constructor(
+    public auth: AuthenticationService,
+    private userService: UserService,
+    private fb: FormBuilder
+  ) {
+    this.userInfo = this.auth.getUserDetails();
+  }
 
   ngOnInit() {
     console.log(this.auth.getUserDetails());
@@ -20,6 +32,30 @@ export class UserProfileComponent implements OnInit {
   }
 
   changePassword() {
+    this.errorOldPass = "";
+    this.errorNewPass = "";
     console.log(this.passwordResetForm.value);
+    if (
+      this.passwordResetForm.value.oldPassword ===
+      this.passwordResetForm.value.newPassword
+    ) {
+      this.errorNewPass = "veuillez insérer un mot de passe différent";
+    }
+    this.userService
+      .changePassword(this.userInfo._id, this.passwordResetForm.value)
+      .subscribe(
+        (data) => {
+          console.log(data);
+          this.passReset = true;
+        },
+        (err) => {
+          console.log(err);
+          if (err.message.indexOf("Veuillez insérer") !== -1) {
+            this.errorNewPass = "veuillez insérer un mot de passe différent";
+          } else {
+            this.errorOldPass = err.message;
+          }
+        }
+      );
   }
 }
