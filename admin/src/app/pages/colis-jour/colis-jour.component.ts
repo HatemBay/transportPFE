@@ -7,7 +7,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { NavigationExtras, Router } from "@angular/router";
 import { DatatableComponent } from "@swimlane/ngx-datatable";
 import { map } from "rxjs/internal/operators/map";
 import { io } from "socket.io-client";
@@ -229,5 +229,14 @@ export class ColisJourComponent implements OnInit {
 
   update() {
     this.getDataJson();
+  }
+
+  details(row) {
+    var navigationExtras: NavigationExtras = {
+      queryParams: {
+        CAB: row.CAB,
+      },
+    };
+    this.router.navigate(["/recherche"], navigationExtras);
   }
 }

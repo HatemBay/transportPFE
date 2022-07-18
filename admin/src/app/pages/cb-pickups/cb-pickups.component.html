@@ -205,6 +205,14 @@
                 </ng-template>
               </ngx-datatable-column>
 
+              <ngx-datatable-column name="Last update" prop="updatedAtSearch">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.updatedAtSearch}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
               <ngx-datatable-column name="Nbre de colis" prop="nbPackages">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>

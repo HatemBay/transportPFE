@@ -43,11 +43,11 @@ export class RechercheComponent implements OnInit {
     { state: "pret", viewState: "Colis pret le " },
     {
       state: "en cours de ramassage",
-      viewState: "Attribué pour ramassage ramassage le ",
+      viewState: "Attribué pour ramassage le ",
     },
     { state: "collecté", viewState: "Collecté" },
     { state: "ramassé par livreur", viewState: "Rammasé par livreur le " },
-    { state: "en cours", viewState: "En cours" },
+    { state: "en cours", viewState: "En cours de livraison le " },
     { state: "reporté", viewState: "Reporté" },
     { state: "livré (espèce)", viewState: "Livré le " },
     { state: "livré (chèque)", viewState: "Livré le " },

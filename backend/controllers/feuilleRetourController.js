@@ -11,6 +11,7 @@ const { User } = require("../models/users");
 
 // get return sheets
 router.get("/", (req, res) => {
+  const noLimit = req.query.noLimit || null;
   const startDate = req.query.startDate || null;
   const endDate = req.query.endDate || null;
 
@@ -104,6 +105,13 @@ router.get("/", (req, res) => {
   data.push({
     $sort: sort,
   });
+  if (req.query.driverId) {
+    data.push({
+      $match: {
+        driverId: ObjectId(req.query.driverId),
+      },
+    });
+  }
 
   if (startDate && endDate) {
     data.push({
@@ -126,10 +134,17 @@ router.get("/", (req, res) => {
             item.nomd?.toLowerCase().includes(req.query.search.toLowerCase())
         );
       }
-      return res.send({
-        length: feuilleRetours.length,
-        data: feuilleRetours.slice(skip).slice(0, limit),
-      });
+      if (noLimit && noLimit !== null) {
+        return res.send({
+          length: feuilleRetours.length,
+          data: feuilleRetours,
+        });
+      } else {
+        return res.send({
+          length: feuilleRetours.length,
+          data: feuilleRetours.slice(skip).slice(0, limit),
+        });
+      }
     } else {
       res
         .status(400)

@@ -79,7 +79,7 @@
             <ngx-datatable-column name="Code à barre" prop="CAB">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  <a href="#">
+                  <a (click)="details(row)" [routerLink]="['/']">
                     {{row.CAB}}
                   </a>
                 </span>

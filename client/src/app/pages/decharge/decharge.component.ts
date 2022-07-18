@@ -88,9 +88,9 @@ export class DechargeComponent implements OnInit {
       WindowPrt.focus();
       WindowPrt.print();
       location.reload();
-
       // WindowPrt.close();
-    }, 1000);
+    }, 2000);
+    // window.location.reload();
     // update list
     this.getPackages();
   }
@@ -149,7 +149,6 @@ export class DechargeComponent implements OnInit {
   // checkbox selection
   onSelect(event) {
     // console.log("Select Event", event);
-
     this.selected = event.selected;
     if (this.selected.length > 0) {
       this.printable = true;
@@ -158,5 +157,18 @@ export class DechargeComponent implements OnInit {
     }
 
     // console.log(this.selected[0]._id);
+  }
+
+  // view more information
+  view(data) {
+    console.log(data.clientId);
+    var navigationExtras: NavigationExtras = {
+      queryParams: {
+        packageId: data._id,
+      },
+    };
+    console.log(navigationExtras.queryParams);
+
+    this.router.navigate(["/details-colis"], navigationExtras);
   }
 }

@@ -291,6 +291,7 @@ export class GestionColisComponent implements OnInit {
         Date: obj.createdAtSearch,
       };
     });
+    //TODO: make this a html organised code
     this.clipboard.copy(JSON.stringify(this.slice, null, 2));
   }
 

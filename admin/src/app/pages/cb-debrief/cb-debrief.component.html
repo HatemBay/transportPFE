@@ -130,7 +130,7 @@
               <ngx-datatable-column name="Livré">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{countEtat(row, 'livré (espèce)')}}
+                    {{countEtat(row, ['livré (espèce)', 'livré - payé -espèce'])}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
@@ -138,7 +138,7 @@
               <ngx-datatable-column name="Livré autre moyen">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{countEtat(row, 'livré (chèque)')}}
+                    {{countEtat(row, ['livré (chèque)', 'livré - payé -chèque'])}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
@@ -146,7 +146,7 @@
               <ngx-datatable-column name="Reporté">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{countEtat(row, 'reporté')}}
+                    {{countEtat(row, ['reporté'])}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
@@ -154,7 +154,7 @@
               <ngx-datatable-column name="Annulé">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{countEtat(row, 'annulé')}}
+                    {{countEtat(row, ['annulé', 'retourné', "retourné à l'expediteur"])}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
@@ -500,15 +500,15 @@
             <!-- calcul -->
             <div class="col-md-3 col-lg-3 m-4 border rounded pt-3 pb-2">
               <h4>Espèce</h4>
-              <h5>10<sup>DT</sup></h5>
+              <h5> {{totalEspece}}<sup>DT</sup></h5>
             </div>
             <div class="col-md-3 col-lg-3 m-4 border rounded pt-3 pb-2">
               <h4>Chèque</h4>
-              <h5>0<sup>DT</sup></h5>
+              <h5>{{totalAutre}}<sup>DT</sup></h5>
             </div>
             <div class="col-md-3 col-lg-3 m-4 border rounded pt-3 pb-2">
               <h4>Total</h4>
-              <h5>10<sup>DT</sup></h5>
+              <h5>{{total}}<sup>DT</sup></h5>
             </div>
             <!-- //calcul -->
           </div>

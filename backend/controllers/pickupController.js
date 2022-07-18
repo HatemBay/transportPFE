@@ -102,12 +102,14 @@ router.get("/", (req, res) => {
         _id: 1,
         pickupNb: 1,
         isAllocated: "$isAllocated",
+        isPicked: "$isPicked",
         isCollected: "$isCollected",
         fournisseurId: "$fournisseurs._id",
         nomf: "$fournisseurs.nom",
         telf: "$fournisseurs.tel",
         tel2f: "$fournisseurs.tel2",
         delegationf: "$delegations.nom",
+        adressef: "$fournisseurs.adresse",
         villef: "$villes.nom",
         driverId: 1,
         nomd: "$drivers.nom",
@@ -122,6 +124,9 @@ router.get("/", (req, res) => {
       $addFields: {
         createdAtSearch: {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
+        },
+        updatedAtSearch: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
         },
       },
     },
@@ -142,14 +147,33 @@ router.get("/", (req, res) => {
       },
     });
   }
-  if (req.query.isCollected) {
-    var isCollected = req.query.isCollected === "true";
+  if (req.query.isPicked && req.query.isCollected) {
+    let isPicked = req.query.isPicked === "true";
+    let isCollected = req.query.isCollected === "true";
     data.push({
       $match: {
-        isCollected: isCollected,
+        $or: [{ isPicked: isPicked }, { isCollected: isCollected }],
       },
     });
+  } else {
+    if (req.query.isPicked) {
+      let isPicked = req.query.isPicked === "true";
+      data.push({
+        $match: {
+          isPicked: isPicked,
+        },
+      });
+    }
+    if (req.query.isCollected) {
+      let isCollected = req.query.isCollected === "true";
+      data.push({
+        $match: {
+          isCollected: isCollected,
+        },
+      });
+    }
   }
+
   if (startDate && endDate) {
     data.push({
       $match: {
@@ -185,11 +209,12 @@ router.get("/", (req, res) => {
           length: pickups.length,
           data: pickups,
         });
+      } else {
+        return res.send({
+          length: pickups.length,
+          data: pickups.slice(skip).slice(0, limit),
+        });
       }
-      return res.send({
-        length: pickups.length,
-        data: pickups.slice(skip).slice(0, limit),
-      });
     } else {
       res
         .status(400)
@@ -268,6 +293,7 @@ router.get("/:id", (req, res) => {
         nomf: "$fournisseurs.nom",
         telf: "$fournisseurs.tel",
         tel2f: "$fournisseurs.tel2",
+        adressef: "$fournisseurs.adresse",
         delegationf: "$delegations.nom",
         villef: "$villes.nom",
         driverId: "$drivers._id",
@@ -278,13 +304,16 @@ router.get("/:id", (req, res) => {
         createdAtSearch: {
           $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$createdAt" },
         },
+        updatedAtSearch: {
+          $dateToString: { format: "%d-%m-%Y, %H:%M", date: "$updatedAt" },
+        },
       },
     },
     {
       $match: { _id: ObjectId(req.params.id) },
     },
   ];
-  
+
   Pickup.aggregate(data).exec((err, pickup) => {
     if (!err) res.send(pickup);
     else console.log("Erreur lors de la récupération du pickup: " + err);
@@ -392,6 +421,18 @@ router.post("/", (req, res) => {
   // pickup.pickupNb = pickupNb;
 });
 
+//* add field
+router.put("/", (req, res) => {
+  Pickup.updateMany(
+    { isCollected: "true" },
+    {
+      $set: { isPicked: "true" },
+    }
+  ).then((doc) => {
+    return res.status(200).send(doc);
+  });
+});
+
 // modify pickup
 router.put("/:id", (req, res) => {
   if (!ObjectId.isValid(req.params.id))
@@ -432,12 +473,28 @@ router.put("/:id", (req, res) => {
       },
       { new: true }
     );
-  } else if (req.body.isCollected) {
+  } else if (req.body.isCollected && req.body.isPicked) {
     query = Pickup.findByIdAndUpdate(req.params.id, {
       $set: {
         isCollected: 1,
+        isPicked: 1,
       },
     });
+  } else {
+    if (req.body.isPicked) {
+      query = Pickup.findByIdAndUpdate(req.params.id, {
+        $set: {
+          isPicked: 1,
+        },
+      });
+    }
+    if (req.body.isCollected) {
+      query = Pickup.findByIdAndUpdate(req.params.id, {
+        $set: {
+          isCollected: 1,
+        },
+      });
+    }
   }
 
   query.then(

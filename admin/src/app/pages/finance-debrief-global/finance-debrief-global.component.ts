@@ -173,7 +173,7 @@ export class FinanceDebriefGlobalComponent implements OnInit {
             pack.etat == "annulé" ||
             pack.etat == "en cours de retour" ||
             pack.etat == "retourné" ||
-            pack.etat == "retourné à l'expéditeur"
+            pack.etat == "retourné à l'expediteur"
           ) {
             row.annulé += 1;
           }

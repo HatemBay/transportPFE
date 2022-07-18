@@ -84,7 +84,6 @@ export class CbPickupsComponent implements OnInit {
 
     if (this.routePath == "pickup") {
       this.getDataJson(this.isAllocated);
-      console.log();
     } else {
       this.isAllocated = "true";
       this.setDates();
@@ -137,7 +136,6 @@ export class CbPickupsComponent implements OnInit {
         for (var i = 0; i < this.count; i++) {
           this.selected[i] = false;
         }
-        console.log(this.selected);
       });
   }
 
@@ -259,7 +257,6 @@ export class CbPickupsComponent implements OnInit {
 
   // allocate driver to pickup
   allocateDriver(row) {
-    // console.log(row._id);
     this.pickupService
       .updatePickup(row._id, this.pickupForm.value)
       .subscribe((data) => {
@@ -270,10 +267,9 @@ export class CbPickupsComponent implements OnInit {
   }
 
   public changeState(packs) {
-    console.log(packs);
     packs.forEach((element) => {
       this.packageService
-        .updatePackageByCAB(element, {
+        .updatePackageByCAB(element.CAB, {
           etat: "en cours de ramassage",
           userId: this.authService.getUserDetails()._id,
         }) //* userId has no use for now (it could be added to control which user allocated the driver)
@@ -284,7 +280,6 @@ export class CbPickupsComponent implements OnInit {
   // redirects to printable facture for pickup
   toFacture(row) {
     var ids = [];
-    console.log(row.packages);
     for (var el of row.packages) {
       ids.push(el);
     }
@@ -296,7 +291,6 @@ export class CbPickupsComponent implements OnInit {
     var navigationExtras: NavigationExtras = {
       queryParams,
     };
-    console.log(navigationExtras.queryParams);
 
     const url = this.router.serializeUrl(
       this.router.createUrlTree(["/imprimer-pickup"], navigationExtras)
@@ -333,6 +327,5 @@ export class CbPickupsComponent implements OnInit {
   onChange(row) {
     let index = this.rows.indexOf(row);
     this.selected[index] = true;
-    console.log(this.selected);
   }
 }

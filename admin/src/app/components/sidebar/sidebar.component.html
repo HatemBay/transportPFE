@@ -116,7 +116,7 @@
             </ng-container>
             <ul #collapseF="ngbCollapse" #collapseG="ngbCollapse" [(ngbCollapse)]="isFCollapsed"
               [(ngbCollapse)]="isGCollapsed" class="navbar-nav ml-4 mr-4 bg-secondary">
-              <li *ngFor="let menuItem2 of menuItems; let index = index;" class="nav-item">
+              <li *ngFor="let menuItem2 of menuItems; let index = index;" class="{{menuItem2.class}} nav-item">
                 <ng-container *ngIf="!checkRole(menuItem2.roles)">
 
                   <ng-container *ngIf="menuItem2.parent === menuItem.title">

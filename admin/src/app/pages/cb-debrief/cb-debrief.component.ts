@@ -111,6 +111,8 @@ export class CbDebriefComponent implements OnInit {
         this.driver
       );
     } else {
+      console.log("slmslm");
+
       this.initiateData();
     }
   }
@@ -126,12 +128,20 @@ export class CbDebriefComponent implements OnInit {
     for (let element of this.roadmap.packages) {
       const client = await this.getClientByPackageId(element._id);
       element.client = client;
-      if (element.etat == "livré (espèce)") {
+      if (
+        element.etat === "livré (espèce)" ||
+        element.etat === "livré - payé - espèce"
+      ) {
         console.log(typeof element.c_remboursement);
 
         this.totalEspece += parseInt(element.c_remboursement);
+        console.log("sssss");
+
         console.log(this.totalEspece);
-      } else if (element.etat == "livré (Chèque)") {
+      } else if (
+        element.etat === "livré (Chèque)" ||
+        element.etat === "livré - payé - chèque"
+      ) {
         this.totalAutre += parseInt(element.c_remboursement);
         console.log(this.totalAutre);
       }
@@ -281,7 +291,7 @@ export class CbDebriefComponent implements OnInit {
   public countEtat(row, etat) {
     var count = 0;
     row.packages?.forEach((element) => {
-      if (element.etat === etat) {
+      if (etat.includes(element.etat)) {
         count++;
       }
     });

@@ -16,6 +16,48 @@ declare interface RouteInfo {
   collapsable?: boolean;
 }
 export const ROUTES: RouteInfo[] = [
+  // Hidden items (used to display their title in ui)
+  {
+    path: "/modifier-personel",
+    title: "Modifier personel",
+    icon: "ni-single-02 text-yellow",
+    class: "d-none",
+    roles: [],
+    parent: "Gestion",
+  },
+  {
+    path: "/modifier-client",
+    title: "Modifier client",
+    icon: "ni-single-02 text-yellow",
+    class: "d-none",
+    roles: [],
+    parent: "Gestion",
+  },
+  {
+    path: "/modifier-vehicule",
+    title: "Modifier vehicule",
+    icon: "ni-single-02 text-yellow",
+    class: "d-none",
+    roles: [],
+    parent: "Gestion",
+  },
+  {
+    path: "/feuille-de-retour-historique",
+    title: "feuille de retourHistorique",
+    icon: "ni-single-02 text-yellow",
+    class: "d-none",
+    roles: [],
+    parent: "Chef de bureau",
+  },
+  {
+    path: "/pickup-historique",
+    title: "Pickup/ historique",
+    icon: "ni-single-02 text-yellow",
+    class: "d-none",
+    roles: [],
+    parent: "Chef de bureau",
+  },
+  //----------
   {
     path: "/dashboard",
     title: "Dashboard",
@@ -25,15 +67,15 @@ export const ROUTES: RouteInfo[] = [
     parent: "",
     collapsable: false,
   },
-  {
-    path: "/icons",
-    title: "Icons",
-    icon: "ni-planet text-blue",
-    class: "",
-    roles: [],
-    parent: "",
-    collapsable: false,
-  },
+  // {
+  //   path: "/icons",
+  //   title: "Icons",
+  //   icon: "ni-planet text-blue",
+  //   class: "",
+  //   roles: [],
+  //   parent: "",
+  //   collapsable: false,
+  // },
   {
     path: "/colis-jour",
     title: "Colis de jour",
@@ -70,15 +112,15 @@ export const ROUTES: RouteInfo[] = [
     parent: "",
     collapsable: false,
   },
-  {
-    path: "/carnet-adresses",
-    title: "Carnet d'adresses",
-    icon: "ni-key-25 text-info",
-    class: "",
-    roles: [],
-    parent: "",
-    collapsable: false,
-  },
+  // {
+  //   path: "/carnet-adresses",
+  //   title: "Carnet d'adresses",
+  //   icon: "ni-key-25 text-info",
+  //   class: "",
+  //   roles: [],
+  //   parent: "",
+  //   collapsable: false,
+  // },
   //* gestion
   {
     path: "",

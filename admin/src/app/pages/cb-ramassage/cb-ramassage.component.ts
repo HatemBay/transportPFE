@@ -62,7 +62,15 @@ export class CbRamassageComponent implements OnInit {
   }
 
   // get data from backend
-  getDataJson(limit?: any, page?: any, sortBy?: any, sort?: any, search?: any, refImport?:any) {
+  getDataJson(
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any,
+    refImport?: any,
+    ref?: any
+  ) {
     this.packageService
       .getFullPackages(
         limit,
@@ -72,7 +80,9 @@ export class CbRamassageComponent implements OnInit {
         search,
         null,
         null,
-        this.references
+        this.references,
+        null,
+        ref
       )
       .subscribe(
         (data) => {
@@ -160,7 +170,7 @@ export class CbRamassageComponent implements OnInit {
       }
       console.log("slm");
 
-      this.getDataJson(null, null, null, null, this.val, 'true');
+      this.getDataJson(null, null, null, null, this.val, "true");
       this.f.reference.setValue("");
     }
   }
@@ -171,7 +181,7 @@ export class CbRamassageComponent implements OnInit {
         .updatePackageByCAB(element, { etat: "ramassé par livreur" })
         .subscribe(() => {
           this.references = [];
-          this.getDataJson(null, null, null, null, this.val);
+          this.getDataJson(null, null, null, null, this.val, null, "ref");
         });
     });
   }

@@ -98,8 +98,9 @@ export class PackageService {
     startDate?: any,
     endDate?: any,
     reference?: any,
-    pickupId?: any
-  ): Observable<any> {
+    pickupId?: any,
+    ref?: any,
+    ): Observable<any> {
     const url = `${this.baseUri}/all-info-period/admin`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
@@ -118,6 +119,9 @@ export class PackageService {
     }
     if (endDate) {
       queryParams = queryParams.append("endDate", endDate);
+    }
+    if (ref) {
+      queryParams = queryParams.append("ref", ref);
     }
     if (reference) {
       if (reference.length === 0)

@@ -14,6 +14,11 @@ var PickupSchema = new Schema(
       required: true,
       default: false,
     },
+    isPicked: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     isCollected: {
       type: Boolean,
       required: true,

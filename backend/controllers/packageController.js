@@ -634,17 +634,26 @@ router.get("/all-info-period/admin", async (req, res) => {
     { $unwind: "$fournisseurs" },
     {
       $lookup: {
-        from: "users",
-        localField: "userId",
+        from: "pickups",
+        localField: "pickupId",
         foreignField: "_id",
-        as: "users",
+        as: "pickups",
       },
     },
-    { $unwind: { path: "$users", preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: "$pickups", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "pickups.driverId",
+        foreignField: "_id",
+        as: "drivers",
+      },
+    },
+    { $unwind: { path: "$drivers", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "filieres",
-        localField: "users.filiereId",
+        localField: "drivers.filiereId",
         foreignField: "_id",
         as: "filieres",
       },
@@ -721,7 +730,15 @@ router.get("/all-info-period/admin", async (req, res) => {
     });
   }
 
+  if (req.query.ref && req.query.reference === "") {
+    data.push({
+      $match: {
+        CAB: req.query.reference,
+      },
+    });
+  }
   if (req.query.reference && req.query.reference != null) {
+    console.log("slmslm");
     if (Array.isArray(req.query.reference)) {
       const references = req.query.reference;
       const referencesNumber = references.map((ref) => parseInt(ref));
@@ -936,17 +953,26 @@ router.get("/all-info-admin/:id", (req, res) => {
     { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
-        from: "users",
-        localField: "userId",
+        from: "pickups",
+        localField: "pickupId",
         foreignField: "_id",
-        as: "users",
+        as: "pickups",
       },
     },
-    { $unwind: { path: "$users", preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: "$pickups", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "pickups.driverId",
+        foreignField: "_id",
+        as: "drivers",
+      },
+    },
+    { $unwind: { path: "$drivers", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "filieres",
-        localField: "users.filiereId",
+        localField: "drivers.filiereId",
         foreignField: "_id",
         as: "filieres",
       },
@@ -1067,17 +1093,26 @@ router.get("/all-info-admin-cab/:cab", (req, res) => {
     { $unwind: { path: "$villesClient", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
-        from: "users",
-        localField: "userId",
+        from: "pickups",
+        localField: "pickupId",
         foreignField: "_id",
-        as: "users",
+        as: "pickups",
       },
     },
-    { $unwind: { path: "$users", preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: "$pickups", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "pickups.driverId",
+        foreignField: "_id",
+        as: "drivers",
+      },
+    },
+    { $unwind: { path: "$drivers", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "filieres",
-        localField: "users.filiereId",
+        localField: "drivers.filiereId",
         foreignField: "_id",
         as: "filieres",
       },
@@ -1172,17 +1207,26 @@ router.get("/all-info-search/admin", (req, res) => {
   var data = [
     {
       $lookup: {
-        from: "users",
-        localField: "userId",
+        from: "pickups",
+        localField: "pickupId",
         foreignField: "_id",
-        as: "users",
+        as: "pickups",
       },
     },
-    { $unwind: { path: "$users", preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: "$pickups", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "pickups.driverId",
+        foreignField: "_id",
+        as: "drivers",
+      },
+    },
+    { $unwind: { path: "$drivers", preserveNullAndEmptyArrays: true } },
     {
       $lookup: {
         from: "filieres",
-        localField: "users.filiereId",
+        localField: "drivers.filiereId",
         foreignField: "_id",
         as: "filieres",
       },
@@ -1276,6 +1320,7 @@ router.get("/all-info-search/admin", (req, res) => {
         pieces: 1,
         etat: 1,
         remarque: 1,
+        driverId: 1,
         userId: "$users._id",
         nomu: "$users.nom",
         filiere: "$filieres.nom",
@@ -1297,11 +1342,12 @@ router.get("/all-info-search/admin", (req, res) => {
         createdAt: 1,
         updatedAt: 1,
       },
-    }, {
+    },
+    {
       $match: {
-        etat: {$nin: ['nouveau']}
-      }
-    }
+        etat: { $nin: ["nouveau"] },
+      },
+    },
   ];
 
   // var regex = /[0-9]*2391203218[0-9]*/;
@@ -1476,7 +1522,7 @@ router.put("/:id", (req, res) => {
       const historique = new Historique();
       if (req.query.adminModification && req.query.adminModification != null) {
         historique.action = "modifié par admin";
-      }
+      } else historique.action = doc.etat;
       historique.packageId = doc._id;
       return historique.save().then(
         (historique) => {
@@ -1543,6 +1589,7 @@ router.put("/cab/:CAB", (req, res) => {
   ).then(
     (doc) => {
       const historique = new Historique();
+      console.log(doc);
       historique.action = doc.etat;
       historique.packageId = doc._id;
       return historique.save().then(

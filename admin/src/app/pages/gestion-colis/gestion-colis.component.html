@@ -102,8 +102,14 @@
         </div>
         <div>
           <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
-            [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
-            (sort)="onSort($event)">
+            [headerHeight]="50" [selectionType]="'checkbox'" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'"
+            [scrollbarH]="true" (sort)="onSort($event)">
+
+            <ngx-datatable-column name="" [width]="30" [sortable]="false" [draggable]="false" [resizeable]="false"
+              [canAutoResize]="false" [checkboxable]="true" [headerCheckboxable]="true" prop="selected">
+              <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+              </ng-template>
+            </ngx-datatable-column>
 
             <ngx-datatable-column name="Code à barre">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
@@ -214,4 +220,43 @@
       </div>
     </div>
   </div>
+</div>
+
+
+<div id="hidden" hidden class="dt-print-view">
+  <h1>Colis Express - Gestion de colis</h1>
+  <table class="table dataTableHover dataTable no-footer">
+    <thead>
+      <tr>
+        <th>Code à barre</th>
+        <th>Etat</th>
+        <th>Expéditeur</th>
+        <th>Tél expéditeur</th>
+        <th>Destinataire</th>
+        <th>Tél / Tél 2</th>
+        <th>Ville</th>
+        <th>Déligation</th>
+        <th>Adresse</th>
+        <th>COD</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let row of rows">
+        <tr>
+          <td>{{row.CAB}}</td>
+          <td>{{row.etat}}</td>
+          <td>{{row.nomf}}</td>
+          <td>{{row.nomc}}</td>
+          <td>{{row.telc}}</td>
+          <td>{{row.tel2c}}</td>
+          <td>{{row.villec}}</td>
+          <td>{{row.delegationc}}</td>
+          <td>{{row.adressec}}</td>
+          <td>{{row.c_remboursement}}</td>
+          <td>{{row.createdAtSearch}}</td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
 </div>

@@ -56,7 +56,7 @@ export class CbCollecteComponent implements OnInit {
       reference: ["", Validators.required],
     });
 
-    // this.getDataJson();
+    // this.getDataJson(null, null, null, null, null, null,'ref');
   }
 
   get f() {
@@ -70,7 +70,8 @@ export class CbCollecteComponent implements OnInit {
     sortBy?: any,
     sort?: any,
     search?: any,
-    refImport?: any
+    refImport?: any,
+    ref?: any
   ) {
     this.packageService
       .getFullPackages(
@@ -81,7 +82,9 @@ export class CbCollecteComponent implements OnInit {
         search,
         null,
         null,
-        this.references
+        this.references,
+        null,
+        ref
       )
       .subscribe((data) => {
         const len = this.rows.length;
@@ -181,7 +184,7 @@ export class CbCollecteComponent implements OnInit {
         .subscribe(() => {
           // clear references
           this.references = [];
-          this.getDataJson();
+          this.getDataJson(null, null, null, null, this.val, null, 'ref');
         });
     });
   }
