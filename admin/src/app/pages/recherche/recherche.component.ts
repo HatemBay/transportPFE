@@ -48,7 +48,7 @@ export class RechercheComponent implements OnInit {
     { state: "collecté", viewState: "Collecté" },
     { state: "ramassé par livreur", viewState: "Rammasé par livreur le " },
     { state: "en cours", viewState: "En cours de livraison le " },
-    { state: "reporté", viewState: "Reporté" },
+    { state: "reporté", viewState: "Reporté le " },
     { state: "livré (espèce)", viewState: "Livré le " },
     { state: "livré (chèque)", viewState: "Livré le " },
     { state: "annulé", viewState: "Annulé le " },
