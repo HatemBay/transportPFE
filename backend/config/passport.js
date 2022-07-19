@@ -71,9 +71,11 @@ passport.use(
         .pbkdf2Sync(password, fournisseur.salt, 1000, 64, "sha512")
         .toString("hex");
 
-      if (!fournisseur.hash === hash)
+      if (fournisseur.hash !== hash) {
         return done("Mot de passe incorrecte", false);
-      return done(null, fournisseur);
+      } else {
+        return done(null, fournisseur);
+      }
     }
   )
 );

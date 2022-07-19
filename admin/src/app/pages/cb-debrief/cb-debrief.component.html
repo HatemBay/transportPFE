@@ -332,7 +332,8 @@
                   <!-- TODO: make the link redirect to search -->
                   <td><a href="rechercher?code_barre=36317525" target="_blank"> {{package.CAB}} </a></td>
                   <td id="tr_b_36317525" class="text-center">
-                    <ng-container *ngIf="role!= 'admin' && package.etat == 'en cours'">
+                    <ng-container
+                      *ngIf="(((role === 'admin') || (package.etat === 'en cours')) && !(package.etat.indexOf('payé') !== -1 || package.etat === 'retourné à l\'expediteur'))">
                       <button (click)="changeState(package.CAB, 'livré (espèce)')" title="Livré (Espèce)"
                         class="btn btn-success btn-sm rounded-circle mr-1"><i class="fa fa-check"></i></button>
                       <button (click)="changeState(package.CAB, 'livré (chèque)')" title="Livré (Chèque)"

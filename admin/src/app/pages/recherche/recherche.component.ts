@@ -28,7 +28,7 @@ export class RechercheComponent implements OnInit {
   packageTel: any;
   packageNom: any;
   packageAdresse: any;
-  packageDelegation: any;
+  packageVille: any;
   packageAction: any = false;
   clientId: any;
   routePath: any;
@@ -55,7 +55,7 @@ export class RechercheComponent implements OnInit {
     { state: "payé", viewState: "Payé le " },
     { state: "en cours de retour", viewState: "Attribué pour retour le " },
     { state: "retourné", viewState: "Retourné à " },
-    { state: "retourné à l'expediteur", viewState: "Retourné à " },
+    { state: "retourné à l'expediteur", viewState: "Retour définitif le " },
     { state: "livré - payé - espèce", viewState: "Livré - payé - espèce " },
     { state: "livré - payé - chèque", viewState: "Livré - payé - chèque " },
     { state: "modifié par admin", viewState: "Modifié par admin le" },
@@ -76,8 +76,7 @@ export class RechercheComponent implements OnInit {
     this.packageTel = this.route.snapshot.queryParamMap.get("tel");
     this.packageNom = this.route.snapshot.queryParamMap.get("nom");
     this.packageAdresse = this.route.snapshot.queryParamMap.get("adresse");
-    this.packageDelegation =
-      this.route.snapshot.queryParamMap.get("delegation");
+    this.packageVille = this.route.snapshot.queryParamMap.get("villeId");
     this.role = this.authService.getUserDetails().role;
   }
 
@@ -92,7 +91,7 @@ export class RechercheComponent implements OnInit {
         this.packageTel,
         this.packageNom,
         this.packageAdresse,
-        this.packageDelegation
+        this.packageVille
       );
     }
     if (this.routePath == "recherche-av") {
@@ -112,9 +111,16 @@ export class RechercheComponent implements OnInit {
   }
 
   //************************ GENERAL ************************
-  getActors(CAB?: any, tel?: any, nom?: any, adresse?: any, delegation?: any) {
+  getActors(
+    CAB?: any,
+    tel?: any,
+    nom?: any,
+    adresse?: any,
+    ville?: any,
+    delegation?: any
+  ) {
     this.packageService
-      .getSearchPackages(CAB, tel, nom, adresse, delegation)
+      .getSearchPackages(CAB, tel, nom, adresse, ville)
       .subscribe((data) => {
         this.packageData = data;
       });
@@ -135,7 +141,7 @@ export class RechercheComponent implements OnInit {
           this.packageTel,
           this.packageNom,
           this.packageAdresse,
-          this.packageDelegation
+          this.packageVille
         );
       });
     }
@@ -218,7 +224,9 @@ export class RechercheComponent implements OnInit {
     this.searchData.CAB = data.CAB;
   }
 
-  onSubmit() {
+  search() {
+    console.log(this.searchForm.value);
+
     var navigationExtras: NavigationExtras = {
       queryParams: {
         CAB: this.searchForm.value.CAB,

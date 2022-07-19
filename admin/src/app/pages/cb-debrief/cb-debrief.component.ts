@@ -74,6 +74,8 @@ export class CbDebriefComponent implements OnInit {
       this.date = this.dateSave;
     }
     this.role = this.authService.getUserDetails().role;
+    console.log("role");
+    console.log(this.role);
   }
 
   ngOnInit(): void {

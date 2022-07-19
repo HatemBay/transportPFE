@@ -11,6 +11,7 @@ import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
 import { ImprimerRoadmapComponent } from "./pages/imprimer-roadmap/imprimer-roadmap.component";
 import { ImprimerFeuilleRetourComponent } from "./pages/imprimer-feuille-retour/imprimer-feuille-retour.component";
 import { ForgotPassComponent } from "./pages/forgot-pass/forgot-pass.component";
+import { RoleGuard } from "./services/role.guard";
 
 const routes: Routes = [
   {
@@ -21,7 +22,10 @@ const routes: Routes = [
   {
     path: "",
     component: AdminLayoutComponent,
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "financier", "commercial", "chef bureau"],
+    },
     children: [
       {
         path: "",

@@ -7,7 +7,6 @@ import { UserProfileComponent } from "../../pages/user-profile/user-profile.comp
 import { RechercheComponent } from "../../pages/recherche/recherche.component";
 import { CarnetAdresseComponent } from "src/app/pages/carnet-adresse/carnet-adresse.component";
 import { GestionColisComponent } from "src/app/pages/gestion-colis/gestion-colis.component";
-import { FinanceComponent } from "src/app/pages/finance/finance.component";
 import { RoleGuard } from "src/app/services/role.guard";
 import { GestionFiliereComponent } from "src/app/pages/gestion-filiere/gestion-filiere.component";
 import { GestionPersonelComponent } from "src/app/pages/gestion-personel/gestion-personel.component";
@@ -57,156 +56,225 @@ export const AdminLayoutRoutes: Routes = [
     canActivate: [AuthGuard],
     component: RechercheComponent,
   },
+  //TODO: remove
   {
-    path: "modifier-colis",
+    path: "icons",
     canActivate: [AuthGuard],
-    component: ModifierColisComponent,
+    component: IconsComponent,
   },
-  { path: "icons", canActivate: [AuthGuard], component: IconsComponent },
-  {
-    path: "modifier-colis",
-    canActivate: [AuthGuard],
-    component: ColisJourComponent,
-  },
+  //TODO: remove
   {
     path: "carnet-adresses",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin"],
+    },
     component: CarnetAdresseComponent,
   },
   {
     path: "gestion-filiere",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin"],
+    },
     component: GestionFiliereComponent,
   },
   {
     path: "gestion-personel",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin"],
+    },
     component: GestionPersonelComponent,
   },
   {
     path: "modifier-personel",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin"],
+    },
     component: GestionPersonelComponent,
   },
   {
     path: "gestion-client",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "commercial"],
+    },
     component: GestionClientComponent,
   },
   {
     path: "modifier-client",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "commercial"],
+    },
     component: GestionClientComponent,
   },
   {
     path: "gestion-vehicule",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin"],
+    },
     component: GestionVehiculeComponent,
   },
   {
     path: "modifier-vehicule",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin"],
+    },
     component: GestionVehiculeComponent,
   },
   {
     path: "gestion-ville",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin"],
+    },
     component: GestionVilleComponent,
   },
   {
     path: "gestion-delegation",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin"],
+    },
     component: GestionDelegationComponent,
   },
-  { path: "pickup", canActivate: [AuthGuard], component: CbPickupsComponent },
+  {
+    path: "pickup",
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "chef bureau"],
+    },
+    component: CbPickupsComponent,
+  },
   {
     path: "pickup-historique",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "chef bureau"],
+    },
     component: CbPickupsComponent,
   },
   {
     path: "ramassage",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "chef bureau"],
+    },
     component: CbRamassageComponent,
   },
   {
     path: "collecte",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "chef bureau"],
+    },
     component: CbCollecteComponent,
   },
   {
     path: "feuille-de-route",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "chef bureau"],
+    },
     component: CbFeuilleRouteComponent,
   },
   {
     path: "feuille-de-route-historique",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "chef bureau"],
+    },
     component: CbFeuilleRouteComponent,
   },
   {
     path: "feuille-de-retour",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "chef bureau"],
+    },
     component: CbFeuilleRetourComponent,
   },
   {
     path: "feuille-de-retour-historique",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "chef bureau"],
+    },
     component: CbFeuilleRetourComponent,
   },
   {
     path: "debrief-list",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "chef bureau"],
+    },
     component: CbDebriefComponent,
   },
   {
     path: "debrief-bilan",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "chef bureau"],
+    },
     component: CbDebriefComponent,
   },
   {
     path: "debrief-detail",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "chef bureau"],
+    },
     component: CbDebriefComponent,
   },
   {
     path: "debrief-detaillé",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "chef bureau"],
+    },
     component: CbDebriefComponent,
   },
   {
     path: "finance-client",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "financier"],
+    },
     component: FinanceClientComponent,
   },
   {
     path: "finance-client-print",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "financier"],
+    },
     component: FinanceClientComponent,
   },
   {
     path: "debrief-global",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin", "financier"],
+    },
     component: FinanceDebriefGlobalComponent,
   },
   {
     path: "modifier-colis",
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: {
+      expectedRoles: ["admin"],
+    },
     component: ModifierColisComponent,
   },
 
   {
     path: "gestion-colis",
     component: GestionColisComponent,
-    canActivate: [RoleGuard, AuthGuard],
-    data: {
-      expectedRoles: ["admin"],
-    },
-  },
-  { path: "finance", canActivate: [AuthGuard], component: FinanceComponent },
-  {
-    path: "finance-f-h",
     canActivate: [AuthGuard],
-    component: FinanceComponent,
   },
 ];

@@ -99,8 +99,8 @@ export class PackageService {
     endDate?: any,
     reference?: any,
     pickupId?: any,
-    ref?: any,
-    ): Observable<any> {
+    ref?: any
+  ): Observable<any> {
     const url = `${this.baseUri}/all-info-period/admin`;
     var queryParams = new HttpParams();
     queryParams = queryParams.append("limit", limit);
@@ -170,6 +170,7 @@ export class PackageService {
     tel?: any,
     nom?: any,
     adresse?: any,
+    ville?: any,
     delegation?: any
   ): Observable<any> {
     const url = `${this.baseUri}/all-info-search/admin`;
@@ -185,6 +186,9 @@ export class PackageService {
     }
     if (adresse) {
       queryParams = queryParams.append("adresse", adresse);
+    }
+    if (ville) {
+      queryParams = queryParams.append("ville", ville);
     }
     if (delegation) {
       queryParams = queryParams.append("delegation", delegation);

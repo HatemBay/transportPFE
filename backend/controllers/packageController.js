@@ -1203,6 +1203,7 @@ router.get("/all-info-search/admin", (req, res) => {
   var nom = req.query.nom;
   var adresse = req.query.adresse;
   var delegation = req.query.delegation;
+  var ville = req.query.ville;
 
   var data = [
     {
@@ -1326,6 +1327,7 @@ router.get("/all-info-search/admin", (req, res) => {
         filiere: "$filieres.nom",
         clientId: "$clients._id",
         nomc: "$clients.nom",
+        villeId: "$villesClient._id",
         villec: "$villesClient.nom",
         delegationc: "$delegationsClient.nom",
         adressec: "$clients.adresse",
@@ -1374,6 +1376,14 @@ router.get("/all-info-search/admin", (req, res) => {
     data.push({
       $match: {
         delegationc: new RegExp(`.*${delegation}.*`, "gi"),
+      },
+    });
+  }
+
+  if (ville) {
+    data.push({
+      $match: {
+        villeId: ObjectId(ville),
       },
     });
   }
