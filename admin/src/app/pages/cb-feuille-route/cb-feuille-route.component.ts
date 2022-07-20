@@ -299,6 +299,10 @@ export class CbFeuilleRouteComponent implements OnInit {
       CABs.push(el.CAB);
     }
 
+    console.log('CABs');
+    console.log(CABs);
+
+
     // Create our query parameters object
     const queryParams: any = {};
     queryParams.CABs = JSON.stringify(CABs);

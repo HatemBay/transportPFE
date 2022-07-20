@@ -87,7 +87,7 @@
               <ngx-datatable-column name="Fournisseur" prop="nomf">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{row.nomf}}
+                    {{row.nomf | titlecase}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
@@ -95,7 +95,7 @@
               <ngx-datatable-column name="Adresse de pickup" prop="villef">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{row.villef}}, {{row.delegationf}}
+                    {{row.villef | titlecase}}, {{row.delegationf | titlecase}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
@@ -224,7 +224,7 @@
               <ngx-datatable-column name="Chauffeur" prop="nomd">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{row.nomd}}
+                    {{row.nomd | titlecase}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
@@ -269,3 +269,4 @@
   </ng-container>
   <!-- ************************ END: PATH = PICKUP-HISTORIQUE (2) ************************ -->
 </div>
+

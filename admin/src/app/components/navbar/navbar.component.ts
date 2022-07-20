@@ -34,13 +34,19 @@ export class NavbarComponent implements OnInit {
     if (titlee.charAt(0) === "#") {
       titlee = titlee.slice(1);
     }
-
     for (var item = 0; item < this.listTitles.length; item++) {
       if (
         titlee.indexOf(this.listTitles[item].path) !== -1 &&
-        this.listTitles[item].parent != ""
+        (this.listTitles[item].collapsable === false ||
+          !this.listTitles[item].collapsable)
       ) {
-        return this.listTitles[item].parent + "/ " + this.listTitles[item].title;
+        if (this.listTitles[item].parent !== "") {
+          return (
+            this.listTitles[item].parent + "/ " + this.listTitles[item].title
+          );
+        } else {
+          return this.listTitles[item].title;
+        }
       }
     }
     return "Dashboard";

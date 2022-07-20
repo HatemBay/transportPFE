@@ -50,9 +50,9 @@ export class FinanceClientComponent implements OnInit {
   financeNb: number = 1;
   totalCOD: number = 0;
   totalFraisLivraison: number = 0;
-  totalHorsFrais: number = 0;
   totalLivraison: number = 0;
   totalRetour: number = 0;
+  totalHorsFrais: number = 0;
   date: any;
   display: string = "block";
   display2: string = "default";
@@ -145,11 +145,16 @@ export class FinanceClientComponent implements OnInit {
       this.fournisseur = (await this.getProvider(this.fourn)) || null;
 
       for (let pack of this.packages) {
-        this.totalCOD += pack.c_remboursement;
+        if (pack.etat !== "retourné") {
+          this.totalCOD += pack.c_remboursement;
+        }
       }
 
       var livré = [];
       var retourné = [];
+
+      console.log("packages");
+      console.log(this.packages);
 
       for (let pack of this.packages) {
         if (pack.etat === "livré (espèce)" || pack.etat === "livré (chèque)") {
@@ -223,6 +228,12 @@ export class FinanceClientComponent implements OnInit {
   async getPackages() {
     // this.display = "default";
     // this.display2 = "block";
+    this.totalCOD = 0;
+    this.totalFraisLivraison = 0;
+    this.totalLivraison = 0;
+    this.totalRetour = 0;
+    this.totalHorsFrais = 0;
+
     this.toPrint = true;
     this.initiateData();
     this.fourn = this.fournisseursForm.value.fournisseurs;

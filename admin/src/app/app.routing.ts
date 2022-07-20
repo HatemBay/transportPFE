@@ -10,6 +10,7 @@ import { AuthGuard } from "./services/auth.guard";
 import { ImprimerComponent } from "./pages/imprimer/imprimer.component";
 import { ImprimerRoadmapComponent } from "./pages/imprimer-roadmap/imprimer-roadmap.component";
 import { ImprimerFeuilleRetourComponent } from "./pages/imprimer-feuille-retour/imprimer-feuille-retour.component";
+import { ImprimerPickupComponent } from "./pages/imprimer-pickup/imprimer-pickup.component";
 import { ForgotPassComponent } from "./pages/forgot-pass/forgot-pass.component";
 import { RoleGuard } from "./services/role.guard";
 
@@ -48,6 +49,11 @@ const routes: Routes = [
     path: "imprimer-colis",
     canActivate: [AuthGuard],
     component: ImprimerComponent,
+  },
+  {
+    path: "imprimer-pickup",
+    canActivate: [AuthGuard],
+    component: ImprimerPickupComponent,
   },
   {
     path: "imprimer-roadmap",

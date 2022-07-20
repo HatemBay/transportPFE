@@ -281,13 +281,16 @@ export class CbPickupsComponent implements OnInit {
   toFacture(row) {
     var ids = [];
     for (var el of row.packages) {
-      ids.push(el);
+      ids.push(el._id);
     }
+
+    console.log("ids");
+    console.log(ids);
 
     // Create our query parameters object
     const queryParams: any = {};
     queryParams.packages = JSON.stringify(ids);
-    queryParams.id = row._id;
+    queryParams.nb = row.pickupNb;
     var navigationExtras: NavigationExtras = {
       queryParams,
     };

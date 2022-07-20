@@ -20,6 +20,9 @@
       <div class="alert alert-light border h3"> Total hors frais de livraison : {{finance.totalHorsFrais | number:
         '1.3-3'}}</div>
       <div class="alert alert-light border h3"> Nbre colis: {{finance.nbPackages}}</div>
+      <div>
+        <h6><b><u>NB: CECI N'EST PAS UNE FACTURE</u></b></h6>
+      </div>
     </div>
   </div>
   <div *ngFor="let el of packages">
@@ -62,7 +65,7 @@
           <h5 style="padding: 5px">Nom: {{el.nomc}} </h5>
           <h5 style="padding: 5px">Tél: {{el.telc}} </h5>
           <h5 style="padding: 5px">Adresse: {{el.adressec}} </h5>
-          <h5 style="font-size: 20px; float: left; padding: 0 5px; width: 60%; font-weight: 900">Ville:
+          <h5 style="padding: 5px">Ville:
             {{el.delegationc}} , {{el.villec}}
           </h5>
         </div>
@@ -87,9 +90,5 @@
       </div>
     </div>
     <hr>
-  </div>
-  <hr>
-  <div class="row">
-    <h6><b><u>NB: CECI N'EST PAS UNE FACTURE</u></b></h6>
   </div>
 </div>

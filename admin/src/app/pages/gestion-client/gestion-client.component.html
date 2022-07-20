@@ -64,15 +64,71 @@
               [headerHeight]="50" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
               [externalSorting]="true" (select)="onSelect($event)" (sort)="onSort($event)">
 
-              <ngx-datatable-column name="Tél/Tél2" prop="tel">
+              <ngx-datatable-column name="Raison sociale" prop="nom" [width]="100">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span>
-                    {{row.tel}} / {{row.tel2}}
+                    {{row.nom | titlecase}}
                   </span>
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column *ngFor="let column of columns;
+              <ngx-datatable-column name="Tél/Tél2" prop="tel" [width]="150">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.tel}} <ng-container *ngIf="row.tel2">/</ng-container> {{row.tel2}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Email" prop="email" [width]="100">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.email}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Ville" prop="ville" [width]="80">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.ville | titlecase}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Délegation" prop="delegation" [width]="100">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.delegation | titlecase}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Adresse" prop="adresse" [width]="100">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.adresse | titlecase}}
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Frais de livraison" prop="fraisLivraison" [width]="100">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.fraisLivraison}} Dt
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Frais de retour" prop="fraisRetour" [width]="100">
+                <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+                  <span>
+                    {{row.fraisRetour}} Dt
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <!-- <ngx-datatable-column *ngFor="let column of columns;
         let i = index;" name="{{column.name}}" prop="{{column.prop}}">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                   <span *ngIf="row[column.prop] !== undefined">
@@ -82,7 +138,7 @@
                     -
                   </span>
                 </ng-template>
-              </ngx-datatable-column>
+              </ngx-datatable-column> -->
 
               <ngx-datatable-column name="Date" prop="createdAtSearch">
                 <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>

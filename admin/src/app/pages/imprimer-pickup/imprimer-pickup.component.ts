@@ -17,11 +17,10 @@ export class ImprimerPickupComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private pickupService: PickupService,
-    private packageService: PackageService,
-    private auth: AuthenticationService
+    private packageService: PackageService
   ) {
     const packages = this.route.snapshot.queryParamMap.get("packages");
+    this.pickupNb = this.route.snapshot.queryParamMap.get("nb");
     this.packageIds = JSON.parse(packages);
   }
 
@@ -34,28 +33,17 @@ export class ImprimerPickupComponent implements OnInit {
       this.packages.push(await this.getPackage(el));
     }
     console.log(this.packages);
-    this.createPickup(this.packages, this.auth.getUserDetails()._id);
-  }
-
-  createPickup(packages: any, id: string) {
-    this.pickupService
-      .createPickup({ packages: packages, fournisseurId: id })
-      .subscribe((res) => {
-        this.pickupNb = res.pickupNb;
-        for (let element of packages) {
-          this.packageService
-            .updatePackage(element._id, { etat: "pret" })
-            .subscribe();
-        }
-      });
   }
 
   // get package and relative class information
   async getPackage(element) {
     return await this.packageService
-      .getFullPackage(element)
+      .getPackage(element)
       .pipe(
         map((data) => {
+          console.log("packageData");
+          console.log(data);
+
           return data[0];
         })
       )

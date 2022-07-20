@@ -103,7 +103,7 @@
             <ngx-datatable-column name="Expéditeur" prop="nomf">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  {{row.nomf}}
+                  {{row.nomf | titlecase}}
                 </span>
               </ng-template>
             </ngx-datatable-column>
@@ -111,7 +111,7 @@
             <ngx-datatable-column name="Destinataire" prop="nomc">
               <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
                 <span>
-                  {{row.nomc}}
+                  {{row.nomc | titlecase}}
                 </span>
               </ng-template>
             </ngx-datatable-column>

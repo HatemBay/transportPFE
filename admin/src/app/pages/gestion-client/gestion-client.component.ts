@@ -67,11 +67,6 @@ export class GestionClientComponent implements OnInit {
 
     if (this.routePath == "gestion-client") {
       this.columns = [
-        { prop: "nom", name: "Raison sociale" },
-        { prop: "tel", name: "Téléphone" },
-        { prop: "email", name: "Email" },
-        { prop: "ville", name: "Ville" },
-        { prop: "delegation", name: "Délegation" },
         { prop: "adresse", name: "Adresse" },
         { prop: "fraisLivraison", name: "Frais de livraison" },
         { prop: "fraisRetour", name: "Frais de retour" },
