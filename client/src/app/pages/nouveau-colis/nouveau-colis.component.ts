@@ -413,7 +413,7 @@ export class NouveauColisComponent implements OnInit {
     this.historiqueService
       .getHistoriqueByPackageId(this.packageId)
       .subscribe((data) => {
-        this.historique = data;
+        this.historique = data.reverse();
       });
   }
 

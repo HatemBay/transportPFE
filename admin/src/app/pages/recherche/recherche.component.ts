@@ -122,6 +122,9 @@ export class RechercheComponent implements OnInit {
     this.packageService
       .getSearchPackages(CAB, tel, nom, adresse, ville)
       .subscribe((data) => {
+        console.log('searchPack');
+        console.log(data);
+
         this.packageData = data;
       });
   }

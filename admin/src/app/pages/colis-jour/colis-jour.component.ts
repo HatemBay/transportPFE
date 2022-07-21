@@ -49,6 +49,7 @@ export class ColisJourComponent implements OnInit {
   val: string;
   private socket: any;
   moreData: boolean = false;
+  notificationCount = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -79,8 +80,18 @@ export class ColisJourComponent implements OnInit {
 
     this.getDataJson();
     this.socket.on("notification", (data) => {
-      this.moreData = true;
-      console.log(this.moreData);
+      console.log("rows");
+      console.log(this.rows.length);
+
+      console.log("data");
+      console.log(data);
+      if (data.count !== this.rows.length) {
+        console.log("data2");
+        console.log(data);
+        this.notificationCount = data.count;
+        this.moreData = true;
+        console.log(this.moreData);
+      }
     });
   }
 
@@ -114,13 +125,16 @@ export class ColisJourComponent implements OnInit {
           data.data.forEach((pickup) => {
             ids.push(pickup._id);
           });
+          console.log("ids");
+          console.log(ids);
+
           return ids;
         })
       )
       .toPromise();
-
-    pickupIds.forEach(async (id) => {
-      var pack = [];
+    this.rows = [];
+    for await (const id of pickupIds) {
+      let pack = [];
       pack = await this.packageService
         .getFullPackages(
           limit,
@@ -143,7 +157,7 @@ export class ColisJourComponent implements OnInit {
       this.count = this.rows.length;
       console.log("length");
       console.log(this.rows.length);
-    });
+    }
   }
   // save changes in credentials
   private onDateFormValueChange(data: any): void {
@@ -237,6 +251,10 @@ export class ColisJourComponent implements OnInit {
         CAB: row.CAB,
       },
     };
-    this.router.navigate(["/recherche"], navigationExtras);
+    // this.router.navigate(["/recherche"], navigationExtras);
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(["/recherche"], navigationExtras)
+    );
+    window.open(url, "_blank");
   }
 }
