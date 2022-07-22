@@ -253,6 +253,9 @@ export class DashboardComponent implements OnInit {
     this.ordersChart.data.datasets[0].data = this.deliveryRates;
     this.ordersChart.data.labels = this.villes;
     this.ordersChart.update();
+    console.log("dsqkjfsd");
+    console.log(this.ordersChart.data.datasets[0].data);
+    console.log(this.ordersChart.data.datasets[0].data[0]);
   }
 
   public async getStatsWeek() {
@@ -307,117 +310,6 @@ export class DashboardComponent implements OnInit {
         )
         .toPromise();
     }
-
-    // await this.packageService
-    //   .countAllPackagesAdmin("pret", startDate, endDate)
-    //   .pipe(
-    //     map((data) => {
-    //       const objIndex = this.stats.findIndex((obj) => obj.state === "pret");
-    //       this.stats[objIndex].count = data.count;
-    //     })
-    //   )
-    //   .toPromise();
-
-    // this.packageService
-    //   .countAllPackagesAdmin("en cours de ramassage", startDate, endDate)
-    //   .pipe(
-    //     map((data) => {
-    //       const objIndex = this.stats.findIndex(
-    //         (obj) => obj.state === "en cours de ramassage"
-    //       );
-    //       this.stats[objIndex].count = data.count;
-    //     })
-    //   )
-    //   .toPromise();
-
-    // this.packageService
-    //   .countAllPackagesAdmin("ramassé par livreur", startDate, endDate)
-    //   .pipe(
-    //     map((data) => {
-    //       const objIndex = this.stats.findIndex(
-    //         (obj) => obj.state === "ramassé par livreur"
-    //       );
-    //       this.stats[objIndex].count = data.count;
-    //     })
-    //   )
-    //   .toPromise();
-
-    // this.packageService
-    //   .countAllPackagesAdmin("collecté", startDate, endDate)
-    //   .subscribe((data) => {
-    //     const objIndex = this.stats.findIndex(
-    //       (obj) => obj.state === "collecté"
-    //     );
-    //     this.stats[objIndex].count = data.count;
-    //   });
-    // this.packageService
-    //   .countAllPackagesAdmin("en cours", startDate, endDate)
-    //   .subscribe((data) => {
-    //     const objIndex = this.stats.findIndex(
-    //       (obj) => obj.state === "en cours"
-    //     );
-    //     this.stats[objIndex].count = data.count;
-    //   });
-    // this.packageService
-    //   .countAllPackagesAdmin("livré (espèce)", startDate, endDate)
-    //   .subscribe((data) => {
-    //     const objIndex = this.stats.findIndex(
-    //       (obj) => obj.state === "livré (espèce)"
-    //     );
-    //     this.stats[objIndex].count = data.count;
-    //   });
-    // this.packageService
-    //   .countAllPackagesAdmin("livré (chèque)", startDate, endDate)
-    //   .subscribe((data) => {
-    //     const objIndex = this.stats.findIndex(
-    //       (obj) => obj.state === "livré (chèque)"
-    //     );
-    //     this.stats[objIndex].count = data.count;
-    //   });
-    // this.packageService
-    //   .countAllPackagesAdmin("reporté", startDate, endDate)
-    //   .subscribe((data) => {
-    //     const objIndex = this.stats.findIndex((obj) => obj.state === "reporté");
-    //     this.stats[objIndex].count = data.count;
-    //   });
-    // this.packageService
-    //   .countAllPackagesAdmin("annulé", startDate, endDate)
-    //   .subscribe((data) => {
-    //     const objIndex = this.stats.findIndex((obj) => obj.state === "annulé");
-    //     this.stats[objIndex].count = data.count;
-    //   });
-    // this.packageService
-    //   .countAllPackagesAdmin("retourné", startDate, endDate)
-    //   .subscribe((data) => {
-    //     const objIndex = this.stats.findIndex(
-    //       (obj) => obj.state === "retourné"
-    //     );
-    //     this.stats[objIndex].count = data.count;
-    //   });
-    // this.packageService
-    //   .countAllPackagesAdmin("retourné à l'expediteur", startDate, endDate)
-    //   .subscribe((data) => {
-    //     const objIndex = this.stats.findIndex(
-    //       (obj) => obj.state === "retourné à l'expediteur"
-    //     );
-    //     this.stats[objIndex].count = data.count;
-    //   });
-    // this.packageService
-    //   .countAllPackagesAdmin("livré - payé - chèque", startDate, endDate)
-    //   .subscribe((data) => {
-    //     const objIndex = this.stats.findIndex(
-    //       (obj) => obj.state === "livré - payé - chèque"
-    //     );
-    //     this.stats[objIndex].count = data.count;
-    //   });
-    // this.packageService
-    //   .countAllPackagesAdmin("livré - payé - espèce", startDate, endDate)
-    //   .subscribe((data) => {
-    //     const objIndex = this.stats.findIndex(
-    //       (obj) => obj.state === "livré - payé - espèce"
-    //     );
-    //     this.stats[objIndex].count = data.count;
-    //   });
 
     console.log(this.stats);
   }

@@ -62,7 +62,6 @@ export class GestionColisComponent implements OnInit {
     private router: Router
   ) {}
   ngOnInit(): void {
-
     this.setDates();
 
     this.dateForm = this.fb.group({
@@ -113,6 +112,45 @@ export class GestionColisComponent implements OnInit {
         .subscribe((data) => {
           this.rows = this.temp = data.data;
           this.count = data.length;
+        });
+    }
+  }
+
+  // get additional data from backend
+  moreDataJson(
+    limit?: any,
+    page?: any,
+    sortBy?: any,
+    sort?: any,
+    search?: any,
+    etat?: any,
+    startDate?: any,
+    endDate?: any
+  ) {
+    // if date search is initialized
+    if (this.init === true) {
+      this.packageService
+        .getFullPackages(
+          null,
+          limit,
+          page,
+          sortBy,
+          sort,
+          search,
+          etat,
+          startDate,
+          endDate
+        )
+        .subscribe((data) => {
+          this.rows = this.temp = [...this.rows, ...data.data];
+          this.count = this.rows.length;
+        });
+    } else {
+      this.packageService
+        .getFullPackages(null, limit, page, sortBy, sort, search, etat)
+        .subscribe((data) => {
+          this.rows = this.temp = [...this.rows, ...data.data];
+          this.count = this.rows.length;
         });
     }
   }
@@ -335,7 +373,14 @@ export class GestionColisComponent implements OnInit {
       this.etat[i].active = false;
     }
     data.active = !data.active;
-    console.log(data.active);
+    let value = data.value;
+    if (value === "livré") {
+      value = "livré (espèce)";
+    }
+    if (value === "payé") {
+      value = "livré - payé - espèce";
+    }
+    console.log("active");
 
     this.getDataJson(
       this.currentPageLimit,
@@ -343,10 +388,26 @@ export class GestionColisComponent implements OnInit {
       null,
       null,
       this.val,
-      data.value,
+      value,
       this.startDate,
       this.today
     );
+
+    if (value === "livré (espèce)" || value === "livré - payé - espèce") {
+      value = value.replace("espèce", "chèque");
+      console.log(value);
+
+      this.moreDataJson(
+        this.currentPageLimit,
+        1,
+        null,
+        null,
+        this.val,
+        value,
+        this.startDate,
+        this.today
+      );
+    }
   }
 
   update() {

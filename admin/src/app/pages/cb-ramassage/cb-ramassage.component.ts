@@ -146,7 +146,9 @@ export class CbRamassageComponent implements OnInit {
       .getPackageByCAB(cab)
       .pipe(
         map((data) => {
-          return data[0].etat;
+          if (data[0] != null) {
+            return;
+          } else return data[0].etat;
         })
       )
       .toPromise();
@@ -162,7 +164,13 @@ export class CbRamassageComponent implements OnInit {
       }
       if (this.f.reference.value) {
         const state = await this.getPackageState(this.f.reference.value);
-        if (state !== "pret" && state !== "en cours de ramassage") {
+        if (state == null) {
+          alert(
+            this.f.reference.value +
+              ": Code à barre mauvais ou non existant !!!"
+          );
+          return this.f.reference.setValue("");
+        } else if (state !== "pret" && state !== "en cours de ramassage") {
           alert(this.f.reference.value + ": colis dans un état avancé !!!");
           return this.f.reference.setValue("");
         }

@@ -222,10 +222,10 @@ router.put("/:id", (req, res) => {
   console.log(password);
   if (password && password !== null && password !== "") {
     var encrypted = user.setPassword(req.body.password, res);
-  }
 
-  req.body.salt = encrypted[0];
-  req.body.hash = encrypted[1];
+    req.body.salt = encrypted[0];
+    req.body.hash = encrypted[1];
+  }
 
   User.findByIdAndUpdate(
     req.params.id,

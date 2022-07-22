@@ -145,7 +145,11 @@ export class CbCollecteComponent implements OnInit {
       .getPackageByCAB(cab)
       .pipe(
         map((data) => {
-          return data[0].etat;
+          console.log(data);
+
+          if (data[0] == null) {
+            return;
+          } else return data[0].etat;
         })
       )
       .toPromise();
@@ -160,7 +164,12 @@ export class CbCollecteComponent implements OnInit {
         return this.f.reference.setValue("");
       }
       const state = await this.getPackageState(this.f.reference.value);
-      if (
+      if (state == null) {
+        alert(
+          this.f.reference.value + ": Code à barre mauvais ou non existant !!!"
+        );
+        return this.f.reference.setValue("");
+      } else if (
         state !== "pret" &&
         state !== "ramassé par livreur" &&
         state !== "en cours de ramassage"
@@ -184,7 +193,7 @@ export class CbCollecteComponent implements OnInit {
         .subscribe(() => {
           // clear references
           this.references = [];
-          this.getDataJson(null, null, null, null, this.val, null, 'ref');
+          this.getDataJson(null, null, null, null, this.val, null, "ref");
         });
     });
   }
