@@ -13,7 +13,6 @@ var RoadmapSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    //*useless for now
     isFinished: {
       type: Boolean,
       required: true,
