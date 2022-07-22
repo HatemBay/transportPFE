@@ -204,11 +204,19 @@ export class GestionColisComponent implements OnInit {
     this.currentPageLimit = parseInt(limit, 10);
   }
 
-  onSelect({ selected }) {
-    console.log("Select Event", selected, this.selected);
+  // onSelect({ selected }) {
+  //   console.log("Select Event", selected, this.selected);
 
-    this.selected.splice(0, this.selected.length);
-    this.selected.push(...selected);
+  //   this.selected.splice(0, this.selected.length);
+  //   this.selected.push(...selected);
+  // }
+
+  // checkbox selection
+  onSelect(event) {
+    console.log("Select Event", event);
+    this.selected = event.selected;
+
+    console.log(this.selected[0]._id);
   }
 
   // Data sorting
@@ -275,7 +283,7 @@ export class GestionColisComponent implements OnInit {
   }
 
   copyToClipboard() {
-    this.slice = this.rows.map((obj) => {
+    this.slice = this.selected.map((obj) => {
       return {
         "Code à barre": obj.CAB,
         Etat: obj.etat,
@@ -296,7 +304,7 @@ export class GestionColisComponent implements OnInit {
   }
 
   exportToExcel() {
-    this.slice = this.rows.map((obj) => {
+    this.slice = this.selected.map((obj) => {
       return {
         "Code à barre": obj.CAB,
         Etat: obj.etat,
@@ -316,7 +324,7 @@ export class GestionColisComponent implements OnInit {
   }
 
   exportToPdf() {
-    this.slice = this.rows.map((obj) => {
+    this.slice = this.selected.map((obj) => {
       return {
         "Code à barre": obj.CAB,
         Etat: obj.etat,
@@ -377,10 +385,11 @@ export class GestionColisComponent implements OnInit {
 
   // print selecetd elements
   print() {
-    var ids = [];
+    let ids = [];
     for (var el of this.selected) {
       ids.push(el._id);
     }
+    console.log(ids);
 
     // Create our query parameters object
     const queryParams: any = {};

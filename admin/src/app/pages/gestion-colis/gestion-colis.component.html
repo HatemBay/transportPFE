@@ -103,7 +103,7 @@
         <div>
           <ngx-datatable #table class="bootstrap" [rows]="rows" [columns]="columns" [columnMode]="'force'"
             [headerHeight]="50" [selectionType]="'checkbox'" [limit]="10" [footerHeight]="50" [rowHeight]="'auto'"
-            [scrollbarH]="true" (sort)="onSort($event)">
+            [scrollbarH]="true" (sort)="onSort($event)" (select)="onSelect($event)">
 
             <ngx-datatable-column name="" [width]="30" [sortable]="false" [draggable]="false" [resizeable]="false"
               [canAutoResize]="false" [checkboxable]="true" [headerCheckboxable]="true" prop="selected">
@@ -242,19 +242,19 @@
       </tr>
     </thead>
     <tbody>
-      <ng-container *ngFor="let row of rows">
+      <ng-container *ngFor="let item of selected">
         <tr>
-          <td>{{row.CAB}}</td>
-          <td>{{row.etat}}</td>
-          <td>{{row.nomf}}</td>
-          <td>{{row.nomc}}</td>
-          <td>{{row.telc}}</td>
-          <td>{{row.tel2c}}</td>
-          <td>{{row.villec}}</td>
-          <td>{{row.delegationc}}</td>
-          <td>{{row.adressec}}</td>
-          <td>{{row.c_remboursement}}</td>
-          <td>{{row.createdAtSearch}}</td>
+          <td>{{item.CAB}}</td>
+          <td>{{item.etat}}</td>
+          <td>{{item.nomf}}</td>
+          <td>{{item.nomc}}</td>
+          <td>{{item.telc}}</td>
+          <td>{{item.tel2c}}</td>
+          <td>{{item.villec}}</td>
+          <td>{{item.delegationc}}</td>
+          <td>{{item.adressec}}</td>
+          <td>{{item.c_remboursement}}</td>
+          <td>{{item.createdAtSearch}}</td>
         </tr>
       </ng-container>
     </tbody>

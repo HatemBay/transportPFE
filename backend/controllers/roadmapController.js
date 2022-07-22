@@ -366,29 +366,37 @@ router.put("/:id", (req, res) => {
   var query;
 
   // roadmaps can't be modified so just in case there's a need to change a driver we have this code
-  query = Roadmap.findByIdAndUpdate(
-    req.params.id,
-    {
-      $set: {
-        driverId: req.body.driverId,
+  if (req.body.driverId) {
+    query = Roadmap.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          driverId: req.body.driverId,
+        },
       },
-    },
-    { new: true }
-  ).then(
-    () => {
-      User.findByIdAndUpdate(
-        req.body.driverId,
-        { $push: { roadmaps: req.params.id } },
-        { new: true, useFindAndModify: false }
-      );
-    },
-    (err) => {
-      console.log(
-        "Erreur lors de la mise à jour de la feuille de route: " + err
-      );
-      return res.status(400).send(err.message);
-    }
-  );
+      { new: true }
+    ).then(
+      () => {
+        User.findByIdAndUpdate(
+          req.body.driverId,
+          { $push: { roadmaps: req.params.id } },
+          { new: true, useFindAndModify: false }
+        );
+      },
+      (err) => {
+        console.log(
+          "Erreur lors de la mise à jour de la feuille de route: " + err
+        );
+        return res.status(400).send(err.message);
+      }
+    );
+  } else if (req.body.isFinished) {
+    query = Roadmap.findByIdAndUpdate(req.params.id, {
+      $set: {
+        isFinished: 1,
+      },
+    });
+  }
 
   query.then(
     (roadmap) => {
